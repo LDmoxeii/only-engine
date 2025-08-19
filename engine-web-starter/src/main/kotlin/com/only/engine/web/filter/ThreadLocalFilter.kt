@@ -21,8 +21,9 @@ import kotlin.jvm.java
 class ThreadLocalFilter : Filter, WebInitPrinter {
 
     companion object {
-        const val AUTHENTICATION_PREFIX = "Bearer "
         private val log = LoggerFactory.getLogger(ThreadLocalFilter::class.java)
+        const val BEAN_NAME = "threadLocalFilter"
+        const val AUTHENTICATION_PREFIX = "Bearer "
         private const val SECRET_KEY = "h2MycACBnf4UfHWUqTvA0zwRWU4iDVyzq8488P3l3FNUt78L6Yo5kwnhRRAdT3wWriEsLH2I"
     }
 

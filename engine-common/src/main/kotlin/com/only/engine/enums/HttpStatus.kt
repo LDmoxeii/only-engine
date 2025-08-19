@@ -83,10 +83,10 @@ enum class HttpStatus(val value: Int, val series: Series, val reasonPhrase: Stri
     fun is5xxServerError() = series == Series.SERVER_ERROR
     fun isError() = is4xxClientError() || is5xxServerError()
 
-    override fun toString() = "$value ${name}"
+    override fun toString() = "$value $name"
 
     companion object {
-        private val VALUES = values()
+        private val VALUES = entries.toTypedArray()
         fun valueOf(statusCode: Int): HttpStatus =
             resolve(statusCode) ?: throw IllegalArgumentException("No matching constant for [$statusCode]")
 

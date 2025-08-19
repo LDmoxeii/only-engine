@@ -16,6 +16,7 @@ class HealthCheckFilter : Filter, WebInitPrinter {
 
     companion object {
         private val log = LoggerFactory.getLogger(HealthCheckFilter::class.java)
+        const val BEAN_NAME = "healthCheckFilter"
     }
 
     init {

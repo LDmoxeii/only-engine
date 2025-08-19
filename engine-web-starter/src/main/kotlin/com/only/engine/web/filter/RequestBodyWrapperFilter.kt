@@ -17,6 +17,7 @@ class RequestBodyWrapperFilter(
 
     companion object {
         private val log = LoggerFactory.getLogger(RequestBodyWrapperFilter::class.java)
+        const val BEAN_NAME = "requestBodyWrapperFilter"
     }
 
     init {

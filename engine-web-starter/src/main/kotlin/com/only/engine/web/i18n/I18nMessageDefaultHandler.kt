@@ -5,7 +5,7 @@ import org.springframework.context.MessageSourceResolvable
 import org.springframework.context.NoSuchMessageException
 import java.util.Locale
 
-class YmI18nMessageDefaultHandler(
+class I18nMessageDefaultHandler(
     private val messageSource: MessageSource
 ) : I18nMessageHandler {
 

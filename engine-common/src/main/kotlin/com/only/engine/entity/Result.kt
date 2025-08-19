@@ -20,6 +20,10 @@ data class Result<T>(
 
         fun <T> ok(data: T? = null): Result<T> =
             Result(ResultCode.SUCCESS, data)
+
+        fun error(code: Int = ResultCode.BASE_ERROR.code, message: String): Result<Void> =
+            Result(code, message, null)
+
     }
 }
 
