@@ -2,6 +2,7 @@
 package buildsrc.convention
 
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.kotlin.dsl.registering
 import java.time.Duration
 
 plugins {
@@ -12,10 +13,9 @@ plugins {
 }
 
 group = "com.only4"
-version = "0.2.10-SNAPSHOT"
+version = "0.0.1-SNAPSHOT"
 
-// 添加源码 jar 任务
-val sourcesJar by tasks.creating(Jar::class) {
+val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
 }

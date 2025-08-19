@@ -1,8 +1,10 @@
 package com.only.engine.web.adivce
 
+import com.only.engine.entity.Result
 import com.only.engine.web.WebInitPrinter
 import com.only.engine.web.annotation.IgnoreResultWrapper
 import com.only.engine.web.misc.AdviceUtils
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.MethodParameter
 import org.springframework.core.annotation.AnnotatedElementUtils
@@ -21,7 +23,7 @@ import kotlin.jvm.java
 class IgnoreResultWrapperResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
 
     companion object {
-        private val log = org.slf4j.LoggerFactory.getLogger(IgnoreResultWrapperResponseAdvice::class.java)
+        private val log = LoggerFactory.getLogger(IgnoreResultWrapperResponseAdvice::class.java)
     }
 
     init {
@@ -40,8 +42,8 @@ class IgnoreResultWrapperResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinte
         selectedConverterType: Class<out HttpMessageConverter<*>>,
         request: ServerHttpRequest,
         response: ServerHttpResponse
-    ): Any? = TODO()
-//        if (body is YmResult<*>) body.data else body
+    ): Any? = (body as? Result<*>)?.data ?: body
+
 }
 
 inline fun <reified T : Annotation> MethodParameter.hasAnnotationOrClassAnnotation(): Boolean {

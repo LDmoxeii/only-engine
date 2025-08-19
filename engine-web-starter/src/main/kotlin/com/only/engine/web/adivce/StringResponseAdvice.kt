@@ -1,6 +1,8 @@
 package com.only.engine.web.adivce
 
+import com.only.engine.entity.Result
 import com.only.engine.web.WebInitPrinter
+import com.only.engine.web.misc.WebMessageConverterUtils
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.MethodParameter
@@ -27,7 +29,7 @@ class StringResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
 
     override fun supports(
         returnType: MethodParameter,
-        converterType: Class<out HttpMessageConverter<*>>
+        converterType: Class<out HttpMessageConverter<*>>,
     ): Boolean = true
 
     override fun beforeBodyWrite(
@@ -36,13 +38,12 @@ class StringResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
         selectedContentType: MediaType,
         selectedConverterType: Class<out HttpMessageConverter<*>>,
         request: ServerHttpRequest,
-        response: ServerHttpResponse
-    ): Any? = TODO("等待标准响应格式定义")
-//        if (body is YmResult &&
-//        returnType.method?.returnType?.isAssignableFrom(String::class.java) == true
-//    ) {
-//        YmWebMessageConverterUtils.toJsonString(body)
-//    } else {
-//        body
-//    }
+        response: ServerHttpResponse,
+    ): Any? = if (body is Result<*> &&
+        returnType.method!!.returnType.isAssignableFrom(String::class.java)
+    ) {
+        WebMessageConverterUtils.toJsonString(body)
+    } else {
+        body
+    }
 }

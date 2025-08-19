@@ -12,7 +12,7 @@ transmittable-thread-local = "2.14.2"
 
 # JSON processing
 fastjson = "1.2.83"
-jackson = "2.13.5"
+jackson = "2.15.4"
 
 # Logging
 slf4j = "2.0.13"

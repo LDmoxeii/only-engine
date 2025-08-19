@@ -1,13 +1,15 @@
+
 plugins {
     id("buildsrc.convention.kotlin-jvm")
 }
 
 dependencies {
-    implementation(libs.fastjson)
-    implementation(libs.transmittable.thread.local)
+    compileOnly(libs.jackson)
+    compileOnly(libs.fastjson)
+    api(libs.transmittable.thread.local)
 
     // Common dependencies
-    implementation(libs.slf4j)
+    compileOnly(libs.slf4j)
 
     // Test dependencies
     testImplementation(platform(libs.junit.bom))
