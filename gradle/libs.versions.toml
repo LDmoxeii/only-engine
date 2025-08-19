@@ -1,0 +1,74 @@
+# Version catalog is a central place for you to declare and version dependencies
+# https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
+# https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
+
+[versions]
+kotlin = "2.1.20"
+publish-plugin = "2.0.0"
+ksp = "2.2.0-2.0.2"
+
+# Thread Local
+transmittable-thread-local = "2.14.2"
+
+# JSON processing
+fastjson = "1.2.83"
+jackson = "2.13.5"
+
+# Logging
+slf4j = "2.0.13"
+kotlin-logging = "7.0.12"
+
+# tool
+hutool = "5.8.39"
+
+# Spring framework
+spring-boot = "3.1.12"
+
+# Testing
+junit = "5.13.4"
+mockk = "1.13.8"
+kotlin-compile-testing = "0.8.0"
+
+[libraries]
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-allopen-plugin = { module = "org.jetbrains.kotlin:kotlin-allopen", version.ref = "kotlin" }
+kotlin-noarg-plugin = { module = "org.jetbrains.kotlin:kotlin-noarg", version.ref = "kotlin" }
+
+# Thread Local
+transmittable-thread-local = { module = "com.alibaba:transmittable-thread-local", version.ref = "transmittable-thread-local" }
+
+# JSON processing
+fastjson = { module = "com.alibaba:fastjson", version.ref = "fastjson" }
+jackson = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+
+# Logging
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+
+# hutool
+hutool-jwt = { module = "cn.hutool:hutool-jwt", version.ref = "hutool" }
+
+# Spring framework
+spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+spring-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat" }
+spring-web = { module = "org.springframework:spring-web", version.ref = "spring-boot" }
+spring-web-mvc = { module = "org.springframework:spring-webmvc" }
+spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+
+# Testing
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+kotlin-compile-testing = { module = "dev.zacsweers.kctfork:ksp", version.ref = "kotlin-compile-testing" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
+
+
+# Libraries can be bundled together for easier import
+[bundles]
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "publish-plugin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+
