@@ -42,11 +42,11 @@ class WebFilterConfiguration : WebInitPrinter {
     @Bean(RequestBodyWrapperFilter.BEAN_NAME)
     @ConditionalOnMissingBean(name = [RequestBodyWrapperFilter.BEAN_NAME])
     @ConditionalOnProperty(prefix = "only.web.filter.request-body", name = ["enable"], matchIfMissing = true)
-    fun requestBodyWrapperFilter(WebProperties: WebProperties): FilterRegistrationBean<RequestBodyWrapperFilter> {
+    fun requestBodyWrapperFilter(webProperties: WebProperties): FilterRegistrationBean<RequestBodyWrapperFilter> {
         printInit(RequestBodyWrapperFilter::class.java, log)
 
-        val skipPath = WebProperties.filter.skipPath.apply {
-            addAll(WebProperties.filter.requestBody.filterUris)
+        val skipPath = webProperties.filter.userLogin.skipPaths.apply {
+            addAll(webProperties.filter.requestBody.filterUris)
         }
 
         val filter = RequestBodyWrapperFilter(skipPath)

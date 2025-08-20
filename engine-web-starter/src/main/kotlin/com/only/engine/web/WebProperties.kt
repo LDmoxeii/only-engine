@@ -95,8 +95,6 @@ data class WebProperties(
         /** 请求体包装过滤器配置 */
         var requestBody: RequestBodyFilterProperties = RequestBodyFilterProperties(),
 
-        /** 请求追踪过滤器配置 */
-        var track: TrackFilterProperties = TrackFilterProperties()
     )
 
     /**
@@ -130,39 +128,6 @@ data class WebProperties(
     )
 
     /**
-     * 请求追踪过滤器配置
-     */
-    data class TrackFilterProperties(
-
-        /** 是否启用请求打印，默认 true */
-        var enable: Boolean = true,
-
-        /** 打印类型，默认 LOG */
-        var printType: PrintType = PrintType.LOG,
-
-        /** 日志级别，默认 INFO */
-        var logLevel: LogLevel = LogLevel.INFO,
-
-        /** 是否打印请求体，默认 true */
-        var printRequestBody: Boolean = true,
-
-        /** 是否打印响应体，默认 true */
-        var printResponseBody: Boolean = true,
-
-        /** 敏感字段（默认空） */
-        var sensitiveKeys: Set<String> = emptySet(),
-
-        /** 过滤 URI 集合（默认空） */
-        var filterUris: Set<String> = emptySet(),
-
-        /** 请求体最大打印长度，默认 1024 */
-        var maxRequestBodyLength: Int = 1024,
-
-        /** 响应体最大打印长度，默认 1024 */
-        var maxResponseBodyLength: Int = 1024
-    )
-
-    /**
      * 请求体包装过滤器配置
      */
     data class RequestBodyFilterProperties(
@@ -178,69 +143,15 @@ data class WebProperties(
     )
 
     /**
-     * 打印类型枚举
-     */
-    enum class PrintType {
-        /** 控制台输出 */
-        CONSOLE,
-        /** 日志输出 */
-        LOG;
-        
-        companion object {
-            @JvmStatic
-            fun fromInt(value: Int): PrintType = when(value) {
-                1 -> CONSOLE
-                2 -> LOG
-                else -> LOG
-            }
-        }
-    }
-
-    /**
      * 日志级别枚举
      */
     enum class LogLevel {
         TRACE, DEBUG, INFO, WARN, ERROR;
-        
+
         companion object {
             @JvmStatic
-            fun fromString(level: String): LogLevel = 
+            fun fromString(level: String): LogLevel =
                 valueOf(level.uppercase())
         }
-    }
-    
-    // ===================== Java兼容性方法 ===================== //
-    
-    /**
-     * 兼容旧版本的boolean属性getter
-     */
-    @Deprecated("Use resultWrapper.enable instead", ReplaceWith("resultWrapper.enable"))
-    fun getEnableResultWrapper(): Boolean = resultWrapper.enable
-    
-    @Deprecated("Use exceptionHandler.enable instead", ReplaceWith("exceptionHandler.enable"))
-    fun getEnableExceptionHandler(): Boolean = exceptionHandler.enable
-    
-    @Deprecated("Use audit.enable instead", ReplaceWith("audit.enable"))
-    fun getEnableAuditHandler(): Boolean = audit.enable
-    
-    /**
-     * Java风格的构建器模式支持
-     */
-    class Builder {
-        private val properties = WebProperties()
-        
-        fun enable(enable: Boolean) = apply { properties.enable = enable }
-        fun resultWrapper(block: ResultWrapperProperties.() -> Unit) = apply {
-            properties.resultWrapper.block()
-        }
-        fun exceptionHandler(block: ExceptionHandlerProperties.() -> Unit) = apply {
-            properties.exceptionHandler.block()
-        }
-        fun build() = properties
-    }
-    
-    companion object {
-        @JvmStatic
-        fun builder() = Builder()
     }
 }
