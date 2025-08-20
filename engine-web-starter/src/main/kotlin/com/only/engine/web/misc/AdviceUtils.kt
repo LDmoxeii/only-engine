@@ -1,6 +1,6 @@
 package com.only.engine.web.misc
 
-import com.only.engine.web.adivce.GlobalExceptionHandlerAdvice
+import com.only.engine.web.advice.GlobalExceptionHandlerAdvice
 import org.springframework.core.MethodParameter
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.web.context.request.RequestContextHolder

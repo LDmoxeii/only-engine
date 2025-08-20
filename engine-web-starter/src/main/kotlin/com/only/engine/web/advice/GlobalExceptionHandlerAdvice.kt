@@ -1,4 +1,4 @@
-package com.only.engine.web.adivce
+package com.only.engine.web.advice
 
 import com.only.engine.annotation.RespStatus
 import com.only.engine.constants.StandardCode
@@ -48,7 +48,7 @@ class GlobalExceptionHandlerAdvice(
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun validationMethodArgumentException(
-        ex: MethodArgumentNotValidException, 
+        ex: MethodArgumentNotValidException,
         request: HttpServletRequest
     ): Result<Void> = validationBindException(ex, request)
 
@@ -73,8 +73,8 @@ class GlobalExceptionHandlerAdvice(
 
     @ExceptionHandler(KnownException::class)
     fun knownException(
-        ex: KnownException, 
-        request: HttpServletRequest, 
+        ex: KnownException,
+        request: HttpServletRequest,
         response: HttpServletResponse
     ): Result<*> {
         when (ex.level) {
@@ -88,8 +88,8 @@ class GlobalExceptionHandlerAdvice(
 
     @ExceptionHandler(WarnException::class)
     fun warnException(
-        ex: WarnException, 
-        request: HttpServletRequest, 
+        ex: WarnException,
+        request: HttpServletRequest,
         response: HttpServletResponse
     ): Result<Void> {
         logWarning(request, ex.message ?: "", ex)
@@ -115,19 +115,19 @@ class GlobalExceptionHandlerAdvice(
         } else {
             logWarning(request, ex.message ?: "系统异常", ex)
         }
-        
+
         // 检查是否需要替换敏感信息
         val message = if (isSensitiveException(ex)) {
             webProperties.exceptionHandler.sensitiveMessageReplacement
         } else {
             ex.message ?: "系统异常"
         }
-        
+
         return Result.error(StandardCode.SystemSide.Exception)
     }
 
     // ===================== 私有工具方法 ===================== //
-    
+
     /**
      * 判断是否为敏感异常（不应该暴露给用户的内部异常）
      */
@@ -177,8 +177,8 @@ class GlobalExceptionHandlerAdvice(
      * 响应状态处理
      */
     private fun handlerResponseStatus(
-        ex: Exception, 
-        response: HttpServletResponse, 
+        ex: Exception,
+        response: HttpServletResponse,
         defStatus: HttpStatus? = null
     ) {
         val respStatus = ex::class.java.getDeclaredAnnotation(RespStatus::class.java)

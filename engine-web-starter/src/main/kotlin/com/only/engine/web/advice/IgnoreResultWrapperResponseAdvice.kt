@@ -1,4 +1,4 @@
-package com.only.engine.web.adivce
+package com.only.engine.web.advice
 
 import com.only.engine.entity.Result
 import com.only.engine.web.WebInitPrinter
