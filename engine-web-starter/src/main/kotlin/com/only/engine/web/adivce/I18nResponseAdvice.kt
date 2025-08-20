@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 
 @Order(4)
-@RestControllerAdvice(basePackages = ["com.only"])
+@RestControllerAdvice(basePackages = ["edu.only"])
 @ConditionalOnProperty(prefix = "only.web.i18n", name = ["enable"], havingValue = "true")
 class I18nResponseAdvice(
     i18nMessageHandlerObjectProvider: ObjectProvider<I18nMessageHandler>,
