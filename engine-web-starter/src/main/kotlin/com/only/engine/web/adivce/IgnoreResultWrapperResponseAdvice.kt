@@ -19,7 +19,7 @@ import kotlin.jvm.java
 
 @Order(3)
 @RestControllerAdvice(basePackages = ["com.only"])
-@ConditionalOnProperty(prefix = "only.web", name = ["enable-result-wrapper"], matchIfMissing = true)
+@ConditionalOnProperty(prefix = "only.web.result-wrapper", name = ["enable"], matchIfMissing = true)
 class IgnoreResultWrapperResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
 
     companion object {

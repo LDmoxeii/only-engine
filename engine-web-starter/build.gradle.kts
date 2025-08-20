@@ -1,11 +1,13 @@
 plugins {
     id("buildsrc.convention.kotlin-jvm")
+    kotlin("kapt")
 }
 
 dependencies {
-    implementation(project(":engine-common"))
-
     api(platform(libs.spring.boot.dependencies))
+    kapt("org.springframework.boot:spring-boot-configuration-processor:3.1.12")
+
+    implementation(project(":engine-common"))
 
     implementation(libs.hutool.jwt)
     implementation(libs.jackson)
