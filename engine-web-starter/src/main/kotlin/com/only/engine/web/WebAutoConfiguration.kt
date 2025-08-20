@@ -1,6 +1,7 @@
 package com.only.engine.web
 
 import com.only.engine.web.config.I18nConfiguration
+import com.only.engine.web.config.WebAdviceConfiguration
 import com.only.engine.web.config.WebFilterConfiguration
 import com.only.engine.web.misc.WebMessageConverterUtils
 import org.slf4j.LoggerFactory
@@ -15,6 +16,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 @Import(
     I18nConfiguration::class,
     WebFilterConfiguration::class,
+    WebAdviceConfiguration::class
 )
 @ConditionalOnProperty(prefix = "only.web", name = ["enable"], havingValue = "true", matchIfMissing = true)
 class WebAutoConfiguration : WebInitPrinter {
