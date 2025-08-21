@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":engine-common"))
 
     implementation(libs.hutool.jwt)
+    implementation(libs.validation)
     implementation(libs.bundles.jackson)
 
     compileOnly(libs.spring.boot.starter)

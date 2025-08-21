@@ -21,6 +21,9 @@ kotlin-logging = "7.0.12"
 # tool
 hutool = "5.8.39"
 
+# Validation
+validation = "3.0.2"
+
 # Spring framework
 spring-boot = "3.1.12"
 
@@ -47,6 +50,9 @@ slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # hutool
 hutool-jwt = { module = "cn.hutool:hutool-jwt", version.ref = "hutool" }
+
+# Validation
+validation = { module = "jakarta.validation:jakarta.validation-api", version.ref = "validation" }
 
 # Spring framework
 spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }

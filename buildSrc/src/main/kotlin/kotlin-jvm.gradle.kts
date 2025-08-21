@@ -2,7 +2,6 @@
 package buildsrc.convention
 
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.gradle.kotlin.dsl.registering
 import java.time.Duration
 
 plugins {
@@ -13,7 +12,7 @@ plugins {
 }
 
 group = "com.only4"
-version = "0.0.9-SNAPSHOT"
+version = "0.0.10-SNAPSHOT"
 
 val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")

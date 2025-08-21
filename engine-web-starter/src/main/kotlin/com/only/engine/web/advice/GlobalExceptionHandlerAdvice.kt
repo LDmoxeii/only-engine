@@ -10,6 +10,7 @@ import com.only.engine.web.WebInitPrinter
 import com.only.engine.web.WebProperties
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.ConstraintViolationException
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.annotation.Order
@@ -45,6 +46,18 @@ class GlobalExceptionHandlerAdvice(
         logError(request, ex.message ?: "未知错误", ex)
         return Result.error(StandardCode.ThirdParty.Exception)
     }
+
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleConstraintViolationException(
+        ex: ConstraintViolationException,
+        request: HttpServletRequest,
+    ): Result<Void> {
+        val errors = ex.constraintViolations.joinToString(", ") { "${it.propertyPath}: ${it.message}" }
+        val msg = "请求参数无效: $errors"
+        logInfo(request, msg, ex)
+        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, msg)
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun validationMethodArgumentException(
