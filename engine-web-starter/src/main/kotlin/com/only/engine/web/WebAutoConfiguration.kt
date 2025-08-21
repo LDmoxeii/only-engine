@@ -1,5 +1,6 @@
 package com.only.engine.web
 
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 import com.only.engine.web.config.I18nConfiguration
 import com.only.engine.web.config.WebAdviceConfiguration
 import com.only.engine.web.config.WebFilterConfiguration

@@ -39,7 +39,8 @@ transmittable-thread-local = { module = "com.alibaba:transmittable-thread-local"
 
 # JSON processing
 fastjson = { module = "com.alibaba:fastjson", version.ref = "fastjson" }
-jackson = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
 # Logging
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
@@ -63,6 +64,7 @@ spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-star
 
 # Libraries can be bundled together for easier import
 [bundles]
+jackson = ["jackson-core", "jackson-module-kotlin"]
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

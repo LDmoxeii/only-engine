@@ -10,7 +10,7 @@ dependencies {
     implementation(project(":engine-common"))
 
     implementation(libs.hutool.jwt)
-    implementation(libs.jackson)
+    implementation(libs.bundles.jackson)
 
     compileOnly(libs.spring.boot.starter)
     compileOnly(libs.spring.tomcat)

@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.jackson)
+    compileOnly(libs.bundles.jackson)
     compileOnly(libs.fastjson)
     api(libs.transmittable.thread.local)
 
