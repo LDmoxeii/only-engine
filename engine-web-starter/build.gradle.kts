@@ -12,6 +12,7 @@ dependencies {
     implementation(libs.hutool.jwt)
     implementation(libs.validation)
     implementation(libs.bundles.jackson)
+    implementation(libs.jimmer.core)
 
     compileOnly(libs.spring.boot.starter)
     compileOnly(libs.spring.tomcat)

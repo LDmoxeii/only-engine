@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.only.engine.entity.Result
 import com.only.engine.web.wrapper.ResultMixIn
+import org.babyfish.jimmer.jackson.ImmutableModule
 
 object WebMessageConverterUtils {
     val OBJECT_MAPPER = ObjectMapper().apply {
@@ -17,6 +18,7 @@ object WebMessageConverterUtils {
         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true)
         registerKotlinModule()
+        registerModule(ImmutableModule())
         registerModule(simpleModule)
         addMixIn(Result::class.java, ResultMixIn::class.java)
     }

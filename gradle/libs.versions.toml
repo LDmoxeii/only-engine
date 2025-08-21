@@ -27,6 +27,8 @@ validation = "3.0.2"
 # Spring framework
 spring-boot = "3.1.12"
 
+jimmer = "0.9.106"
+
 # Testing
 junit = "5.13.4"
 mockk = "1.13.8"
@@ -60,6 +62,8 @@ spring-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat"
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring-boot" }
 spring-web-mvc = { module = "org.springframework:spring-webmvc" }
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+
+jimmer-core = { module = "org.babyfish.jimmer:jimmer-core-kotlin", version.ref = "jimmer" }
 
 # Testing
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
