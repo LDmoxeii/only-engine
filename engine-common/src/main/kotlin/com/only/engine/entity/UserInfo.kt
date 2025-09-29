@@ -1,4 +1,4 @@
-package com.only.engine.security.model
+package com.only.engine.entity
 
 data class UserInfo(
     val id: Any,

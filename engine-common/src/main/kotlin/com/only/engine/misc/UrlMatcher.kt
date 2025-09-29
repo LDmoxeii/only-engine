@@ -1,4 +1,4 @@
-package com.only.engine.security.url
+package com.only.engine.misc
 
 import org.springframework.util.AntPathMatcher
 import org.springframework.util.PathMatcher
