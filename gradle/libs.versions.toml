@@ -27,6 +27,9 @@ validation = "3.0.2"
 # Spring framework
 spring-boot = "3.1.12"
 
+# Sa-Token
+sa-token = "1.38.0"
+
 jimmer = "0.9.106"
 
 # Testing
@@ -62,6 +65,11 @@ spring-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat"
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring-boot" }
 spring-web-mvc = { module = "org.springframework:spring-webmvc" }
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+
+# Sa-Token
+sa-token-core = { module = "cn.dev33:sa-token-core", version.ref = "sa-token" }
+sa-token-spring-boot3-starter = { module = "cn.dev33:sa-token-spring-boot3-starter", version.ref = "sa-token" }
+sa-token-jwt = { module = "cn.dev33:sa-token-jwt", version.ref = "sa-token" }
 
 jimmer-core = { module = "org.babyfish.jimmer:jimmer-core-kotlin", version.ref = "jimmer" }
 
