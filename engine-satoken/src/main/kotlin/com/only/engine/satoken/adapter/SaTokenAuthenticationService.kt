@@ -14,6 +14,14 @@ class SaTokenAuthenticationService(
 
     companion object {
         private val log = LoggerFactory.getLogger(SaTokenAuthenticationService::class.java)
+
+        // Sa-Token Session缓存键
+        private const val USER_INFO_KEY = "userInfo"
+        private const val USER_ID_KEY = "userId"
+        private const val USERNAME_KEY = "username"
+        private const val ROLES_KEY = "roles"
+        private const val PERMISSIONS_KEY = "permissions"
+        private const val EXTRA_KEY = "extra"
     }
 
     override fun login(request: LoginRequest): LoginResult {
@@ -21,6 +29,16 @@ class SaTokenAuthenticationService(
             ?: throw com.only.engine.exception.ErrorException(401, "用户名或密码错误")
 
         StpUtil.login(userInfo.id, request.deviceType)
+
+        // 缓存用户信息到Sa-Token Session
+        val session = StpUtil.getTokenSession()
+        session.set(USER_INFO_KEY, userInfo)
+        session.set(USER_ID_KEY, userInfo.id)
+        session.set(USERNAME_KEY, userInfo.username)
+        session.set(ROLES_KEY, userInfo.roles)
+        session.set(PERMISSIONS_KEY, userInfo.permissions)
+        session.set(EXTRA_KEY, userInfo.extra)
+
         val token = StpUtil.getTokenValue()
         val timeout = StpUtil.getTokenTimeout()
 
@@ -64,10 +82,40 @@ class SaTokenAuthenticationService(
     override fun getCurrentUser(): UserInfo? {
         return try {
             val loginId = StpUtil.getLoginIdDefaultNull() ?: return null
-            userDetailsProvider.loadUserById(loginId)
+
+            // 优先从Sa-Token Session缓存获取
+            val cachedUserInfo = StpUtil.getTokenSession().get(USER_INFO_KEY) as? UserInfo
+            if (cachedUserInfo != null) {
+                log.debug("Retrieved user from Sa-Token cache: {}", cachedUserInfo.username)
+                return cachedUserInfo
+            }
+
+            // 缓存未命中，从数据源获取并缓存
+            log.debug("Cache miss, loading user from data source: {}", loginId)
+            val userInfo = userDetailsProvider.loadUserById(loginId)
+            if (userInfo != null) {
+                // 缓存到Sa-Token Session
+                cacheUserInfo(userInfo)
+            }
+            userInfo
         } catch (e: Exception) {
             log.warn("Failed to get current user", e)
             null
+        }
+    }
+
+    private fun cacheUserInfo(userInfo: UserInfo) {
+        try {
+            val session = StpUtil.getTokenSession()
+            session.set(USER_INFO_KEY, userInfo)
+            session.set(USER_ID_KEY, userInfo.id)
+            session.set(USERNAME_KEY, userInfo.username)
+            session.set(ROLES_KEY, userInfo.roles)
+            session.set(PERMISSIONS_KEY, userInfo.permissions)
+            session.set(EXTRA_KEY, userInfo.extra)
+            log.debug("Cached user info to Sa-Token session: {}", userInfo.username)
+        } catch (e: Exception) {
+            log.warn("Failed to cache user info", e)
         }
     }
 

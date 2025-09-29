@@ -19,6 +19,7 @@ data class SecurityProperties(
         "/v3/api-docs/**"
     ),
     val token: TokenProperties = TokenProperties(),
+    val cache: CacheProperties = CacheProperties(),
 ) {
 
     data class TokenProperties(
@@ -34,6 +35,15 @@ data class SecurityProperties(
         val allowConcurrentLogin: Boolean = true,
     )
 
+    data class CacheProperties(
+        @DefaultValue("local")
+        val type: String = "local", // local, redis
+        @DefaultValue("5")
+        val cleanupIntervalMinutes: Long = 5,
+        @DefaultValue("1000")
+        val maxSize: Int = 1000,
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -44,6 +54,7 @@ data class SecurityProperties(
         if (provider != other.provider) return false
         if (!excludes.contentEquals(other.excludes)) return false
         if (token != other.token) return false
+        if (cache != other.cache) return false
 
         return true
     }
@@ -53,6 +64,7 @@ data class SecurityProperties(
         result = 31 * result + provider.hashCode()
         result = 31 * result + excludes.contentHashCode()
         result = 31 * result + token.hashCode()
+        result = 31 * result + cache.hashCode()
         return result
     }
 }

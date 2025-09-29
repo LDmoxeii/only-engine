@@ -16,6 +16,7 @@ dependencies {
     compileOnly(libs.spring.tomcat)
     compileOnly(libs.spring.web)
     compileOnly(libs.spring.web.mvc)
+    compileOnly("org.springframework.boot:spring-boot-starter-data-redis")
 
     // Common dependencies
     implementation(libs.slf4j)
