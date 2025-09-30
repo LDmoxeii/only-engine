@@ -1,11 +1,10 @@
 package com.only.engine.web
 
-import com.only.engine.web.misc.WebMessageConverterUtils
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
@@ -22,11 +21,9 @@ class WebAutoConfiguration : WebInitPrinter {
     @Bean
     @ConditionalOnMissingBean
     fun mappingJackson2HttpMessageConverter(
-        builderCustomizers: List<Jackson2ObjectMapperBuilderCustomizer>,
-    ): MappingJackson2HttpMessageConverter =
-        MappingJackson2HttpMessageConverter().apply {
-            objectMapper = WebMessageConverterUtils.createObjectMapper(builderCustomizers)
-            WebMessageConverterUtils.OBJECT_MAPPER = objectMapper
-            printInit(MappingJackson2HttpMessageConverter::class.java, log)
-        }
+        objectMapper: ObjectMapper,
+    ): MappingJackson2HttpMessageConverter = MappingJackson2HttpMessageConverter().apply {
+        this.objectMapper = objectMapper
+        printInit(MappingJackson2HttpMessageConverter::class.java, log)
+    }
 }

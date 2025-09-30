@@ -10,24 +10,21 @@ dependencies {
 
     // 模块依赖
     implementation(project(":engine-common"))
-    implementation(project(":engine-json"))
 
     // JSON 核心依赖
     implementation(libs.bundles.jackson)
 
-    // Web 核心依赖
-    implementation(libs.jakarta.validation.api)
-    implementation(libs.hutool.jwt)
+    // Spring Boot 核心依赖
+    implementation(libs.spring.boot.autoconfigure)
 
     // Spring Web 依赖 - 仅编译时需要
     compileOnly(libs.spring.boot.starter)
-    compileOnly(libs.spring.boot.starter.tomcat)
     compileOnly(libs.spring.web)
-    compileOnly(libs.spring.webmvc)
 
     // 测试依赖
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.bundles.junit.core)
+    testImplementation(libs.spring.web) // 测试需要
     testImplementation(libs.mockk) {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }

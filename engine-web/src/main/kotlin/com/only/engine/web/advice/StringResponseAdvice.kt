@@ -1,8 +1,8 @@
 package com.only.engine.web.advice
 
 import com.only.engine.entity.Result
+import com.only.engine.json.misc.JsonMessageConverterUtils
 import com.only.engine.web.WebInitPrinter
-import com.only.engine.web.misc.WebMessageConverterUtils
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -44,7 +44,7 @@ class StringResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
     ): Any? = if (body is Result<*> &&
         returnType.method!!.returnType.isAssignableFrom(String::class.java)
     ) {
-        WebMessageConverterUtils.toJsonString(body)
+        JsonMessageConverterUtils.toJsonString(body)
     } else {
         body
     }

@@ -1,4 +1,4 @@
-package com.only.engine.web.wrapper
+package com.only.engine.json.wrapper
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.only.engine.enums.Desc

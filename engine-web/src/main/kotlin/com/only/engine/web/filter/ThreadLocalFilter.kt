@@ -3,9 +3,9 @@ package com.only.engine.web.filter
 import cn.hutool.json.JSONObject
 import cn.hutool.jwt.JWTUtil
 import com.only.engine.constants.HeaderConstants
+import com.only.engine.json.misc.JsonMessageConverterUtils
 import com.only.engine.misc.ThreadLocalUtils
 import com.only.engine.web.WebInitPrinter
-import com.only.engine.web.misc.WebMessageConverterUtils
 import jakarta.servlet.Filter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
@@ -54,7 +54,7 @@ class ThreadLocalFilter : Filter, WebInitPrinter {
                 val payloads = verifyJwtAndGetPayload(jwtToken)
 
                 // 存储 tokenInfo 使用 Jackson 序列化
-                ThreadLocalUtils.setTokenInfo(WebMessageConverterUtils.toJsonString(payloads))
+                ThreadLocalUtils.setTokenInfo(JsonMessageConverterUtils.toJsonString(payloads))
 
                 // 兼容网关透传的用户信息
                 getTokenFromUserInfo(httpRequest)
