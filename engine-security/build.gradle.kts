@@ -4,29 +4,23 @@ plugins {
 }
 
 dependencies {
+    // Spring Boot Platform - 版本管理
     api(platform(libs.spring.boot.dependencies))
-    kapt("org.springframework.boot:spring-boot-configuration-processor:3.1.12")
+    kapt(libs.spring.boot.configuration.processor)
 
+    // 模块依赖
     implementation(project(":engine-common"))
 
-    implementation(libs.bundles.jackson)
-    implementation(libs.validation)
-
+    // 安全相关依赖 - 仅需要的部分
     compileOnly(libs.spring.boot.starter)
-    compileOnly(libs.spring.tomcat)
     compileOnly(libs.spring.web)
-    compileOnly(libs.spring.web.mvc)
+    compileOnly(libs.spring.webmvc)
 
-    // Common dependencies
-    implementation(libs.slf4j)
-
-    // Test dependencies
+    // 测试依赖
     testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.bundles.junit.core)
     testImplementation(libs.mockk) {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testImplementation("org.junit.jupiter:junit-jupiter-params")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly(libs.bundles.junit.runtime)
 }
