@@ -54,7 +54,7 @@ class ThreadLocalFilter : Filter, WebInitPrinter {
                 val payloads = verifyJwtAndGetPayload(jwtToken)
 
                 // 存储 tokenInfo 使用 Jackson 序列化
-                ThreadLocalUtils.setTokenInfo(JsonMessageConverterUtils.toJsonString(payloads))
+                ThreadLocalUtils.setTokenInfo(JsonMessageConverterUtils.toJsonString(payloads) ?: "")
 
                 // 兼容网关透传的用户信息
                 getTokenFromUserInfo(httpRequest)

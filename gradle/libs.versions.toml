@@ -65,6 +65,7 @@ transmittable-thread-local = { module = "com.alibaba:transmittable-thread-local"
 fastjson = { module = "com.alibaba:fastjson", version.ref = "fastjson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 
 # Logging
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
@@ -93,7 +94,7 @@ kotlin-compile-testing = { module = "dev.zacsweers.kctfork:ksp", version.ref = "
 
 # Libraries can be bundled together for easier import
 [bundles]
-jackson = ["jackson-databind", "jackson-module-kotlin"]
+jackson = ["jackson-databind", "jackson-module-kotlin", "jackson-datatype-jsr310"]
 junit-core = ["junit-jupiter-api", "junit-jupiter-params"]
 junit-runtime = ["junit-jupiter-engine", "junit-platform-launcher"]
 

@@ -2,12 +2,15 @@ package com.only.engine.json.config
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.only.engine.entity.Result
 import com.only.engine.json.JsonInitPrinter
 import com.only.engine.json.misc.JsonMessageConverterUtils
+import com.only.engine.json.serializer.BigNumberSerializer
 import com.only.engine.json.wrapper.ResultMixIn
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -16,13 +19,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
+import java.math.BigDecimal
+import java.math.BigInteger
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
-/**
- * JSON 自动配置类
- *
- * 当满足以下条件时生效：
- * 1. only.json.enabled 属性为 true（默认为 true）
- */
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "only.json", name = ["enabled"], matchIfMissing = true)
 class JsonAutoConfiguration : JsonInitPrinter {
@@ -36,9 +38,18 @@ class JsonAutoConfiguration : JsonInitPrinter {
     fun objectMapper(
         builderCustomizers: List<Jackson2ObjectMapperBuilderCustomizer> = emptyList(),
     ): ObjectMapper {
-        val simpleModule = SimpleModule().apply {
-            addSerializer(Long::class.java, ToStringSerializer.instance)
-            addSerializer(Long::class.javaObjectType, ToStringSerializer.instance)
+        // 创建 JavaTimeModule 并配置序列化器
+        val javaTimeModule = JavaTimeModule().apply {
+            // 大数字处理
+            addSerializer(Long::class.java, BigNumberSerializer.INSTANCE)
+            addSerializer(Long::class.javaObjectType, BigNumberSerializer.INSTANCE)
+            addSerializer(BigInteger::class.java, BigNumberSerializer.INSTANCE)
+            addSerializer(BigDecimal::class.java, ToStringSerializer.instance)
+
+            // LocalDateTime 格式化
+            val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            addSerializer(LocalDateTime::class.java, LocalDateTimeSerializer(dateTimeFormatter))
+            addDeserializer(LocalDateTime::class.java, LocalDateTimeDeserializer(dateTimeFormatter))
         }
 
         val builder = Jackson2ObjectMapperBuilder.json()
@@ -46,9 +57,10 @@ class JsonAutoConfiguration : JsonInitPrinter {
             .featuresToEnable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
             .modules(
                 KotlinModule.Builder().build(),
-                simpleModule
+                javaTimeModule
             )
             .mixIn(Result::class.java, ResultMixIn::class.java)
+            .timeZone(TimeZone.getDefault())
 
         // 应用所有 Builder 定制器
         builderCustomizers.forEach { it.customize(builder) }

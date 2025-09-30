@@ -40,10 +40,10 @@ only:
 ```kotlin
 // 创建支持 Jimmer 的 ObjectMapper
 val customizers = applicationContext.getBeansOfType(ObjectMapperCustomizer::class.java).values.toList()
-val objectMapper = WebMessageConverterUtils.createObjectMapper(customizers)
+val objectMapper = JsonMessageConverterUtils.createObjectMapper(customizers)
 
 // 或使用默认实例（如果 engine-jimmer 在 classpath 中，会自动支持 Jimmer）
-val json = WebMessageConverterUtils.toJsonString(jimmerEntity)
+val json = JsonMessageConverterUtils.toJsonString(jimmerEntity)
 ```
 
 ## 工作原理
