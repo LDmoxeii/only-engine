@@ -32,6 +32,6 @@ plugins {
 include(":engine-common")
 include(":engine-security")
 include(":engine-satoken")
-include(":engine-web-starter")
+include(":engine-web")
 
 rootProject.name = "only-engine"

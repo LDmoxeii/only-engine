@@ -1,0 +1,8 @@
+com.only.engine.web.advice.ResponseAdvice
+com.only.engine.web.advice.IgnoreResultWrapperResponseAdvice
+com.only.engine.web.advice.GlobalExceptionHandlerAdvice
+com.only.engine.web.advice.I18nResponseAdvice
+com.only.engine.web.advice.StringResponseAdvice
+com.only.engine.web.config.I18nConfiguration
+com.only.engine.web.config.WebFilterConfiguration
+com.only.engine.web.WebAutoConfiguration

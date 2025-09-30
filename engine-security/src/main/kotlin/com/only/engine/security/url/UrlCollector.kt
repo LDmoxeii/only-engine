@@ -2,13 +2,11 @@ package com.only.engine.security.url
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.InitializingBean
-import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
 import java.util.regex.Pattern
 
-@Component
 class UrlCollector(
     private val requestMappingHandlerMapping: RequestMappingHandlerMapping,
 ) : InitializingBean {
