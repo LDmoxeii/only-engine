@@ -33,6 +33,13 @@ sa-token = "1.38.0"
 # Jimmer ORM
 jimmer = "0.9.106"
 
+# SnailJob
+snailjob = "1.1.2"
+
+# SpringDoc/OpenAPI
+springdoc = "2.6.0"
+therapi-javadoc = "0.15.0"
+
 # Testing
 junit = "5.13.4"
 mockk = "1.13.8"
@@ -72,6 +79,7 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # Tools
 hutool-jwt = { module = "cn.hutool:hutool-jwt", version.ref = "hutool" }
+hutool-core = { module = "cn.hutool:hutool-core", version.ref = "hutool" }
 
 # Validation
 jakarta-validation-api = { module = "jakarta.validation:jakarta.validation-api", version.ref = "validation" }
@@ -82,6 +90,17 @@ sa-token-jwt = { module = "cn.dev33:sa-token-jwt", version.ref = "sa-token" }
 
 # Jimmer ORM
 jimmer-core-kotlin = { module = "org.babyfish.jimmer:jimmer-core-kotlin", version.ref = "jimmer" }
+
+# SnailJob
+snail-job-client-starter = { module = "com.aizuda:snail-job-client-starter", version.ref = "snailjob" }
+snail-job-client-job-core = { module = "com.aizuda:snail-job-client-job-core", version.ref = "snailjob" }
+
+# SpringDoc/OpenAPI
+springdoc-openapi-starter = { module = "org.springdoc:springdoc-openapi-starter-webmvc-api", version.ref = "springdoc" }
+therapi-runtime-javadoc = { module = "com.github.therapi:therapi-runtime-javadoc", version.ref = "therapi-javadoc" }
+
+# Apache Commons
+commons-lang3 = { module = "org.apache.commons:commons-lang3" }
 
 # Testing
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
