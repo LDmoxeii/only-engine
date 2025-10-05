@@ -17,8 +17,6 @@ dependencies {
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.bundles.junit.core)
-    testImplementation(libs.spring.web)
-    testImplementation(libs.bundles.jackson)
     testImplementation(libs.mockk) {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }
