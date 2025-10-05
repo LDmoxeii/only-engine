@@ -1,2 +1,3 @@
 com.only.engine.security.url.UrlCollector
 com.only.engine.satoken.config.SaTokenAutoConfiguration
+com.only.engine.satoken.config.SaTokenIdempotentAutoConfiguration

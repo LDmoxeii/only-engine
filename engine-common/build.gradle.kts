@@ -12,10 +12,17 @@ dependencies {
     api(libs.transmittable.thread.local)
     api(libs.slf4j.api)
 
+    implementation(libs.hutool.extra)
+    implementation(libs.hutool.jwt)
+    implementation(libs.hutool.http)
+    implementation(libs.hutool.captcha)
+    implementation(libs.jakarta.servlet.api)
+
     // 可选依赖 - 用户可以选择使用
     compileOnly(libs.bundles.jackson)
     compileOnly(libs.fastjson)
     compileOnly(libs.spring.boot.starter)
+    compileOnly(libs.spring.web)
 
     // 测试依赖
     testImplementation(platform(libs.junit.bom))

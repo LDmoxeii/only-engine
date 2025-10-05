@@ -1,4 +1,4 @@
-package com.only.engine.satoken.factory
+package com.only.engine.factory
 
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
 import org.springframework.core.env.PropertiesPropertySource

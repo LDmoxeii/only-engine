@@ -7,8 +7,8 @@ import cn.dev33.satoken.stp.StpInterface
 import cn.dev33.satoken.stp.StpLogic
 import cn.dev33.satoken.util.SaResult
 import com.only.engine.SaTokenInitPrinter
+import com.only.engine.factory.YmlPropertySourceFactory
 import com.only.engine.satoken.core.service.SaPermissionImpl
-import com.only.engine.satoken.factory.YmlPropertySourceFactory
 import com.only.engine.satoken.handler.SaTokenExceptionHandler
 import com.only.engine.satoken.interceptor.SaTokenSecurityInterceptor
 import com.only.engine.security.interceptor.SecurityInterceptor

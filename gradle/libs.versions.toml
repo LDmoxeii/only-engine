@@ -26,6 +26,7 @@ hutool = "5.8.39"
 
 # Validation
 validation = "3.0.2"
+jakarta-servlet = "6.0.0"
 
 # Sa-Token
 sa-token = "1.38.0"
@@ -39,6 +40,11 @@ snailjob = "1.1.2"
 # SpringDoc/OpenAPI
 springdoc = "2.6.0"
 therapi-javadoc = "0.15.0"
+
+# Redis
+redisson = "3.34.1"
+lock4j = "2.2.7"
+caffeine = "3.1.8"
 
 # Testing
 junit = "5.13.4"
@@ -63,6 +69,7 @@ spring-webmvc = { module = "org.springframework:spring-webmvc", version.ref = "s
 
 # Spring Boot Starters
 spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "spring-boot" }
+spring-boot-starter-aop = { module = "org.springframework.boot:spring-boot-starter-aop", version.ref = "spring-boot" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 
 # Thread Local
@@ -80,9 +87,14 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 # Tools
 hutool-jwt = { module = "cn.hutool:hutool-jwt", version.ref = "hutool" }
 hutool-core = { module = "cn.hutool:hutool-core", version.ref = "hutool" }
+hutool-extra = { module = "cn.hutool:hutool-extra", version.ref = "hutool" }
+hutool-crypto = { module = "cn.hutool:hutool-crypto", version.ref = "hutool" }
+hutool-http = { module = "cn.hutool:hutool-http", version.ref = "hutool" }
+hutool-captcha = { module = "cn.hutool:hutool-captcha", version.ref = "hutool" }
 
 # Validation
 jakarta-validation-api = { module = "jakarta.validation:jakarta.validation-api", version.ref = "validation" }
+jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version.ref = "jakarta-servlet" }
 
 # Sa-Token
 sa-token-spring-boot3-starter = { module = "cn.dev33:sa-token-spring-boot3-starter", version.ref = "sa-token" }
@@ -101,6 +113,11 @@ therapi-runtime-javadoc = { module = "com.github.therapi:therapi-runtime-javadoc
 
 # Apache Commons
 commons-lang3 = { module = "org.apache.commons:commons-lang3" }
+
+# Redis
+redisson-spring-boot-starter = { module = "org.redisson:redisson-spring-boot-starter", version.ref = "redisson" }
+lock4j-redisson-spring-boot-starter = { module = "com.baomidou:lock4j-redisson-spring-boot-starter", version.ref = "lock4j" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 
 # Testing
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }

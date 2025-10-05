@@ -44,13 +44,4 @@ class UrlCollector(
         // 将路径变量 {id} 替换为通配符 *
         return PATH_VARIABLE_PATTERN.matcher(url).replaceAll("*")
     }
-
-    fun containsUrl(url: String): Boolean {
-        return _urls.contains(url)
-    }
-
-    fun getMatchingUrls(pattern: String): List<String> {
-        val regex = pattern.replace("*", ".*").toRegex()
-        return _urls.filter { it.matches(regex) }
-    }
 }
