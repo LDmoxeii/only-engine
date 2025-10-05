@@ -36,17 +36,17 @@ import java.util.*
 class OpenApiHandler(
     openAPI: Optional<OpenAPI>,
     private val securityParser: SecurityService,
-    private val springDocConfigProperties: SpringDocConfigProperties,
+    springDocConfigProperties: SpringDocConfigProperties,
     private val propertyResolverUtils: PropertyResolverUtils,
-    private val openApiBuilderCustomisers: Optional<List<OpenApiBuilderCustomizer>>,
-    private val serverBaseUrlCustomizers: Optional<List<ServerBaseUrlCustomizer>>,
+    openApiBuilderCustomizers: Optional<List<OpenApiBuilderCustomizer>>,
+    serverBaseUrlCustomizers: Optional<List<ServerBaseUrlCustomizer>>,
     private val javadocProvider: Optional<JavadocProvider>,
 ) : OpenAPIService(
     openAPI,
     securityParser,
     springDocConfigProperties,
     propertyResolverUtils,
-    openApiBuilderCustomisers,
+    openApiBuilderCustomizers,
     serverBaseUrlCustomizers,
     javadocProvider
 ) {
@@ -111,7 +111,7 @@ class OpenApiHandler(
         }
 
         if (springDocConfigProperties.isUseFqn) {
-            TypeNameResolver.std.setUseFqn(true)
+            TypeNameResolver.std.useFqn = true
         }
     }
 
