@@ -9,7 +9,7 @@ dependencies {
 
     implementation(project(":engine-common"))
 
-    implementation(libs.bundles.jackson)
+    api(libs.bundles.jackson)
 
     compileOnly(libs.spring.boot.autoconfigure)
     compileOnly(libs.spring.web)

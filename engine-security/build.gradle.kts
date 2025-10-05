@@ -4,19 +4,16 @@ plugins {
 }
 
 dependencies {
-    // Spring Boot Platform - 版本管理
     api(platform(libs.spring.boot.dependencies))
     kapt(libs.spring.boot.configuration.processor)
 
-    // 模块依赖
     implementation(project(":engine-common"))
+    implementation(project(":engine-spi"))
 
-    // 安全相关依赖 - 仅需要的部分
-    compileOnly(libs.spring.boot.starter)
     compileOnly(libs.spring.web)
     compileOnly(libs.spring.webmvc)
+    compileOnly(libs.spring.boot.autoconfigure)
 
-    // 测试依赖
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.bundles.junit.core)
     testImplementation(libs.mockk) {

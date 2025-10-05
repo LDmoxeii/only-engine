@@ -3,9 +3,9 @@ package com.only.engine.satoken.utils
 import cn.dev33.satoken.session.SaSession
 import cn.dev33.satoken.stp.SaLoginModel
 import cn.dev33.satoken.stp.StpUtil
-import com.only.engine.security.entity.LoginUser
-import com.only.engine.security.entity.Permission
-import com.only.engine.security.entity.Role
+import com.only.engine.entity.Permission
+import com.only.engine.entity.Role
+import com.only.engine.entity.UserInfo
 import org.slf4j.LoggerFactory
 
 /**
@@ -27,7 +27,7 @@ object LoginHelper {
      */
     @JvmStatic
     @JvmOverloads
-    fun login(loginUser: LoginUser, model: SaLoginModel? = null) {
+    fun login(loginUser: UserInfo, model: SaLoginModel? = null) {
         val loginModel = model ?: SaLoginModel()
 
         StpUtil.login(
@@ -43,7 +43,7 @@ object LoginHelper {
      * 获取用户基于session
      */
     @JvmStatic
-    fun getLoginUser(): LoginUser? {
+    fun getLoginUser(): UserInfo? {
         val session: SaSession? = try {
             StpUtil.getTokenSession()
         } catch (e: Exception) {
@@ -51,7 +51,7 @@ object LoginHelper {
         }
 
         return if (session != null) {
-            StpUtil.getSession().get(ADMIN_USER_KEY) as? LoginUser
+            StpUtil.getSession().get(ADMIN_USER_KEY) as? UserInfo
         } else {
             null
         }
@@ -61,14 +61,14 @@ object LoginHelper {
      * 获取用户基于token
      */
     @JvmStatic
-    fun getLoginUser(token: String): LoginUser? {
+    fun getLoginUser(token: String): UserInfo? {
         val session: SaSession? = try {
             StpUtil.getTokenSessionByToken(token)
         } catch (e: Exception) {
             return null
         }
 
-        return session?.get(ADMIN_USER_KEY) as? LoginUser
+        return session?.get(ADMIN_USER_KEY) as? UserInfo
     }
 
     /**

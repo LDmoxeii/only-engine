@@ -1,4 +1,4 @@
-package com.only.engine.security.entity
+package com.only.engine.entity
 
 /**
  * 权限信息

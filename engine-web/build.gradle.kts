@@ -4,28 +4,20 @@ plugins {
 }
 
 dependencies {
-    // Spring Boot Platform - 版本管理
     api(platform(libs.spring.boot.dependencies))
     kapt(libs.spring.boot.configuration.processor)
 
-    // 模块依赖
     implementation(project(":engine-common"))
     implementation(project(":engine-json"))
 
-    // JSON 核心依赖
-    implementation(libs.bundles.jackson)
-
-    // Web 核心依赖
-    implementation(libs.jakarta.validation.api)
     implementation(libs.hutool.jwt)
 
-    // Spring Web 依赖 - 仅编译时需要
-    compileOnly(libs.spring.boot.starter)
-    compileOnly(libs.spring.boot.starter.tomcat)
     compileOnly(libs.spring.web)
     compileOnly(libs.spring.webmvc)
+    compileOnly(libs.spring.boot.starter.tomcat)
+    compileOnly(libs.jakarta.validation.api)
+    compileOnly(libs.spring.boot.autoconfigure)
 
-    // 测试依赖
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.bundles.junit.core)
     testImplementation(libs.mockk) {

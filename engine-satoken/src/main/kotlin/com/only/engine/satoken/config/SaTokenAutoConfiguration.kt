@@ -7,11 +7,11 @@ import cn.dev33.satoken.stp.StpInterface
 import cn.dev33.satoken.stp.StpLogic
 import cn.dev33.satoken.util.SaResult
 import com.only.engine.SaTokenInitPrinter
+import com.only.engine.collector.UrlCollector
 import com.only.engine.factory.YmlPropertySourceFactory
 import com.only.engine.satoken.core.service.SaPermissionImpl
 import com.only.engine.satoken.handler.SaTokenExceptionHandler
 import com.only.engine.satoken.interceptor.SaTokenSecurityInterceptor
-import com.only.engine.security.url.UrlCollector
 import com.only.engine.spi.interceptor.SecurityInterceptor
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
