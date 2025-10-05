@@ -15,7 +15,7 @@
  */
 package com.only.engine.redis.manager
 
-import com.only.engine.redis.utils.RedisUtils
+import com.only.engine.redis.misc.RedisUtils
 import org.redisson.api.RMap
 import org.redisson.api.RMapCache
 import org.redisson.spring.cache.CacheConfig

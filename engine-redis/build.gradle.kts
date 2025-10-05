@@ -10,6 +10,7 @@ dependencies {
 
     // 模块依赖
     implementation(project(":engine-common"))
+    implementation(project(":engine-spi"))
 
     // Redisson Redis Client
     implementation(libs.redisson.spring.boot.starter)

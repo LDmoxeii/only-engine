@@ -1,4 +1,4 @@
-package com.only.engine.redis.config
+package com.only.engine.redis.config.properties
 
 import org.redisson.config.ReadMode
 import org.redisson.config.SubscriptionMode

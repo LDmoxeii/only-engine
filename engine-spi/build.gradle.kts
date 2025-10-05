@@ -11,15 +11,12 @@ dependencies {
     // 模块依赖
     implementation(project(":engine-common"))
 
-    // SnailJob 依赖
-    implementation(libs.snail.job.client.starter)
-    implementation(libs.snail.job.client.job.core)
-
     // Spring Boot 核心依赖
     implementation(libs.spring.boot.autoconfigure)
 
     // 编译时依赖
     compileOnly(libs.spring.boot.starter)
+    compileOnly(libs.spring.webmvc)
 
     // 测试依赖
     testImplementation(platform(libs.junit.bom))

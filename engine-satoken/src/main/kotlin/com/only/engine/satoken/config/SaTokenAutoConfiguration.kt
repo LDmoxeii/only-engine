@@ -11,8 +11,8 @@ import com.only.engine.factory.YmlPropertySourceFactory
 import com.only.engine.satoken.core.service.SaPermissionImpl
 import com.only.engine.satoken.handler.SaTokenExceptionHandler
 import com.only.engine.satoken.interceptor.SaTokenSecurityInterceptor
-import com.only.engine.security.interceptor.SecurityInterceptor
 import com.only.engine.security.url.UrlCollector
+import com.only.engine.spi.interceptor.SecurityInterceptor
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.AutoConfiguration

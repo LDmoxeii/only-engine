@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import com.only.engine.redis.RedisInitPrinter
+import com.only.engine.redis.config.properties.RedissonProperties
 import com.only.engine.redis.handler.KeyPrefixHandler
 import org.redisson.client.codec.StringCodec
 import org.redisson.codec.CompositeCodec

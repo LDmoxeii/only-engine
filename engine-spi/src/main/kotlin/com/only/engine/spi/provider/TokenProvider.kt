@@ -1,4 +1,4 @@
-package com.only.engine.redis.idempotent
+package com.only.engine.spi.provider
 
 /**
  * Token 提供者接口

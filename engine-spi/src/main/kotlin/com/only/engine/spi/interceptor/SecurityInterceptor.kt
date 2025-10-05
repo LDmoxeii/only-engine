@@ -1,4 +1,4 @@
-package com.only.engine.security.interceptor
+package com.only.engine.spi.interceptor
 
 import org.springframework.web.servlet.HandlerInterceptor
 
