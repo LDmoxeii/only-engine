@@ -1,4 +1,4 @@
-package com.only.engine.security.url
+package com.only.engine.collector
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.InitializingBean
