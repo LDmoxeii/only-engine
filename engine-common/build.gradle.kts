@@ -4,11 +4,9 @@ plugins {
 }
 
 dependencies {
-    // Spring Boot Platform - 版本管理
     api(platform(libs.spring.boot.dependencies))
     kapt(libs.spring.boot.configuration.processor)
 
-    // 核心传递依赖 - 所有模块都会用到
     api(libs.transmittable.thread.local)
     api(libs.slf4j.api)
 
@@ -19,11 +17,9 @@ dependencies {
     implementation(libs.hutool.captcha)
     implementation(libs.jakarta.servlet.api)
 
-    // 可选依赖 - 用户可以选择使用
     compileOnly(libs.bundles.jackson)
     compileOnly(libs.spring.webmvc)
 
-    // 测试依赖
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.bundles.junit.core)
     testImplementation(libs.mockk) {
