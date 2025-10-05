@@ -9,7 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.only.engine.entity.Result
 import com.only.engine.json.JsonInitPrinter
-import com.only.engine.json.misc.JsonMessageConverterUtils
+import com.only.engine.json.misc.JsonUtils
 import com.only.engine.json.serializer.BigNumberSerializer
 import com.only.engine.json.wrapper.ResultMixIn
 import org.slf4j.LoggerFactory
@@ -67,7 +67,7 @@ class JsonAutoConfiguration : JsonInitPrinter {
 
         val objectMapper = builder.build<ObjectMapper>()
         printInit(ObjectMapper::class.java, log)
-        JsonMessageConverterUtils.OBJECT_MAPPER = objectMapper
+        JsonUtils.OBJECT_MAPPER = objectMapper
         return objectMapper
     }
 }

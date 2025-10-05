@@ -12,7 +12,7 @@ import java.io.IOException
  *
  * 提供完整的 JSON 序列化和反序列化功能
  */
-object JsonMessageConverterUtils {
+object JsonUtils {
 
     lateinit var OBJECT_MAPPER: ObjectMapper
 
