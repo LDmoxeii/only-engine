@@ -14,7 +14,6 @@ dependencies {
     implementation(libs.hutool.extra)
     implementation(libs.hutool.jwt)
     implementation(libs.hutool.http)
-    implementation(libs.hutool.captcha)
     implementation(libs.jakarta.servlet.api)
 
     compileOnly(libs.bundles.jackson)

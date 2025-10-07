@@ -5,4 +5,4 @@ com.only.engine.web.advice.I18nResponseAdvice
 com.only.engine.web.advice.StringResponseAdvice
 com.only.engine.web.config.I18nConfiguration
 com.only.engine.web.config.WebFilterConfiguration
-com.only.engine.web.WebAutoConfiguration
+com.only.engine.web.config.CaptchaConfiguration

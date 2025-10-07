@@ -1,4 +1,4 @@
-package com.only.engine.web
+package com.only.engine.web.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -25,7 +25,13 @@ data class WebProperties(
     var filter: FilterProperties = FilterProperties(),
 
     /** 国际化相关配置 */
-    var i18n: I18nProperties = I18nProperties()
+    var i18n: I18nProperties = I18nProperties(),
+
+    /** CORS 跨域配置 */
+    var cors: CorsProperties = CorsProperties(),
+
+    /** 性能拦截器配置 */
+    var performanceInterceptor: PerformanceInterceptorProperties = PerformanceInterceptorProperties(),
 ) {
 
     /**
@@ -95,6 +101,8 @@ data class WebProperties(
         /** 请求体包装过滤器配置 */
         var requestBody: RequestBodyFilterProperties = RequestBodyFilterProperties(),
 
+        /** XSS 过滤器配置 */
+        var xss: XssFilterProperties = XssFilterProperties(),
     )
 
     /**
@@ -139,7 +147,55 @@ data class WebProperties(
         var filterUris: Set<String> = emptySet(),
 
         /** 不需要包装的Content-Type集合（默认空） */
-        var filterContentTypes: Set<String> = emptySet()
+        var filterContentTypes: Set<String> = emptySet(),
+    )
+
+    /**
+     * XSS 过滤器配置
+     */
+    data class XssFilterProperties(
+        /** 是否启用 XSS 过滤，默认 false */
+        var enable: Boolean = false,
+
+        /** 排除路径，不进行 XSS 过滤 */
+        var excludeUrls: MutableSet<String> = mutableSetOf(),
+    )
+
+    /**
+     * CORS 跨域配置
+     */
+    data class CorsProperties(
+        /** 是否启用 CORS，默认 true */
+        var enable: Boolean = true,
+
+        /** 允许的源模式，默认允许所有 */
+        var allowedOriginPatterns: MutableSet<String> = mutableSetOf("*"),
+
+        /** 允许的请求头，默认允许所有 */
+        var allowedHeaders: MutableSet<String> = mutableSetOf("*"),
+
+        /** 允许的请求方法，默认允许所有 */
+        var allowedMethods: MutableSet<String> = mutableSetOf("*"),
+
+        /** 是否允许发送凭证，默认 true */
+        var allowCredentials: Boolean = true,
+
+        /** 预检请求缓存时间（秒），默认 1800 秒 */
+        var maxAge: Long = 1800L,
+    )
+
+    /**
+     * 性能拦截器配置
+     */
+    data class PerformanceInterceptorProperties(
+        /** 是否启用性能拦截器，默认 true */
+        var enable: Boolean = true,
+
+        /** 日志级别，默认 INFO */
+        var logLevel: String = "INFO",
+
+        /** 慢请求阈值（毫秒），默认 3000 毫秒 */
+        var slowRequestThreshold: Long = 3000L,
     )
 
     /**

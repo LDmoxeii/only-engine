@@ -1,7 +1,7 @@
 package com.only.engine.web.config
 
 import com.only.engine.web.WebInitPrinter
-import com.only.engine.web.WebProperties
+import com.only.engine.web.config.properties.WebProperties
 import com.only.engine.web.filter.HealthCheckFilter
 import com.only.engine.web.filter.RequestBodyWrapperFilter
 import com.only.engine.web.filter.ThreadLocalFilter
@@ -9,11 +9,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.core.Ordered
 
 @AutoConfiguration
+@EnableConfigurationProperties(WebProperties::class)
 class WebFilterConfiguration : WebInitPrinter {
 
     companion object {

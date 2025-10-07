@@ -7,7 +7,8 @@ import com.only.engine.enums.HttpStatus
 import com.only.engine.exception.KnownException
 import com.only.engine.exception.WarnException
 import com.only.engine.web.WebInitPrinter
-import com.only.engine.web.WebProperties
+import com.only.engine.web.config.properties.WebProperties
+import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.ConstraintViolationException
@@ -17,11 +18,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.annotation.Order
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.BindException
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingPathVariableException
+import org.springframework.web.bind.MissingRequestHeaderException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import org.springframework.web.servlet.NoHandlerFoundException
+import java.io.IOException
 
 /**
  * 全局异常处理器
@@ -41,6 +49,82 @@ class GlobalExceptionHandlerAdvice(
 
     init {
         printInit(GlobalExceptionHandlerAdvice::class.java, log)
+    }
+
+    /**
+     * 找不到路由
+     */
+    @ExceptionHandler(NoHandlerFoundException::class)
+    fun handleNoHandlerFoundException(ex: NoHandlerFoundException, request: HttpServletRequest): Result<Void> {
+        val requestURI = request.requestURI
+        logError(request, "请求地址'$requestURI'不存在", ex)
+        return Result.error(StandardCode.UserSide.Exception.code, "请求地址不存在")
+    }
+
+    /**
+     * 请求方式不支持
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
+    fun handleMethodNotSupported(
+        ex: HttpRequestMethodNotSupportedException,
+        request: HttpServletRequest,
+    ): Result<Void> {
+        val requestURI = request.requestURI
+        logWarning(request, "请求地址'$requestURI',不支持'${ex.method}'请求", ex)
+        return Result.error(StandardCode.UserSide.Exception.code, "不支持的请求方法")
+    }
+
+    /**
+     * 缺少请求参数
+     */
+    @ExceptionHandler(MissingServletRequestParameterException::class)
+    fun handleMissingParameter(
+        ex: MissingServletRequestParameterException,
+        request: HttpServletRequest,
+    ): Result<Void> {
+        val message = "缺少必要的请求参数: ${ex.parameterName}"
+        logWarning(request, message, ex)
+        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
+    }
+
+    /**
+     * 请求参数类型不匹配
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    fun handleTypeMismatch(
+        ex: MethodArgumentTypeMismatchException,
+        request: HttpServletRequest,
+    ): Result<Void> {
+        val message =
+            "请求参数类型不匹配，参数[${ex.name}]要求类型为：'${ex.requiredType?.name}',但输入值为：'${ex.value}'"
+        logWarning(request, message, ex)
+        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
+    }
+
+    /**
+     * 缺少路径变量
+     */
+    @ExceptionHandler(MissingPathVariableException::class)
+    fun handleMissingPathVariable(
+        ex: MissingPathVariableException,
+        request: HttpServletRequest,
+    ): Result<Void> {
+        val message = "请求路径中缺少必需的路径变量[${ex.variableName}]"
+        logError(request, message, ex)
+        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
+    }
+
+    /**
+     * 缺少 Header 参数
+     */
+    @ExceptionHandler(MissingRequestHeaderException::class)
+    fun handleMissingHeader(
+        ex: MissingRequestHeaderException,
+        request: HttpServletRequest,
+    ): Result<Void> {
+        val message = "缺少必要的 Header 参数: ${ex.headerName}"
+        logWarning(request, message, ex)
+        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
     }
 
     @ExceptionHandler(HttpClientErrorException::class, HttpServerErrorException::class)
@@ -141,7 +225,40 @@ class GlobalExceptionHandlerAdvice(
         return Result.error(StandardCode.SystemSide.Exception)
     }
 
-    // ===================== 私有工具方法 ===================== //
+    /**
+     * Servlet 异常
+     */
+    @ExceptionHandler(ServletException::class)
+    fun handleServletException(ex: ServletException, request: HttpServletRequest): Result<Void> {
+        val requestURI = request.requestURI
+        logError(request, "请求地址'$requestURI',发生未知异常", ex)
+        return Result.error(StandardCode.SystemSide.Exception)
+    }
+
+    /**
+     * IO 异常处理
+     * 特殊处理 SSE 连接中断
+     */
+    @ExceptionHandler(IOException::class)
+    fun handleIOException(ex: IOException, request: HttpServletRequest): Result<Void>? {
+        val requestURI = request.requestURI
+        // SSE 经常性连接中断，例如关闭浏览器，直接屏蔽
+        if (requestURI.contains("sse", ignoreCase = true)) {
+            return null
+        }
+        logError(request, "请求地址'$requestURI',连接中断", ex)
+        return Result.error(StandardCode.SystemSide.Exception)
+    }
+
+    /**
+     * 运行时异常
+     */
+    @ExceptionHandler(RuntimeException::class)
+    fun handleRuntimeException(ex: RuntimeException, request: HttpServletRequest): Result<Void> {
+        val requestURI = request.requestURI
+        logError(request, "请求地址'$requestURI',发生运行时异常", ex)
+        return Result.error(StandardCode.SystemSide.Exception)
+    }
 
     /**
      * 判断是否为敏感异常（不应该暴露给用户的内部异常）

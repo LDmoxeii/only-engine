@@ -11,6 +11,11 @@ dependencies {
     implementation(project(":engine-json"))
 
     implementation(libs.hutool.jwt)
+    implementation(libs.hutool.captcha)
+    implementation(libs.hutool.core)
+    implementation(libs.hutool.extra)
+    implementation(libs.hutool.http)
+    implementation(libs.commons.lang3)
 
     compileOnly(libs.spring.web)
     compileOnly(libs.spring.webmvc)
