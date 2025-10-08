@@ -7,7 +7,6 @@ import com.only.engine.enums.HttpStatus
 import com.only.engine.exception.KnownException
 import com.only.engine.exception.WarnException
 import com.only.engine.web.WebInitPrinter
-import com.only.engine.web.config.properties.WebProperties
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -33,15 +32,12 @@ import java.io.IOException
 
 /**
  * 全局异常处理器
- * 使用新的StandardCode和配置系统
  */
 @Order(3)
 @AutoConfiguration
 @RestControllerAdvice
 @ConditionalOnProperty(prefix = "only.web.exception-handler", name = ["enable"], havingValue = "true")
-class GlobalExceptionHandlerAdvice(
-    private val webProperties: WebProperties
-) : WebInitPrinter {
+class GlobalExceptionHandlerAdvice() : WebInitPrinter {
 
     companion object {
         private val log = LoggerFactory.getLogger(GlobalExceptionHandlerAdvice::class.java)
@@ -163,7 +159,6 @@ class GlobalExceptionHandlerAdvice(
     fun httpMessageNotReadableException(
         ex: HttpMessageNotReadableException,
         request: HttpServletRequest,
-        response: HttpServletResponse
     ): Result<Void> {
         val message = "参数格式不匹配"
         logWarning(request, ex.message ?: message, ex)
@@ -208,20 +203,7 @@ class GlobalExceptionHandlerAdvice(
 
     @ExceptionHandler(Exception::class)
     fun exception(ex: Exception, request: HttpServletRequest): Result<Void> {
-        val shouldPrintStackTrace = webProperties.exceptionHandler.printStackTrace
-        if (shouldPrintStackTrace) {
-            logError(request, ex.message ?: "系统异常", ex)
-        } else {
-            logWarning(request, ex.message ?: "系统异常", ex)
-        }
-
-        // 检查是否需要替换敏感信息
-        val message = if (isSensitiveException(ex)) {
-            webProperties.exceptionHandler.sensitiveMessageReplacement
-        } else {
-            ex.message ?: "系统异常"
-        }
-
+        logError(request, ex.message ?: "系统异常", ex)
         return Result.error(StandardCode.SystemSide.Exception)
     }
 
@@ -279,30 +261,24 @@ class GlobalExceptionHandlerAdvice(
      * 日志工具函数
      */
     private fun logInfo(request: HttpServletRequest, message: String, e: Exception) {
-        if (webProperties.exceptionHandler.logLevel.ordinal <= WebProperties.LogLevel.INFO.ordinal) {
-            log.info(
-                "Path: [{}], Exception message: [{}], Exception: [{}]",
-                request.requestURI, message, e::class.simpleName
-            )
-        }
+        log.info(
+            "Path: [{}], Exception message: [{}], Exception: [{}]",
+            request.requestURI, message, e::class.simpleName
+        )
     }
 
     private fun logWarning(request: HttpServletRequest, message: String, e: Exception) {
-        if (webProperties.exceptionHandler.logLevel.ordinal <= WebProperties.LogLevel.WARN.ordinal) {
-            log.warn(
-                "Path: [{}], Exception message: [{}], Exception: [{}]",
-                request.requestURI, message, e::class.simpleName
-            )
-        }
+        log.warn(
+            "Path: [{}], Exception message: [{}], Exception: [{}]",
+            request.requestURI, message, e::class.simpleName
+        )
     }
 
     private fun logError(request: HttpServletRequest, message: String, e: Exception) {
-        if (webProperties.exceptionHandler.logLevel.ordinal <= WebProperties.LogLevel.ERROR.ordinal) {
-            log.error(
-                "Path: [{}], Exception message: [{}], Exception: [{}]",
-                request.requestURI, message, e::class.simpleName, e
-            )
-        }
+        log.error(
+            "Path: [{}], Exception message: [{}], Exception: [{}]",
+            request.requestURI, message, e::class.simpleName, e
+        )
     }
 
     /**

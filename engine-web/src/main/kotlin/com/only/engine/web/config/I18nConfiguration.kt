@@ -1,6 +1,7 @@
 package com.only.engine.web.config
 
 import com.only.engine.web.WebInitPrinter
+import com.only.engine.web.config.properties.I18nProperties
 import com.only.engine.web.i18n.I18nMessageDefaultHandler
 import com.only.engine.web.i18n.I18nMessageHandler
 import org.slf4j.LoggerFactory
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Bean
 import org.springframework.context.support.ResourceBundleMessageSource
@@ -15,6 +17,7 @@ import java.nio.charset.StandardCharsets
 
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "only.web.i18n", name = ["enable"], havingValue = "true")
+@EnableConfigurationProperties(I18nProperties::class)
 class I18nConfiguration : WebInitPrinter {
 
     companion object {

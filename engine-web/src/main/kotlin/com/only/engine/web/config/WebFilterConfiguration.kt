@@ -1,7 +1,7 @@
 package com.only.engine.web.config
 
 import com.only.engine.web.WebInitPrinter
-import com.only.engine.web.config.properties.WebProperties
+import com.only.engine.web.config.properties.FilterProperties
 import com.only.engine.web.filter.HealthCheckFilter
 import com.only.engine.web.filter.RequestBodyWrapperFilter
 import com.only.engine.web.filter.ThreadLocalFilter
@@ -15,8 +15,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.core.Ordered
 
 @AutoConfiguration
-@EnableConfigurationProperties(WebProperties::class)
-class WebFilterConfiguration : WebInitPrinter {
+@EnableConfigurationProperties(FilterProperties::class)
+class WebFilterConfiguration(
+    private val filterProperties: FilterProperties,
+) : WebInitPrinter {
 
     companion object {
         private val log = LoggerFactory.getLogger(WebFilterConfiguration::class.java)
@@ -43,9 +45,9 @@ class WebFilterConfiguration : WebInitPrinter {
     @Bean(RequestBodyWrapperFilter.BEAN_NAME)
     @ConditionalOnMissingBean(name = [RequestBodyWrapperFilter.BEAN_NAME])
     @ConditionalOnProperty(prefix = "only.web.filter.request-body", name = ["enable"], havingValue = "true")
-    fun requestBodyWrapperFilter(webProperties: WebProperties): FilterRegistrationBean<RequestBodyWrapperFilter> {
-        val skipPath = webProperties.filter.userLogin.skipPaths.apply {
-            addAll(webProperties.filter.requestBody.filterUris)
+    fun requestBodyWrapperFilter(): FilterRegistrationBean<RequestBodyWrapperFilter> {
+        val skipPath = filterProperties.userLogin.skipPaths.apply {
+            addAll(filterProperties.requestBody.filterUris)
         }
 
         val filter = RequestBodyWrapperFilter(skipPath)

@@ -5,7 +5,6 @@ import cn.hutool.core.map.MapUtil
 import cn.hutool.core.util.ObjectUtil
 import com.only.engine.json.misc.JsonUtils
 import com.only.engine.web.WebInitPrinter
-import com.only.engine.web.config.properties.WebProperties
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.lang3.time.StopWatch
@@ -24,7 +23,7 @@ import java.io.BufferedReader
  * @author LD_moxeii
  */
 class WebPerformanceInterceptor(
-    private val webProperties: WebProperties,
+    private val slowRequestThreshold: Long = 3000L,
 ) : HandlerInterceptor, WebInitPrinter {
 
     companion object {
@@ -83,7 +82,7 @@ class WebPerformanceInterceptor(
             val url = "${request.method} ${request.requestURI}"
 
             // 判断是否为慢请求
-            val threshold = webProperties.performanceInterceptor.slowRequestThreshold
+            val threshold = slowRequestThreshold
             if (time > threshold) {
                 log.warn("[PLUS]慢请求告警 => URL[{}],耗时:[{}]毫秒,阈值:[{}]毫秒", url, time, threshold)
             } else {

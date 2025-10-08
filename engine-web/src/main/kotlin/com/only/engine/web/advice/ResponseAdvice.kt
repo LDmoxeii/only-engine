@@ -6,7 +6,6 @@ import com.only.engine.web.annotation.IgnoreResultWrapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.MethodParameter
 import org.springframework.core.annotation.AnnotatedElementUtils
@@ -21,7 +20,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 @Order(2)
 @AutoConfiguration
 @RestControllerAdvice
-@ConditionalOnClass(name = ["org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice"])
 @ConditionalOnProperty(prefix = "only.web.result-wrapper", name = ["enable"], havingValue = "true")
 class ResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
 

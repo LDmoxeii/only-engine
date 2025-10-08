@@ -1,7 +1,8 @@
 package com.only.engine.web.config
 
 import com.only.engine.web.WebInitPrinter
-import com.only.engine.web.config.properties.WebProperties
+import com.only.engine.web.config.properties.CorsProperties
+import com.only.engine.web.config.properties.PerformanceInterceptorProperties
 import com.only.engine.web.interceptor.WebPerformanceInterceptor
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -23,9 +24,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
  * @author LD_moxeii
  */
 @AutoConfiguration
-@EnableConfigurationProperties(WebProperties::class)
+@EnableConfigurationProperties(CorsProperties::class, PerformanceInterceptorProperties::class)
 class ResourceConfiguration(
-    private val webProperties: WebProperties,
+    private val corsProperties: CorsProperties,
+    private val performanceInterceptorProperties: PerformanceInterceptorProperties,
 ) : WebMvcConfigurer, WebInitPrinter {
 
     companion object {
@@ -38,8 +40,8 @@ class ResourceConfiguration(
     }
 
     override fun addInterceptors(registry: InterceptorRegistry) {
-        if (webProperties.performanceInterceptor.enable) {
-            registry.addInterceptor(WebPerformanceInterceptor(webProperties))
+        if (performanceInterceptorProperties.enable) {
+            registry.addInterceptor(WebPerformanceInterceptor(performanceInterceptorProperties.slowRequestThreshold))
         }
     }
 
@@ -52,19 +54,19 @@ class ResourceConfiguration(
     fun corsFilter(): CorsFilter {
         val config = CorsConfiguration().apply {
             // 设置是否允许发送凭证
-            allowCredentials = webProperties.cors.allowCredentials
+            allowCredentials = corsProperties.allowCredentials
 
             // 设置允许的源模式
-            webProperties.cors.allowedOriginPatterns.forEach { addAllowedOriginPattern(it) }
+            corsProperties.allowedOriginPatterns.forEach { addAllowedOriginPattern(it) }
 
             // 设置允许的请求头
-            webProperties.cors.allowedHeaders.forEach { addAllowedHeader(it) }
+            corsProperties.allowedHeaders.forEach { addAllowedHeader(it) }
 
             // 设置允许的请求方法
-            webProperties.cors.allowedMethods.forEach { addAllowedMethod(it) }
+            corsProperties.allowedMethods.forEach { addAllowedMethod(it) }
 
             // 设置预检请求缓存时间
-            maxAge = webProperties.cors.maxAge
+            maxAge = corsProperties.maxAge
         }
 
         // 创建 CORS 配置源

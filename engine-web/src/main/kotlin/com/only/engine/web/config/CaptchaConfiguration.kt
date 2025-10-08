@@ -4,7 +4,7 @@ import cn.hutool.captcha.CaptchaUtil
 import cn.hutool.captcha.CircleCaptcha
 import cn.hutool.captcha.LineCaptcha
 import cn.hutool.captcha.ShearCaptcha
-import com.only.engine.web.config.properties.WebProperties
+import com.only.engine.web.config.properties.CaptchaProperties
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -20,7 +20,7 @@ import java.awt.Font
  */
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "only.web.captcha", name = ["enable"], havingValue = "true")
-@EnableConfigurationProperties(WebProperties::class)
+@EnableConfigurationProperties(CaptchaProperties::class)
 class CaptchaConfiguration {
 
     companion object {
