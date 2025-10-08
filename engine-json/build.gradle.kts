@@ -9,6 +9,8 @@ dependencies {
 
     implementation(project(":engine-common"))
 
+    implementation(libs.hutool.extra)
+
     api(libs.bundles.jackson)
 
     compileOnly(libs.spring.boot.autoconfigure)
