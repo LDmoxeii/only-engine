@@ -1,5 +1,6 @@
 package com.only.engine.json.misc
 
+import cn.hutool.extra.spring.SpringUtil
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
@@ -14,12 +15,7 @@ import java.io.IOException
  */
 object JsonUtils {
 
-    lateinit var OBJECT_MAPPER: ObjectMapper
-
-    /**
-     * 获取 ObjectMapper 实例
-     */
-    fun getObjectMapper(): ObjectMapper = OBJECT_MAPPER
+    val OBJECT_MAPPER: ObjectMapper by lazy { SpringUtil.getBean(ObjectMapper::class.java) }
 
     /**
      * 将对象转换为JSON格式的字符串
