@@ -31,7 +31,7 @@ class I18nConfiguration : WebInitPrinter {
      * 创建并配置国际化消息源
      */
     @Bean(name = [I18N_MESSAGE_SOURCE])
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = [I18N_MESSAGE_SOURCE])
     fun i18nMessageSource(): MessageSource {
         printInit(I18N_MESSAGE_SOURCE, log)
         return ResourceBundleMessageSource().apply {
@@ -44,7 +44,7 @@ class I18nConfiguration : WebInitPrinter {
      * 创建国际化消息处理器
      */
     @Bean(name = [I18N_MESSAGE_HANDLER])
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = [I18N_MESSAGE_HANDLER])
     fun i18nMessageHandler(@Qualifier(I18N_MESSAGE_SOURCE) messageSource: MessageSource): I18nMessageHandler {
         printInit(I18nMessageDefaultHandler::class.java, log)
         return I18nMessageDefaultHandler(messageSource)

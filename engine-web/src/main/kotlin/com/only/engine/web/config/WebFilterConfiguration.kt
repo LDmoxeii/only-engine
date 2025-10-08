@@ -27,7 +27,12 @@ class WebFilterConfiguration : WebInitPrinter {
      */
     @Bean(HealthCheckFilter.BEAN_NAME)
     @ConditionalOnMissingBean(name = [HealthCheckFilter.BEAN_NAME])
-    @ConditionalOnProperty(prefix = "only.web.filter.health-check", name = ["enable"], matchIfMissing = true)
+    @ConditionalOnProperty(
+        prefix = "only.web.filter.health-check",
+        name = ["enable"],
+        havingValue = "false",
+        matchIfMissing = true
+    )
     fun healthCheckFilter(): FilterRegistrationBean<HealthCheckFilter> {
         return FilterRegistrationBean(HealthCheckFilter()).apply {
             addUrlPatterns("/actuator/health")
@@ -42,7 +47,12 @@ class WebFilterConfiguration : WebInitPrinter {
      */
     @Bean(RequestBodyWrapperFilter.BEAN_NAME)
     @ConditionalOnMissingBean(name = [RequestBodyWrapperFilter.BEAN_NAME])
-    @ConditionalOnProperty(prefix = "only.web.filter.request-body", name = ["enable"], matchIfMissing = true)
+    @ConditionalOnProperty(
+        prefix = "only.web.filter.request-body",
+        name = ["enable"],
+        havingValue = "false",
+        matchIfMissing = true
+    )
     fun requestBodyWrapperFilter(webProperties: WebProperties): FilterRegistrationBean<RequestBodyWrapperFilter> {
         val skipPath = webProperties.filter.userLogin.skipPaths.apply {
             addAll(webProperties.filter.requestBody.filterUris)
@@ -63,7 +73,12 @@ class WebFilterConfiguration : WebInitPrinter {
      */
     @Bean(ThreadLocalFilter.BEAN_NAME)
     @ConditionalOnMissingBean(name = [ThreadLocalFilter.BEAN_NAME])
-    @ConditionalOnProperty(prefix = "only.web.filter.thread-local", name = ["enable"], matchIfMissing = true)
+    @ConditionalOnProperty(
+        prefix = "only.web.filter.thread-local",
+        name = ["enable"],
+        havingValue = "false",
+        matchIfMissing = true
+    )
     fun threadLocalFilter(): FilterRegistrationBean<ThreadLocalFilter> {
         return FilterRegistrationBean(ThreadLocalFilter()).apply {
             addUrlPatterns("/*")
