@@ -38,7 +38,7 @@ import java.io.IOException
 @Order(3)
 @AutoConfiguration
 @RestControllerAdvice
-@ConditionalOnProperty(prefix = "only.web.exception-handler", name = ["enable"], matchIfMissing = true)
+@ConditionalOnProperty(prefix = "only.web.exception-handler", name = ["enable"], havingValue = "true")
 class GlobalExceptionHandlerAdvice(
     private val webProperties: WebProperties
 ) : WebInitPrinter {

@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @AutoConfiguration
 @EnableConfigurationProperties(SecurityProperties::class)
-@ConditionalOnProperty(prefix = "only.security", name = ["enable"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "only.security", name = ["enable"], havingValue = "true")
 class SecurityAutoConfiguration(
     private val securityProperties: SecurityProperties,
     private val securityInterceptors: List<SecurityInterceptor>,

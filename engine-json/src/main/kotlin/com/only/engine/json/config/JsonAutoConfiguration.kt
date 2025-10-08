@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.json", name = ["enabled"], matchIfMissing = true)
+@ConditionalOnProperty(prefix = "only.json", name = ["enable"], havingValue = "true")
 class JsonAutoConfiguration : JsonInitPrinter {
 
     companion object {

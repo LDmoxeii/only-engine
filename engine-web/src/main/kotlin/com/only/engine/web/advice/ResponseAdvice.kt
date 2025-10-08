@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 @AutoConfiguration
 @RestControllerAdvice
 @ConditionalOnClass(name = ["org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice"])
-@ConditionalOnProperty(prefix = "only.web.result-wrapper", name = ["enable"], matchIfMissing = true)
+@ConditionalOnProperty(prefix = "only.web.result-wrapper", name = ["enable"], havingValue = "true")
 class ResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
 
     companion object {

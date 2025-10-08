@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration
 @ConditionalOnClass(ImmutableModule::class)
-@ConditionalOnProperty(prefix = "only.jimmer", name = ["enabled"], matchIfMissing = true)
+@ConditionalOnProperty(prefix = "only.jimmer", name = ["enable"], havingValue = "true")
 class JimmerAutoConfiguration : JimmerInitPrinter {
 
     companion object {

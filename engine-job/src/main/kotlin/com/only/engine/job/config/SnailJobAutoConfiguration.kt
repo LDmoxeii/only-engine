@@ -27,7 +27,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
  * @author LD_moxeii
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.job", name = ["enabled"], matchIfMissing = true)
+@ConditionalOnProperty(prefix = "only.job", name = ["enable"], havingValue = "true")
 @EnableScheduling
 @EnableSnailJob
 class SnailJobAutoConfiguration : JobInitPrinter {

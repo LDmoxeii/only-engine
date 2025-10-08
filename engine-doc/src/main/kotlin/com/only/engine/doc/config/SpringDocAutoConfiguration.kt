@@ -39,7 +39,7 @@ import java.util.*
  */
 @AutoConfiguration(before = [SpringDocConfiguration::class])
 @EnableConfigurationProperties(SpringDocProperties::class)
-@ConditionalOnProperty(name = ["springdoc.api-docs.enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "springdoc.api-docs", name = ["enable"], havingValue = "true")
 class SpringDocAutoConfiguration(
     private val serverProperties: ServerProperties,
 ) : DocInitPrinter {

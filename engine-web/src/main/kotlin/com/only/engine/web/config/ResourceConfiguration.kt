@@ -48,7 +48,7 @@ class ResourceConfiguration(
      */
     @Bean(CORS_FILTER_BEAN_NAME)
     @ConditionalOnMissingBean(name = [CORS_FILTER_BEAN_NAME])
-    @ConditionalOnProperty(prefix = "only.web.cors", name = ["enable"], havingValue = "false", matchIfMissing = false)
+    @ConditionalOnProperty(prefix = "only.web.cors", name = ["enable"], havingValue = "true")
     fun corsFilter(): CorsFilter {
         val config = CorsConfiguration().apply {
             // 设置是否允许发送凭证
