@@ -1,7 +1,7 @@
 package com.only.engine.web.config
 
 import com.only.engine.web.WebInitPrinter
-import com.only.engine.web.config.properties.I18nProperties
+import com.only.engine.web.config.properties.AdviceProperties
 import com.only.engine.web.i18n.I18nMessageDefaultHandler
 import com.only.engine.web.i18n.I18nMessageHandler
 import org.slf4j.LoggerFactory
@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets
 
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "only.web.i18n", name = ["enable"], havingValue = "true")
-@EnableConfigurationProperties(I18nProperties::class)
+@EnableConfigurationProperties(AdviceProperties::class)
 class I18nConfiguration : WebInitPrinter {
 
     companion object {
