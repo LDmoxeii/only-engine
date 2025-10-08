@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.only.engine.entity.Result
 import com.only.engine.json.JsonInitPrinter
+import com.only.engine.json.config.properties.JsonProperties
 import com.only.engine.json.misc.JsonUtils
 import com.only.engine.json.serializer.BigNumberSerializer
 import com.only.engine.json.wrapper.ResultMixIn
@@ -17,6 +18,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import java.math.BigDecimal
@@ -27,10 +29,11 @@ import java.util.*
 
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "only.json", name = ["enable"], havingValue = "true")
-class JsonAutoConfiguration : JsonInitPrinter {
+@EnableConfigurationProperties(JsonProperties::class)
+class JsonConfiguration : JsonInitPrinter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(JsonAutoConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(JsonConfiguration::class.java)
     }
 
     @Bean

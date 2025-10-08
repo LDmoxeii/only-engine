@@ -4,7 +4,6 @@ import com.only.engine.jimmer.JimmerInitPrinter
 import com.only.engine.jimmer.config.properties.JimmerProperties
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -33,7 +32,6 @@ class JimmerAutoConfiguration : JimmerInitPrinter {
      * 使 ObjectMapper 支持 Jimmer 不可变对象的序列化和反序列化
      */
     @Bean
-    @ConditionalOnMissingBean
     fun jimmerJackson2ObjectMapperBuilderCustomizer(): Jackson2ObjectMapperBuilderCustomizer {
         printInit(JimmerObjectMapperBuilderCustomizer::class.java, log)
         return JimmerObjectMapperBuilderCustomizer()
