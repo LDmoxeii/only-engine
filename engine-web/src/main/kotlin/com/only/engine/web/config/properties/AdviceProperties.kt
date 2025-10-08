@@ -2,7 +2,7 @@ package com.only.engine.web.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties(prefix = "only.web.advice")
+@ConfigurationProperties(prefix = "only.engine.web.advice")
 class AdviceProperties(
     var i18n: I18nProperties,
     var globalException: GlobalExceptionProperties,

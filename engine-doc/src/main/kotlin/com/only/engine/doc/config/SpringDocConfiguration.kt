@@ -1,6 +1,7 @@
 package com.only.engine.doc.config
 
 import com.only.engine.doc.DocInitPrinter
+import com.only.engine.doc.config.properties.SpringDocProperties
 import com.only.engine.doc.handler.OpenApiHandler
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Paths
@@ -39,13 +40,13 @@ import java.util.*
  */
 @AutoConfiguration(before = [SpringDocConfiguration::class])
 @EnableConfigurationProperties(SpringDocProperties::class)
-@ConditionalOnProperty(prefix = "springdoc.api-docs", name = ["enable"], havingValue = "true")
-class SpringDocAutoConfiguration(
+@ConditionalOnProperty(prefix = "only.engine.doc", name = ["enable"], havingValue = "true")
+class SpringDocConfiguration(
     private val serverProperties: ServerProperties,
 ) : DocInitPrinter {
 
     companion object {
-        private val log = org.slf4j.LoggerFactory.getLogger(SpringDocAutoConfiguration::class.java)
+        private val log = org.slf4j.LoggerFactory.getLogger(SpringDocConfiguration::class.java)
     }
 
     /**
@@ -97,8 +98,8 @@ class SpringDocAutoConfiguration(
         securityParser: SecurityService,
         springDocConfigProperties: SpringDocConfigProperties,
         propertyResolverUtils: PropertyResolverUtils,
-        openApiBuilderCustomisers: Optional<List<OpenApiBuilderCustomizer>>,
-        serverBaseUrlCustomisers: Optional<List<ServerBaseUrlCustomizer>>,
+        openApiBuilderCustomizers: Optional<List<OpenApiBuilderCustomizer>>,
+        serverBaseUrlCustomizers: Optional<List<ServerBaseUrlCustomizer>>,
         javadocProvider: Optional<JavadocProvider>,
     ): OpenAPIService {
         return OpenApiHandler(
@@ -106,8 +107,8 @@ class SpringDocAutoConfiguration(
             securityParser,
             springDocConfigProperties,
             propertyResolverUtils,
-            openApiBuilderCustomisers,
-            serverBaseUrlCustomisers,
+            openApiBuilderCustomizers,
+            serverBaseUrlCustomizers,
             javadocProvider
         )
     }

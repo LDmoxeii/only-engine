@@ -1,8 +1,10 @@
 package com.only.engine.security.config
 
 import com.only.engine.security.SecurityInitPrinter
+import com.only.engine.security.config.properties.SecurityProperties
 import com.only.engine.spi.interceptor.SecurityInterceptor
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -11,18 +13,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @AutoConfiguration
 @EnableConfigurationProperties(SecurityProperties::class)
-@ConditionalOnProperty(prefix = "only.security", name = ["enable"], havingValue = "true")
-class SecurityAutoConfiguration(
+@ConditionalOnProperty(prefix = "only.engine.security", name = ["enable"], havingValue = "true")
+class SecurityConfiguration(
     private val securityProperties: SecurityProperties,
-    private val securityInterceptors: List<SecurityInterceptor>,
+    private val securityInterceptorsProvider: ObjectProvider<SecurityInterceptor>,
 ) : WebMvcConfigurer, SecurityInitPrinter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(SecurityAutoConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(SecurityConfiguration::class.java)
     }
 
     override fun addInterceptors(registry: InterceptorRegistry) {
-        securityInterceptors.forEach { interceptor ->
+        securityInterceptorsProvider.orderedStream().forEach { interceptor ->
             registry.addInterceptor(interceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(*securityProperties.excludes)

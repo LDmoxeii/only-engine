@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *
  * @author LD_moxeii
  */
-@ConfigurationProperties(prefix = "redisson")
+@ConfigurationProperties(prefix = "only.engine.redisson")
 data class RedissonProperties(
     /**
      * Redis 缓存 key 前缀

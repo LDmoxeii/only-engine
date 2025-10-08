@@ -27,13 +27,13 @@ import org.springframework.scheduling.annotation.EnableScheduling
  * @author LD_moxeii
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.job", name = ["enable"], havingValue = "true")
+@ConditionalOnProperty(prefix = "only.engine.job", name = ["enable"], havingValue = "true")
 @EnableScheduling
 @EnableSnailJob
-class SnailJobAutoConfiguration : JobInitPrinter {
+class SnailJobConfiguration : JobInitPrinter {
 
     companion object {
-        private val log = org.slf4j.LoggerFactory.getLogger(SnailJobAutoConfiguration::class.java)
+        private val log = org.slf4j.LoggerFactory.getLogger(SnailJobConfiguration::class.java)
     }
 
     /**
@@ -41,7 +41,7 @@ class SnailJobAutoConfiguration : JobInitPrinter {
      */
     @EventListener(SnailClientStartingEvent::class)
     fun onStarting(event: SnailClientStartingEvent) {
-        printInit(SnailJobAutoConfiguration::class.java, log)
+        printInit(SnailJobConfiguration::class.java, log)
         val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
         val snailAppender = SnailLogbackAppender<ILoggingEvent>().apply {
             name = "snail_log_appender"

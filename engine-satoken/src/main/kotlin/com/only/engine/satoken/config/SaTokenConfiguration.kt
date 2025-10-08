@@ -6,13 +6,15 @@ import cn.dev33.satoken.jwt.StpLogicJwtForSimple
 import cn.dev33.satoken.stp.StpInterface
 import cn.dev33.satoken.stp.StpLogic
 import cn.dev33.satoken.util.SaResult
-import com.only.engine.SaTokenInitPrinter
 import com.only.engine.collector.UrlCollector
 import com.only.engine.factory.YmlPropertySourceFactory
-import com.only.engine.satoken.core.service.SaPermissionImpl
+import com.only.engine.satoken.SaTokenInitPrinter
+import com.only.engine.satoken.core.service.SaPermission
 import com.only.engine.satoken.handler.SaTokenExceptionHandler
+import com.only.engine.satoken.idempotent.SaTokenProvider
 import com.only.engine.satoken.interceptor.SaTokenSecurityInterceptor
 import com.only.engine.spi.interceptor.SecurityInterceptor
+import com.only.engine.spi.provider.TokenProvider
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -23,9 +25,9 @@ import org.springframework.context.annotation.PropertySource
 import org.springframework.http.HttpStatus
 
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.security", name = ["provider"], havingValue = "sa-token", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "only.security", name = ["provider"], havingValue = "sa-token")
 @PropertySource(value = ["classpath:common-satoken.yml"], factory = YmlPropertySourceFactory::class)
-class SaTokenAutoConfiguration(
+class SaTokenConfiguration(
     @Value("\${spring.boot.admin.client.username:admin}")
     private val actuatorUsername: String,
     @Value("\${spring.boot.admin.client.password:123456}")
@@ -34,7 +36,7 @@ class SaTokenAutoConfiguration(
 ) : SaTokenInitPrinter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(SaTokenAutoConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(SaTokenConfiguration::class.java)
     }
 
     @Bean
@@ -48,7 +50,7 @@ class SaTokenAutoConfiguration(
     @Bean
     @ConditionalOnMissingBean
     fun stpInterface(): StpInterface {
-        val impl = SaPermissionImpl()
+        val impl = SaPermission()
         printInit(StpInterface::class.java, log)
         return impl
     }
@@ -83,5 +85,13 @@ class SaTokenAutoConfiguration(
 
         printInit(SaServletFilter::class.java, log)
         return filter
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(TokenProvider::class)
+    fun saTokenProvider(): TokenProvider {
+        printInit(SaTokenProvider::class.java, log)
+
+        return SaTokenProvider()
     }
 }

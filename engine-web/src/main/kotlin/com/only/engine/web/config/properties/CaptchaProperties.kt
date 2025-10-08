@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 /**
  * 验证码配置
  */
-@ConfigurationProperties(prefix = "only.web.captcha")
+@ConfigurationProperties(prefix = "only.engine.web.captcha")
 data class CaptchaProperties(
     /**
      * 是否启用验证码

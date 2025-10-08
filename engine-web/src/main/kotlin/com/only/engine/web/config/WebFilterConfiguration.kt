@@ -24,7 +24,7 @@ class WebFilterConfiguration(
      */
     @Bean(HealthCheckFilter.BEAN_NAME)
     @ConditionalOnMissingBean(name = [HealthCheckFilter.BEAN_NAME])
-    @ConditionalOnProperty(prefix = "only.web.filter.health-check", name = ["enable"], havingValue = "true")
+    @ConditionalOnProperty(prefix = "only.engine.web.filter.health-check", name = ["enable"], havingValue = "true")
     fun healthCheckFilter(): FilterRegistrationBean<HealthCheckFilter> {
         return FilterRegistrationBean(HealthCheckFilter()).apply {
             addUrlPatterns("/actuator/health")
@@ -39,7 +39,7 @@ class WebFilterConfiguration(
      */
     @Bean(RequestBodyWrapperFilter.BEAN_NAME)
     @ConditionalOnMissingBean(name = [RequestBodyWrapperFilter.BEAN_NAME])
-    @ConditionalOnProperty(prefix = "only.web.filter.request-body", name = ["enable"], havingValue = "true")
+    @ConditionalOnProperty(prefix = "only.engine.web.filter.request-body", name = ["enable"], havingValue = "true")
     fun requestBodyWrapperFilter(): FilterRegistrationBean<RequestBodyWrapperFilter> {
         val skipPath = filterProperties.userLogin.skipPaths.apply {
             addAll(filterProperties.requestBody.filterUris)
@@ -60,7 +60,7 @@ class WebFilterConfiguration(
      */
     @Bean(ThreadLocalFilter.BEAN_NAME)
     @ConditionalOnMissingBean(name = [ThreadLocalFilter.BEAN_NAME])
-    @ConditionalOnProperty(prefix = "only.web.filter.thread-local", name = ["enable"], havingValue = "true")
+    @ConditionalOnProperty(prefix = "only.engine.web.filter.thread-local", name = ["enable"], havingValue = "true")
     fun threadLocalFilter(): FilterRegistrationBean<ThreadLocalFilter> {
         return FilterRegistrationBean(ThreadLocalFilter()).apply {
             addUrlPatterns("/*")

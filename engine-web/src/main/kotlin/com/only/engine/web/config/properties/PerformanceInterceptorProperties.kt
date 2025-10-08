@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 /**
  * 性能拦截器配置
  */
-@ConfigurationProperties(prefix = "only.web.performance-interceptor")
+@ConfigurationProperties(prefix = "only.engine.web.performance-interceptor")
 data class PerformanceInterceptorProperties(
     /** 是否启用性能拦截器，默认 true */
     var enable: Boolean = true,

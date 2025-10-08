@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 /**
  * CORS 跨域配置
  */
-@ConfigurationProperties(prefix = "only.web.cors")
+@ConfigurationProperties(prefix = "only.engine.web.cors")
 data class CorsProperties(
     /** 是否启用 CORS，默认 true */
     var enable: Boolean = true,

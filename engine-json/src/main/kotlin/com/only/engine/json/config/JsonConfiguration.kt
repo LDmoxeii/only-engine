@@ -14,6 +14,7 @@ import com.only.engine.json.misc.JsonUtils
 import com.only.engine.json.serializer.BigNumberSerializer
 import com.only.engine.json.wrapper.ResultMixIn
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -39,7 +40,7 @@ class JsonConfiguration : JsonInitPrinter {
     @Bean
     @ConditionalOnMissingBean
     fun objectMapper(
-        builderCustomizers: List<Jackson2ObjectMapperBuilderCustomizer> = emptyList(),
+        customizersProvider: ObjectProvider<Jackson2ObjectMapperBuilderCustomizer>,
     ): ObjectMapper {
         // 创建 JavaTimeModule 并配置序列化器
         val javaTimeModule = JavaTimeModule().apply {
@@ -66,11 +67,12 @@ class JsonConfiguration : JsonInitPrinter {
             .timeZone(TimeZone.getDefault())
 
         // 应用所有 Builder 定制器
-        builderCustomizers.forEach { it.customize(builder) }
+        customizersProvider.orderedStream().forEach { it.customize(builder) }
 
         val objectMapper = builder.build<ObjectMapper>()
         printInit(ObjectMapper::class.java, log)
         JsonUtils.OBJECT_MAPPER = objectMapper
+        printInit(JsonUtils::class.java, log)
         return objectMapper
     }
 }

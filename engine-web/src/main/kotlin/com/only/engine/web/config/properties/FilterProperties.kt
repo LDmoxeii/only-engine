@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 /**
  * 过滤器配置
  */
-@ConfigurationProperties(prefix = "only.web.filter")
+@ConfigurationProperties(prefix = "only.engine.web.filter")
 data class FilterProperties(
 
     /** 健康检查过滤器配置 */

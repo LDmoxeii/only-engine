@@ -20,7 +20,7 @@ import java.awt.Font
  * @author LD_moxeii
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.web.captcha", name = ["enable"], havingValue = "true")
+@ConditionalOnProperty(prefix = "only.engine.web.captcha", name = ["enable"], havingValue = "true")
 @EnableConfigurationProperties(CaptchaProperties::class)
 class CaptchaConfiguration : WebInitPrinter {
 

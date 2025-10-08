@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 @Order(4)
 @AutoConfiguration
 @RestControllerAdvice(basePackages = ["edu.only"])
-@ConditionalOnProperty(prefix = "only.web.i18n", name = ["enable"], havingValue = "true")
+@ConditionalOnProperty(prefix = "only.engine.web.i18n", name = ["enable"], havingValue = "true")
 class I18nResponseAdvice(
     i18nMessageHandlerObjectProvider: ObjectProvider<I18nMessageHandler>,
 ) : ResponseBodyAdvice<Any>, WebInitPrinter {

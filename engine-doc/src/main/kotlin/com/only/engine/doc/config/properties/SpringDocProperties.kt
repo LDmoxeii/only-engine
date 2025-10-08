@@ -1,4 +1,4 @@
-package com.only.engine.doc.config
+package com.only.engine.doc.config.properties
 
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.ExternalDocumentation
@@ -13,8 +13,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *
  * @author LD_moxeii
  */
-@ConfigurationProperties(prefix = "springdoc")
+@ConfigurationProperties(prefix = "only.engine.doc")
 data class SpringDocProperties(
+
+    /**
+     * 是否启用文档
+     */
+    var enable: Boolean = false,
+
     /**
      * 文档基本信息
      */

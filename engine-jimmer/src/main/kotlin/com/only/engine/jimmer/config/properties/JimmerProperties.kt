@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *
  * @author LD_moxeii
  */
-@ConfigurationProperties(prefix = "only.jimmer")
+@ConfigurationProperties(prefix = "only.engine.jimmer")
 class JimmerProperties {
     /**
      * 是否启用 Jimmer

@@ -8,7 +8,7 @@ import com.only.engine.satoken.utils.LoginHelper
  *
  * @author LD_moxeii
  */
-class SaPermissionImpl : StpInterface {
+class SaPermission : StpInterface {
 
     /**
      * 获取菜单权限列表
