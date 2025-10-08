@@ -39,5 +39,6 @@ include(":engine-redis")
 include(":engine-security")
 include(":engine-satoken")
 include(":engine-web")
+include(":engine-captcha")
 
 rootProject.name = "only-engine"
