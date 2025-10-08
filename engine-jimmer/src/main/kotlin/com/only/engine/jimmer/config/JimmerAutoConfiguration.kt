@@ -1,13 +1,13 @@
 package com.only.engine.jimmer.config
 
 import com.only.engine.jimmer.JimmerInitPrinter
-import org.babyfish.jimmer.jackson.ImmutableModule
+import com.only.engine.jimmer.config.properties.JimmerProperties
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 
 /**
@@ -18,8 +18,8 @@ import org.springframework.context.annotation.Bean
  * 2. only.jimmer.enabled 属性为 true（默认为 true）
  */
 @AutoConfiguration
-@ConditionalOnClass(ImmutableModule::class)
 @ConditionalOnProperty(prefix = "only.jimmer", name = ["enable"], havingValue = "true")
+@EnableConfigurationProperties(JimmerProperties::class)
 class JimmerAutoConfiguration : JimmerInitPrinter {
 
     companion object {
