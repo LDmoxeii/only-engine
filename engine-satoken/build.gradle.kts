@@ -10,6 +10,8 @@ dependencies {
     implementation(project(":engine-common"))
     implementation(project(":engine-spi"))
 
+    implementation(libs.hutool.extra)
+
     api(libs.sa.token.spring.boot3.starter)
     api(libs.sa.token.jwt)
 
