@@ -16,8 +16,6 @@ import org.springframework.scheduling.annotation.EnableScheduling
 /**
  * SnailJob 定时任务自动配置
  *
- * 当满足以下条件时生效：
- * 1. only.job.enabled 属性为 true（默认为 true）
  *
  * 集成了以下功能：
  * - 启用 Spring 调度支持

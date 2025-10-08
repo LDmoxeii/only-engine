@@ -49,4 +49,4 @@ Spring Boot 自动配置启动器，提供：
 - JUnit 5 测试配置
 - 面向 Java 17 的 JVM 工具链
 
-自动配置默认启用，但可通过 `only.web.enable=false` 属性控制。
+自动配置默认启用，但可通过 `only.engine.web.enable=false` 属性控制。

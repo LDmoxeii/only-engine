@@ -10,7 +10,7 @@ JSON 序列化和反序列化模块，为 engine-web 提供完整的 JSON 处理
 - **BigDecimal 序列化**: 自动转换为字符串避免精度问题
 - **Kotlin 支持**: 完整的 Kotlin 类型支持
 - **自动装配**: 当 JSON 功能存在于 classpath 时自动启用
-- **条件配置**: 支持通过 `only.json.enabled` 属性控制启用/禁用
+- **条件配置**: 支持通过 `only.engine.json.enabled` 属性控制启用/禁用
 
 ## 使用方式
 

@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.only4"
-version = "0.0.18-SNAPSHOT"
+version = "0.0.19-SNAPSHOT"
 
 val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")

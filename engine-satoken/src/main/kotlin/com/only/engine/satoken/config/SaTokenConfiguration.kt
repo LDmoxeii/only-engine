@@ -25,7 +25,7 @@ import org.springframework.context.annotation.PropertySource
 import org.springframework.http.HttpStatus
 
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.security", name = ["provider"], havingValue = "sa-token")
+@ConditionalOnProperty(prefix = "only.engine.security", name = ["provider"], havingValue = "sa-token")
 @PropertySource(value = ["classpath:common-satoken.yml"], factory = YmlPropertySourceFactory::class)
 class SaTokenConfiguration(
     @Value("\${spring.boot.admin.client.username:admin}")

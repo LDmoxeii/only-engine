@@ -49,4 +49,4 @@ Key auto-configuration classes:
 - Test configuration with JUnit 5
 - JVM toolchain targeting Java 17
 
-The auto-configuration enables by default but can be controlled via `only.web.enable=false` property.
+The auto-configuration enables by default but can be controlled via `only.engine.web.enable=false` property.

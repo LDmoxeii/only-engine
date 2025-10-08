@@ -8,7 +8,7 @@ SnailJob 定时任务集成模块，为项目提供分布式定时任务和调�
 - **Spring 调度支持**: 启用 Spring `@Scheduled` 注解支持
 - **日志集成**: 自动配置 SnailJob Logback Appender
 - **自动装配**: 当 Job 功能存在于 classpath 时自动启用
-- **条件配置**: 支持通过 `only.job.enabled` 属性控制启用/禁用
+- **条件配置**: 支持通过 `only.engine.job.enabled` 属性控制启用/禁用
 
 ## SnailJob 简介
 
@@ -147,18 +147,18 @@ SnailJob 会自动配置 Logback Appender，将任务执行日志发送到 Snail
 
 ## 条件装配
 
-- `@ConditionalOnProperty(prefix = "only.job", name = ["enabled"], matchIfMissing = true)`: 默认启用
-- 可通过配置 `only.job.enabled=false` 禁用整个 Job 模块
+- `@ConditionalOnProperty(prefix = "only.engine.job", name = ["enabled"], matchIfMissing = true)`: 默认启用
+- 可通过配置 `only.engine.job.enabled=false` 禁用整个 Job 模块
 
 ## 与 only4j-job 的差异
 
-| 方面   | only4j-job  | engine-job               |
-|------|-------------|--------------------------|
-| 语言   | Java        | Kotlin                   |
-| 配置前缀 | `snail-job` | `only.job` + `snail-job` |
-| 默认启用 | 需显式配置       | 默认启用                     |
-| 日志风格 | 无初始化日志      | 统一的 InitPrinter 风格       |
-| 代码风格 | Java 传统风格   | Kotlin 习惯用法              |
+| 方面   | only4j-job  | engine-job                      |
+|------|-------------|---------------------------------|
+| 语言   | Java        | Kotlin                          |
+| 配置前缀 | `snail-job` | `only.engine.job` + `snail-job` |
+| 默认启用 | 需显式配置       | 默认启用                            |
+| 日志风格 | 无初始化日志      | 统一的 InitPrinter 风格              |
+| 代码风格 | Java 传统风格   | Kotlin 习惯用法                     |
 
 ## 更多资源
 

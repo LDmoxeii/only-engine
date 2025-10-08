@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.json", name = ["enable"], havingValue = "true")
+@ConditionalOnProperty(prefix = "only.engine.json", name = ["enable"], havingValue = "true")
 @EnableConfigurationProperties(JsonProperties::class)
 class JsonConfiguration : JsonInitPrinter {
 
