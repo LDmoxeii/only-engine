@@ -3,8 +3,6 @@ package com.only.engine.satoken.utils
 import cn.dev33.satoken.session.SaSession
 import cn.dev33.satoken.stp.SaLoginModel
 import cn.dev33.satoken.stp.StpUtil
-import com.only.engine.entity.Permission
-import com.only.engine.entity.Role
 import com.only.engine.entity.UserInfo
 import org.slf4j.LoggerFactory
 
@@ -43,7 +41,7 @@ object LoginHelper {
      * 获取用户基于session
      */
     @JvmStatic
-    fun getLoginUser(): UserInfo? {
+    fun getUserInfo(): UserInfo? {
         val session: SaSession? = try {
             StpUtil.getTokenSession()
         } catch (e: Exception) {
@@ -61,7 +59,7 @@ object LoginHelper {
      * 获取用户基于token
      */
     @JvmStatic
-    fun getLoginUser(token: String): UserInfo? {
+    fun getUserInfo(token: String): UserInfo? {
         val session: SaSession? = try {
             StpUtil.getTokenSessionByToken(token)
         } catch (e: Exception) {
@@ -75,11 +73,11 @@ object LoginHelper {
      * 获取用户权限
      */
     @JvmStatic
-    fun getPermissions(): List<Permission> {
+    fun getPermissions(): List<String> {
         return try {
             val permissions = getExtra(USER_PERMISSIONS)
             if (permissions is List<*>) {
-                permissions.filterIsInstance<Permission>()
+                permissions.filterIsInstance<String>()
             } else {
                 emptyList()
             }
@@ -92,11 +90,11 @@ object LoginHelper {
      * 获取用户角色
      */
     @JvmStatic
-    fun getRoles(): List<Role> {
+    fun getRoles(): List<String> {
         return try {
             val roles = getExtra(USER_ROLES)
             if (roles is List<*>) {
-                roles.filterIsInstance<Role>()
+                roles.filterIsInstance<String>()
             } else {
                 emptyList()
             }

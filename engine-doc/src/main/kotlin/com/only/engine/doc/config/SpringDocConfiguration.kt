@@ -26,15 +26,7 @@ import org.springframework.context.annotation.Bean
 import java.util.*
 
 /**
- * SpringDoc 文档自动配置
- *
- * 当满足以下条件时生效:
- * 1. springdoc.api-docs.enabled 属性为 true(默认为 true)
- *
- * 集成了以下功能:
- * - 自动配置 OpenAPI 文档信息
- * - 自定义 OpenAPI 处理器
- * - 自动添加上下文路径前缀
+ * 文档配置
  *
  * @author LD_moxeii
  */
@@ -66,13 +58,16 @@ class SpringDocConfiguration(
         openApi.externalDocs(properties.externalDocs)
         openApi.tags(properties.tags)
         openApi.paths(properties.paths)
-        openApi.components(properties.components)
 
-        // 配置安全认证
-        properties.components?.securitySchemes?.keys?.let { keySet ->
-            val securityRequirement = SecurityRequirement()
-            keySet.forEach { securityRequirement.addList(it) }
-            openApi.security(listOf(securityRequirement))
+        properties.components?.let { components ->
+            openApi.components(components)
+
+            // 配置安全认证
+            components.securitySchemes.keys.let { keySet ->
+                val securityRequirement = SecurityRequirement()
+                keySet.forEach(securityRequirement::addList)
+                openApi.security(listOf(securityRequirement))
+            }
         }
 
         printInit(OpenAPI::class.java, log)
