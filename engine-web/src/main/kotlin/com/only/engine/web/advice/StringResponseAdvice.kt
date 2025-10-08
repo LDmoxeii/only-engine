@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 @Order(5)
 @AutoConfiguration
 @RestControllerAdvice(basePackages = ["edu.only"])
-@ConditionalOnProperty(prefix = "only.web", name = ["enable-result-wrapper"], havingValue = "true")
+@ConditionalOnProperty(prefix = "only.web.result-wrapper", name = ["enable"], havingValue = "true")
 class StringResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
 
     companion object {
