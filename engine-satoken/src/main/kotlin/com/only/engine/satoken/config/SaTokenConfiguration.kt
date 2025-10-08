@@ -15,7 +15,9 @@ import com.only.engine.satoken.idempotent.SaTokenProvider
 import com.only.engine.satoken.interceptor.SaTokenSecurityInterceptor
 import com.only.engine.spi.interceptor.SecurityInterceptor
 import com.only.engine.spi.provider.TokenProvider
+import com.only.engine.spi.service.PermissionService
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -32,7 +34,6 @@ class SaTokenConfiguration(
     private val actuatorUsername: String,
     @Value("\${spring.boot.admin.client.password:123456}")
     private val actuatorPassword: String,
-    private val urlCollector: UrlCollector,
 ) : SaTokenInitPrinter {
 
     companion object {
@@ -49,8 +50,8 @@ class SaTokenConfiguration(
 
     @Bean
     @ConditionalOnMissingBean
-    fun stpInterface(): StpInterface {
-        val impl = SaPermission()
+    fun stpInterface(permissionService: ObjectProvider<PermissionService>): StpInterface {
+        val impl = SaPermission(permissionService)
         printInit(StpInterface::class.java, log)
         return impl
     }
@@ -65,7 +66,7 @@ class SaTokenConfiguration(
 
     @Bean
     @ConditionalOnMissingBean
-    fun saTokenSecurityInterceptor(): SecurityInterceptor {
+    fun saTokenSecurityInterceptor(urlCollector: UrlCollector): SecurityInterceptor {
         val interceptor = SaTokenSecurityInterceptor(urlCollector)
         printInit(SaTokenSecurityInterceptor::class.java, log)
         return interceptor
