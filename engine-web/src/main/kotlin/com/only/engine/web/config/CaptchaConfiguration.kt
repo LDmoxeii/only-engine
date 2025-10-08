@@ -4,6 +4,7 @@ import cn.hutool.captcha.CaptchaUtil
 import cn.hutool.captcha.CircleCaptcha
 import cn.hutool.captcha.LineCaptcha
 import cn.hutool.captcha.ShearCaptcha
+import com.only.engine.web.WebInitPrinter
 import com.only.engine.web.config.properties.CaptchaProperties
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -21,9 +22,10 @@ import java.awt.Font
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "only.web.captcha", name = ["enable"], havingValue = "true")
 @EnableConfigurationProperties(CaptchaProperties::class)
-class CaptchaConfiguration {
+class CaptchaConfiguration : WebInitPrinter {
 
     companion object {
+        private val log = org.slf4j.LoggerFactory.getLogger(CaptchaConfiguration::class.java)
         private const val WIDTH = 160
         private const val HEIGHT = 60
         private val BACKGROUND = Color.LIGHT_GRAY
@@ -39,6 +41,9 @@ class CaptchaConfiguration {
         val captcha = CaptchaUtil.createCircleCaptcha(WIDTH, HEIGHT)
         captcha.setBackground(BACKGROUND)
         captcha.setFont(FONT)
+
+        printInit(CircleCaptcha::class.java, log)
+
         return captcha
     }
 
@@ -51,6 +56,9 @@ class CaptchaConfiguration {
         val captcha = CaptchaUtil.createLineCaptcha(WIDTH, HEIGHT)
         captcha.setBackground(BACKGROUND)
         captcha.setFont(FONT)
+
+        printInit(LineCaptcha::class.java, log)
+
         return captcha
     }
 
@@ -63,6 +71,9 @@ class CaptchaConfiguration {
         val captcha = CaptchaUtil.createShearCaptcha(WIDTH, HEIGHT)
         captcha.setBackground(BACKGROUND)
         captcha.setFont(FONT)
+
+        printInit(ShearCaptcha::class.java, log)
+
         return captcha
     }
 }

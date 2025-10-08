@@ -35,10 +35,6 @@ class ResourceConfiguration(
         const val CORS_FILTER_BEAN_NAME = "corsFilter"
     }
 
-    init {
-        printInit(ResourceConfiguration::class.java, log)
-    }
-
     override fun addInterceptors(registry: InterceptorRegistry) {
         if (performanceInterceptorProperties.enable) {
             registry.addInterceptor(WebPerformanceInterceptor(performanceInterceptorProperties.slowRequestThreshold))
@@ -74,6 +70,8 @@ class ResourceConfiguration(
             // 拦截所有路径
             registerCorsConfiguration("/**", config)
         }
+
+        printInit(CorsFilter::class.java, log)
 
         return CorsFilter(source)
     }

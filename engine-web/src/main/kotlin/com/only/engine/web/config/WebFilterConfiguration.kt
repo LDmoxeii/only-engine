@@ -5,7 +5,6 @@ import com.only.engine.web.config.properties.FilterProperties
 import com.only.engine.web.filter.HealthCheckFilter
 import com.only.engine.web.filter.RequestBodyWrapperFilter
 import com.only.engine.web.filter.ThreadLocalFilter
-import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -19,10 +18,6 @@ import org.springframework.core.Ordered
 class WebFilterConfiguration(
     private val filterProperties: FilterProperties,
 ) : WebInitPrinter {
-
-    companion object {
-        private val log = LoggerFactory.getLogger(WebFilterConfiguration::class.java)
-    }
 
     /**
      * 健康检查过滤器
