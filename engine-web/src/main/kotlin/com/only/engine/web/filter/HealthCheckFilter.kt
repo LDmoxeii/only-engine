@@ -27,7 +27,8 @@ class HealthCheckFilter : Filter, WebInitPrinter {
         if (httpRequest.requestURI.contains("/actuator/health")) {
             log.debug("[WEB_STARTER_INIT]: receive health check")
             httpResponse.status = HttpStatus.OK.value()
-            httpResponse.writer.write("{\"status\":\"UP\"}")
+            httpResponse.writer.write("""{"status":"UP"}""")
+
         } else {
             chain.doFilter(request, response)
         }

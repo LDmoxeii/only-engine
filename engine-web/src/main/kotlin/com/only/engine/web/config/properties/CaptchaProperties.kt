@@ -14,25 +14,25 @@ data class CaptchaProperties(
     /**
      * 是否启用验证码
      */
-    var enable: Boolean? = null,
+    var enable: Boolean = false,
 
     /**
      * 验证码类型
      */
-    var type: CaptchaType? = null,
+    var type: CaptchaType = CaptchaType.MATH,
 
     /**
      * 验证码类别
      */
-    var category: CaptchaCategory? = null,
+    var category: CaptchaCategory = CaptchaCategory.LINE,
 
     /**
      * 数字验证码位数
      */
-    var numberLength: Int? = null,
+    var numberLength: Int = 4,
 
     /**
      * 字符验证码长度
      */
-    var charLength: Int? = null,
+    var charLength: Int = 4,
 )

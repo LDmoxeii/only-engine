@@ -2,37 +2,44 @@ package com.only.engine.web.config
 
 import com.only.engine.web.WebInitPrinter
 import com.only.engine.web.config.properties.WebProperties
+import com.only.engine.web.interceptor.WebPerformanceInterceptor
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
+import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
-import org.springframework.web.cors.CorsConfiguration as SpringCorsConfiguration
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 /**
- * CORS 跨域配置
+ * Web MVC 配置
  *
- * 提供全局的 CORS 跨域资源共享配置
+ * 配置拦截器、资源处理器等
  *
  * @author LD_moxeii
  */
 @AutoConfiguration
 @EnableConfigurationProperties(WebProperties::class)
-@ConditionalOnProperty(prefix = "only.web.cors", name = ["enable"], matchIfMissing = true)
-class CorsConfiguration(
+class ResourceConfiguration(
     private val webProperties: WebProperties,
-) : WebInitPrinter {
+) : WebMvcConfigurer, WebInitPrinter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(CorsConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(ResourceConfiguration::class.java)
         const val CORS_FILTER_BEAN_NAME = "corsFilter"
     }
 
     init {
-        printInit(CorsConfiguration::class.java, log)
+        printInit(ResourceConfiguration::class.java, log)
+    }
+
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        if (webProperties.performanceInterceptor.enable) {
+            registry.addInterceptor(WebPerformanceInterceptor(webProperties))
+        }
     }
 
     /**
@@ -41,7 +48,7 @@ class CorsConfiguration(
     @Bean(CORS_FILTER_BEAN_NAME)
     @ConditionalOnMissingBean(name = [CORS_FILTER_BEAN_NAME])
     fun corsFilter(): CorsFilter {
-        val config = SpringCorsConfiguration().apply {
+        val config = CorsConfiguration().apply {
             // 设置是否允许发送凭证
             allowCredentials = webProperties.cors.allowCredentials
 

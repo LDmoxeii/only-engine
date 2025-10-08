@@ -101,8 +101,6 @@ data class WebProperties(
         /** 请求体包装过滤器配置 */
         var requestBody: RequestBodyFilterProperties = RequestBodyFilterProperties(),
 
-        /** XSS 过滤器配置 */
-        var xss: XssFilterProperties = XssFilterProperties(),
     )
 
     /**
@@ -148,17 +146,6 @@ data class WebProperties(
 
         /** 不需要包装的Content-Type集合（默认空） */
         var filterContentTypes: Set<String> = emptySet(),
-    )
-
-    /**
-     * XSS 过滤器配置
-     */
-    data class XssFilterProperties(
-        /** 是否启用 XSS 过滤，默认 false */
-        var enable: Boolean = false,
-
-        /** 排除路径，不进行 XSS 过滤 */
-        var excludeUrls: MutableSet<String> = mutableSetOf(),
     )
 
     /**

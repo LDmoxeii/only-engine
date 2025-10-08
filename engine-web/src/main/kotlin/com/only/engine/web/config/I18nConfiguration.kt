@@ -14,7 +14,7 @@ import org.springframework.context.support.ResourceBundleMessageSource
 import java.nio.charset.StandardCharsets
 
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.web.i18n", name = ["enable"], havingValue = "true")
+@ConditionalOnProperty(prefix = "only.web.i18n", name = ["enable"], havingValue = "false", matchIfMissing = false)
 class I18nConfiguration : WebInitPrinter {
 
     companion object {
