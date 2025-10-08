@@ -4,7 +4,7 @@ import com.only.engine.exception.KnownException
 
 data class UserInfo(
     val id: Any,
-    val userType: String,
+    val userType: Int,
     val username: String,
     val roles: List<String> = emptyList(),
     val permissions: List<String> = emptyList(),
