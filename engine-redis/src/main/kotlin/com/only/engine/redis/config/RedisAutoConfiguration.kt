@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import com.only.engine.redis.RedisInitPrinter
+import com.only.engine.redis.config.properties.RedisProperties
 import com.only.engine.redis.config.properties.RedissonProperties
 import com.only.engine.redis.handler.KeyPrefixHandler
 import org.redisson.client.codec.StringCodec
@@ -16,6 +17,7 @@ import org.redisson.codec.CompositeCodec
 import org.redisson.codec.TypedJsonJacksonCodec
 import org.redisson.spring.starter.RedissonAutoConfigurationCustomizer
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import java.time.LocalDateTime
@@ -36,7 +38,8 @@ import java.util.*
  * @author LD_moxeii
  */
 @AutoConfiguration
-@EnableConfigurationProperties(RedissonProperties::class)
+@EnableConfigurationProperties(RedisProperties::class, RedissonProperties::class)
+@ConditionalOnProperty(prefix = "only.engine.redis", name = ["enable"], havingValue = "true")
 class RedisAutoConfiguration(
     private val redissonProperties: RedissonProperties,
 ) : RedisInitPrinter {

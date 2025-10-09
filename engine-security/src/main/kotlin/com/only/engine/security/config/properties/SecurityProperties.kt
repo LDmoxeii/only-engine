@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @ConfigurationProperties(prefix = "only.engine.security")
 data class SecurityProperties(
     val enable: Boolean = false,
-    val provider: String = "",
     val excludes: Array<String> = arrayOf(
         "/favicon.ico",
         "/actuator/**",
@@ -15,7 +14,17 @@ data class SecurityProperties(
         "/webjars/**",
         "/v3/api-docs/**"
     ),
+    var provider: ProviderConfig = ProviderConfig(),
 ) {
+
+    /**
+     * SPI 提供商配置
+     */
+    data class ProviderConfig(
+
+        val securityInterceptor: String = "",
+
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

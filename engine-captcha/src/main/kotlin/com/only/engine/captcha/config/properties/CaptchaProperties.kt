@@ -7,7 +7,6 @@ class CaptchaProperties(
 
     var enable: Boolean = false,
 
-    // spi 提供商
     var provider: ProviderConfig = ProviderConfig(),
 
     var verifyPolicy: VerifyPolicyConfig = VerifyPolicyConfig(),

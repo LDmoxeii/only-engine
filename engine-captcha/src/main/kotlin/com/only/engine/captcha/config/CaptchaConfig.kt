@@ -3,13 +3,15 @@ package com.only.engine.captcha.config
 import com.only.engine.captcha.CaptchaInitPrinter
 import com.only.engine.captcha.CaptchaManager
 import com.only.engine.captcha.config.properties.CaptchaProperties
-import com.only.engine.captcha.generate.ImageCaptchaGenerator
+import com.only.engine.captcha.generate.DefaultCaptchaGenerator
 import com.only.engine.captcha.send.InlineResponseSender
 import com.only.engine.spi.captcha.CaptchaGenerator
 import com.only.engine.spi.captcha.CaptchaSender
 import com.only.engine.spi.captcha.CaptchaStore
+import com.only.engine.spi.idempotent.TokenProvider
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.core.annotation.Order
@@ -27,8 +29,8 @@ class CaptchaConfig(
     @Bean
     @Order
     fun imageCaptchaGenerator(): CaptchaGenerator {
-        printInit(ImageCaptchaGenerator::class.java, log)
-        return ImageCaptchaGenerator()
+        printInit(DefaultCaptchaGenerator::class.java, log)
+        return DefaultCaptchaGenerator()
     }
 
     @Bean
@@ -39,6 +41,7 @@ class CaptchaConfig(
     }
 
     @Bean
+    @ConditionalOnBean(TokenProvider::class)
     fun captchaService(
         generators: ObjectProvider<CaptchaGenerator>,
         store: CaptchaStore,

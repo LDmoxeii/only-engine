@@ -13,8 +13,8 @@ import com.only.engine.satoken.SaTokenInitPrinter
 import com.only.engine.satoken.config.properties.SaTokenProperties
 import com.only.engine.satoken.core.service.SaPermission
 import com.only.engine.satoken.handler.SaTokenExceptionHandler
-import com.only.engine.satoken.idempotent.SaTokenProvider
 import com.only.engine.satoken.interceptor.SaTokenSecurityInterceptor
+import com.only.engine.satoken.provider.SaTokenProvider
 import com.only.engine.spi.authentication.PermissionService
 import com.only.engine.spi.idempotent.TokenProvider
 import com.only.engine.spi.security.SecurityInterceptor
@@ -64,7 +64,11 @@ class SaTokenConfiguration() : SaTokenInitPrinter {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "only.engine.security", name = ["provider"], havingValue = "sa-token")
+    @ConditionalOnProperty(
+        prefix = "only.engine.security.provider",
+        name = ["security-interceptor"],
+        havingValue = "sa-token"
+    )
     fun saTokenSecurityInterceptor(urlCollector: UrlCollector): SecurityInterceptor {
         val interceptor = SaTokenSecurityInterceptor(urlCollector)
         printInit(SaTokenSecurityInterceptor::class.java, log)
@@ -91,7 +95,11 @@ class SaTokenConfiguration() : SaTokenInitPrinter {
     }
 
     @Bean
-    @ConditionalOnMissingBean(TokenProvider::class)
+    @ConditionalOnProperty(
+        prefix = "only.engine.redis.provider",
+        name = ["token-provider"],
+        havingValue = "redis"
+    )
     fun saTokenProvider(): TokenProvider {
         printInit(SaTokenProvider::class.java, log)
 

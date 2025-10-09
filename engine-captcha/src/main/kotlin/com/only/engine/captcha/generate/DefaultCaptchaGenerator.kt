@@ -9,7 +9,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser
 import java.awt.Color
 import java.awt.Font
 
-class ImageCaptchaGenerator : CaptchaGenerator {
+class DefaultCaptchaGenerator : CaptchaGenerator {
 
     companion object {
         private val BACKGROUND = Color.LIGHT_GRAY

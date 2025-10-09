@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean
  * @author LD_moxeii
  */
 @AutoConfiguration
+@ConditionalOnProperty(prefix = "only.engine.redis", name = ["enable"], havingValue = "true")
 class RedisCaptchaAutoConfiguration() : RedisInitPrinter {
 
     companion object {

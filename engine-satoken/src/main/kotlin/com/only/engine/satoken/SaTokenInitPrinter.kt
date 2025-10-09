@@ -4,5 +4,5 @@ import com.only.engine.printer.InitPrinter
 
 interface SaTokenInitPrinter : InitPrinter {
 
-    override fun moduleName(): String = "ENGINE_SATOKEN"
+    override fun moduleName(): String = "ENGINE_SA-TOKEN"
 }

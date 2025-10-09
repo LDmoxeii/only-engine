@@ -1,4 +1,4 @@
-package com.only.engine.satoken.idempotent
+package com.only.engine.satoken.provider
 
 import cn.dev33.satoken.stp.StpUtil
 import com.only.engine.spi.idempotent.TokenProvider
