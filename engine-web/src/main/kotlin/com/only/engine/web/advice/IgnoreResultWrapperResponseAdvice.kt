@@ -1,10 +1,8 @@
 package com.only.engine.web.advice
 
 import com.only.engine.entity.Result
-import com.only.engine.web.WebInitPrinter
 import com.only.engine.web.annotation.IgnoreResultWrapper
 import com.only.engine.web.misc.AdviceUtils
-import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.MethodParameter
@@ -21,15 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 @AutoConfiguration
 @RestControllerAdvice
 @ConditionalOnProperty(prefix = "only.engine.web.result-wrapper", name = ["enable"], havingValue = "true")
-class IgnoreResultWrapperResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
-
-    companion object {
-        private val log = LoggerFactory.getLogger(IgnoreResultWrapperResponseAdvice::class.java)
-    }
-
-    init {
-        printInit(IgnoreResultWrapperResponseAdvice::class.java, log)
-    }
+class IgnoreResultWrapperResponseAdvice : ResponseBodyAdvice<Any> {
 
     override fun supports(returnType: MethodParameter, converterType: Class<out HttpMessageConverter<*>>): Boolean {
         return returnType.hasAnnotationOrClassAnnotation<IgnoreResultWrapper>()

@@ -1,10 +1,7 @@
 package com.only.engine.web.advice
 
 import com.only.engine.entity.Result
-import com.only.engine.web.WebInitPrinter
 import com.only.engine.web.annotation.IgnoreResultWrapper
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.MethodParameter
@@ -21,15 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 @AutoConfiguration
 @RestControllerAdvice
 @ConditionalOnProperty(prefix = "only.engine.web.result-wrapper", name = ["enable"], havingValue = "true")
-class ResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
-
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(ResponseAdvice::class.java)
-    }
-
-    init {
-        printInit(ResponseAdvice::class.java, log)
-    }
+class ResponseAdvice : ResponseBodyAdvice<Any> {
 
     override fun supports(
         returnType: MethodParameter,

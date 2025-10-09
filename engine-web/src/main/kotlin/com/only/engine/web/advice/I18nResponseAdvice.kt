@@ -1,11 +1,8 @@
 package com.only.engine.web.advice
 
 import com.only.engine.entity.Result
-import com.only.engine.web.WebInitPrinter
 import com.only.engine.web.annotation.IgnoreI18n
 import com.only.engine.web.i18n.I18nMessageHandler
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -25,18 +22,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 @ConditionalOnProperty(prefix = "only.engine.web.i18n", name = ["enable"], havingValue = "true")
 class I18nResponseAdvice(
     i18nMessageHandlerObjectProvider: ObjectProvider<I18nMessageHandler>,
-) : ResponseBodyAdvice<Any>, WebInitPrinter {
+) : ResponseBodyAdvice<Any> {
 
     private val i18nMessageHandler: I18nMessageHandler? =
         i18nMessageHandlerObjectProvider.ifAvailable
-
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(I18nResponseAdvice::class.java)
-    }
-
-    init {
-        printInit(I18nResponseAdvice::class.java, log)
-    }
 
     override fun supports(
         returnType: MethodParameter,

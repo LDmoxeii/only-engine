@@ -6,7 +6,6 @@ import com.only.engine.entity.Result
 import com.only.engine.enums.HttpStatus
 import com.only.engine.exception.KnownException
 import com.only.engine.exception.WarnException
-import com.only.engine.web.WebInitPrinter
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -37,14 +36,10 @@ import java.io.IOException
 @AutoConfiguration
 @RestControllerAdvice
 @ConditionalOnProperty(prefix = "only.engine.web.exception-handler", name = ["enable"], havingValue = "true")
-class GlobalExceptionHandlerAdvice() : WebInitPrinter {
+class GlobalExceptionHandlerAdvice() {
 
     companion object {
         private val log = LoggerFactory.getLogger(GlobalExceptionHandlerAdvice::class.java)
-    }
-
-    init {
-        printInit(GlobalExceptionHandlerAdvice::class.java, log)
     }
 
     /**
