@@ -10,6 +10,7 @@ import cn.hutool.extra.spring.SpringUtil
 import com.only.engine.collector.UrlCollector
 import com.only.engine.factory.YmlPropertySourceFactory
 import com.only.engine.satoken.SaTokenInitPrinter
+import com.only.engine.satoken.config.properties.SaTokenProperties
 import com.only.engine.satoken.core.service.SaPermission
 import com.only.engine.satoken.handler.SaTokenExceptionHandler
 import com.only.engine.satoken.idempotent.SaTokenProvider
@@ -22,12 +23,14 @@ import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
 import org.springframework.http.HttpStatus
 
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.engine.security", name = ["provider"], havingValue = "sa-token")
+@EnableConfigurationProperties(SaTokenProperties::class)
+@ConditionalOnProperty(prefix = "only.engine.satoken", name = ["enable"], havingValue = "sa-token")
 @PropertySource(value = ["classpath:common-satoken.yml"], factory = YmlPropertySourceFactory::class)
 class SaTokenConfiguration() : SaTokenInitPrinter {
 
@@ -61,6 +64,7 @@ class SaTokenConfiguration() : SaTokenInitPrinter {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "only.engine.security", name = ["provider"], havingValue = "sa-token")
     fun saTokenSecurityInterceptor(urlCollector: UrlCollector): SecurityInterceptor {
         val interceptor = SaTokenSecurityInterceptor(urlCollector)
         printInit(SaTokenSecurityInterceptor::class.java, log)
