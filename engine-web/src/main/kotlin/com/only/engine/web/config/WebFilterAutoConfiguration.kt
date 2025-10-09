@@ -15,7 +15,7 @@ import org.springframework.core.Ordered
 
 @AutoConfiguration
 @EnableConfigurationProperties(FilterProperties::class)
-class WebFilterConfiguration(
+class WebFilterAutoConfiguration(
     private val filterProperties: FilterProperties,
 ) : WebInitPrinter {
 

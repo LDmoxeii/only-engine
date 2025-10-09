@@ -33,25 +33,24 @@ import java.util.*
 @AutoConfiguration(before = [SpringDocConfiguration::class])
 @EnableConfigurationProperties(SpringDocProperties::class)
 @ConditionalOnProperty(prefix = "only.engine.doc", name = ["enable"], havingValue = "true")
-class SpringDocConfiguration(
+class DocAutoConfiguration(
     private val serverProperties: ServerProperties,
 ) : DocInitPrinter {
 
     companion object {
-        private val log = org.slf4j.LoggerFactory.getLogger(SpringDocConfiguration::class.java)
+        private val log = org.slf4j.LoggerFactory.getLogger(DocAutoConfiguration::class.java)
     }
 
     /**
      * 配置 OpenAPI 文档基本信息
      */
     @Bean
-    @ConditionalOnMissingBean(OpenAPI::class)
+    @ConditionalOnMissingBean
     fun openApi(properties: SpringDocProperties): OpenAPI {
         val openApi = OpenAPI()
 
         // 文档基本信息
-        val infoProperties = properties.info
-        val info = convertInfo(infoProperties)
+        val info = properties.info.convertInfo()
         openApi.info(info)
 
         // 扩展文档信息
@@ -72,16 +71,6 @@ class SpringDocConfiguration(
 
         printInit(OpenAPI::class.java, log)
         return openApi
-    }
-
-    private fun convertInfo(infoProperties: SpringDocProperties.InfoProperties): Info {
-        return Info().apply {
-            title = infoProperties.title
-            description = infoProperties.description
-            contact = infoProperties.contact
-            license = infoProperties.license
-            version = infoProperties.version
-        }
     }
 
     /**
@@ -131,10 +120,19 @@ class SpringDocConfiguration(
         }
     }
 
+    private fun SpringDocProperties.InfoProperties.convertInfo(): Info = Info().also {
+        title = this.title
+        description = this.description
+        contact = this.contact
+        license = this.license
+        version = this.version
+    }
+
+
     /**
      * 单独使用一个类便于判断, 解决 springdoc 路径拼接重复问题
      *
      * @author LD_moxeii
      */
-    class PlusPaths : Paths()
+    private inner class PlusPaths : Paths()
 }

@@ -14,13 +14,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @AutoConfiguration
 @EnableConfigurationProperties(SecurityProperties::class)
 @ConditionalOnProperty(prefix = "only.engine.security", name = ["enable"], havingValue = "true")
-class SecurityConfiguration(
+class SecurityAutoConfiguration(
     private val securityProperties: SecurityProperties,
     private val securityInterceptorsProvider: ObjectProvider<SecurityInterceptor>,
 ) : WebMvcConfigurer, SecurityInitPrinter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(SecurityConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(SecurityAutoConfiguration::class.java)
     }
 
     override fun addInterceptors(registry: InterceptorRegistry) {

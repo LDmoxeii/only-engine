@@ -10,9 +10,9 @@ import cn.hutool.extra.spring.SpringUtil
 import com.only.engine.collector.UrlCollector
 import com.only.engine.factory.YmlPropertySourceFactory
 import com.only.engine.satoken.SaTokenInitPrinter
+import com.only.engine.satoken.adice.SaTokenExceptionHandlerAdvice
 import com.only.engine.satoken.config.properties.SaTokenProperties
 import com.only.engine.satoken.core.service.SaPermission
-import com.only.engine.satoken.handler.SaTokenExceptionHandler
 import com.only.engine.satoken.interceptor.SaTokenSecurityInterceptor
 import com.only.engine.satoken.provider.SaTokenProvider
 import com.only.engine.spi.authentication.PermissionService
@@ -32,10 +32,10 @@ import org.springframework.http.HttpStatus
 @EnableConfigurationProperties(SaTokenProperties::class)
 @ConditionalOnProperty(prefix = "only.engine.satoken", name = ["enable"], havingValue = "sa-token")
 @PropertySource(value = ["classpath:common-satoken.yml"], factory = YmlPropertySourceFactory::class)
-class SaTokenConfiguration() : SaTokenInitPrinter {
+class SaTokenAutoConfiguration() : SaTokenInitPrinter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(SaTokenConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(SaTokenAutoConfiguration::class.java)
     }
 
     @Bean
@@ -56,9 +56,9 @@ class SaTokenConfiguration() : SaTokenInitPrinter {
 
     @Bean
     @ConditionalOnMissingBean
-    fun saTokenExceptionHandler(): SaTokenExceptionHandler {
-        val handler = SaTokenExceptionHandler()
-        printInit(SaTokenExceptionHandler::class.java, log)
+    fun saTokenExceptionHandler(): SaTokenExceptionHandlerAdvice {
+        val handler = SaTokenExceptionHandlerAdvice()
+        printInit(SaTokenExceptionHandlerAdvice::class.java, log)
         return handler
     }
 
@@ -76,6 +76,7 @@ class SaTokenConfiguration() : SaTokenInitPrinter {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     @ConditionalOnProperty(name = ["management.endpoints.web.exposure.include"], havingValue = "health")
     fun saServletFilter(): SaServletFilter {
         val actuatorUsername = SpringUtil.getProperty("spring.boot.admin.client.username")
@@ -95,11 +96,8 @@ class SaTokenConfiguration() : SaTokenInitPrinter {
     }
 
     @Bean
-    @ConditionalOnProperty(
-        prefix = "only.engine.redis.provider",
-        name = ["token-provider"],
-        havingValue = "redis"
-    )
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "only.engine.redis.provider", name = ["token-provider"], havingValue = "redis")
     fun saTokenProvider(): TokenProvider {
         printInit(SaTokenProvider::class.java, log)
 

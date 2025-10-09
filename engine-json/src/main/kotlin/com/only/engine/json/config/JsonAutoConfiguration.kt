@@ -28,15 +28,15 @@ import java.util.*
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "only.engine.json", name = ["enable"], havingValue = "true")
 @EnableConfigurationProperties(JsonProperties::class)
-class JsonConfiguration : JsonInitPrinter {
+class JsonAutoConfiguration : JsonInitPrinter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(JsonConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(JsonAutoConfiguration::class.java)
     }
 
     @Bean
-    fun registerJavaTimeModule(): Module {
-        printInit("JavaTimeModule", log)
+    fun javaTimeModule(): Module {
+        printInit(JavaTimeModule::class.java, log)
 
         // 全局配置序列化返回 JSON 处理
         val javaTimeModule = JavaTimeModule()

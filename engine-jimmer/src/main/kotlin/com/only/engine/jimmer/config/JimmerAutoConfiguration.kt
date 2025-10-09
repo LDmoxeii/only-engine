@@ -20,18 +20,12 @@ import org.springframework.context.annotation.Bean
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "only.engine.jimmer", name = ["enable"], havingValue = "true")
 @EnableConfigurationProperties(JimmerProperties::class)
-class JimmerConfiguration : JimmerInitPrinter {
+class JimmerAutoConfiguration : JimmerInitPrinter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(JimmerConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(JimmerAutoConfiguration::class.java)
     }
 
-    /**
-     * 注册 Jimmer ObjectMapper Builder 定制器
-     *
-     * 该定制器会被 Spring Boot 自动发现并应用到所有 ObjectMapper 实例，
-     * 使 ObjectMapper 支持 Jimmer 不可变对象的序列化和反序列化
-     */
     @Bean
     fun jimmerJackson2ObjectMapperBuilderCustomizer(): Jackson2ObjectMapperBuilderCustomizer {
         printInit("jimmerJackson2ObjectMapperBuilderCustomizer", log)

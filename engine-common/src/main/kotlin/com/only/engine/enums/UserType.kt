@@ -1,4 +1,4 @@
-package com.only.engine.satoken.enums
+package com.only.engine.enums
 
 import com.only.engine.exception.KnownException
 
@@ -14,7 +14,7 @@ enum class UserType(
 
     companion object {
         private val enumMap: Map<Int, UserType> by lazy {
-            UserType.entries.associateBy { it.code }
+            entries.associateBy { it.code }
         }
 
         fun valueOf(value: Int): UserType {

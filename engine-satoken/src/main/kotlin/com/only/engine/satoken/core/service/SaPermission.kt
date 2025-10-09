@@ -1,8 +1,8 @@
 package com.only.engine.satoken.core.service
 
 import cn.dev33.satoken.stp.StpInterface
+import com.only.engine.enums.UserType
 import com.only.engine.exception.KnownException
-import com.only.engine.satoken.enums.UserType
 import com.only.engine.satoken.utils.LoginHelper
 import com.only.engine.spi.authentication.PermissionService
 import org.springframework.beans.factory.ObjectProvider

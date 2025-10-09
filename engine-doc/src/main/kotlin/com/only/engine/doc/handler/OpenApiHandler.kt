@@ -32,7 +32,6 @@ import java.util.*
  *
  * @author LD_moxeii
  */
-@Suppress("UNCHECKED_CAST")
 class OpenApiHandler(
     openAPI: Optional<OpenAPI>,
     private val securityParser: SecurityService,

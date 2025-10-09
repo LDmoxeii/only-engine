@@ -7,6 +7,6 @@ interface CaptchaStore {
     fun save(record: CaptchaRecord)
     fun find(id: String): CaptchaRecord?
     fun update(record: CaptchaRecord)
-    fun remove(id: String)
+    fun remove(id: String): Boolean
     fun now(): Instant = Instant.now()
 }

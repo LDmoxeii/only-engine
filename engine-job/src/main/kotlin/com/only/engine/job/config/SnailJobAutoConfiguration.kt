@@ -7,9 +7,11 @@ import com.aizuda.snailjob.client.common.appender.SnailLogbackAppender
 import com.aizuda.snailjob.client.common.event.SnailClientStartingEvent
 import com.aizuda.snailjob.client.starter.EnableSnailJob
 import com.only.engine.job.JobInitPrinter
+import com.only.engine.job.config.properties.SnailJobProperties
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.EnableScheduling
 
@@ -25,13 +27,14 @@ import org.springframework.scheduling.annotation.EnableScheduling
  * @author LD_moxeii
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.engine.job", name = ["enable"], havingValue = "true")
-@EnableScheduling
 @EnableSnailJob
-class SnailJobConfiguration : JobInitPrinter {
+@EnableScheduling
+@ConditionalOnProperty(prefix = "only.engine.job", name = ["enable"], havingValue = "true")
+@EnableConfigurationProperties(SnailJobProperties::class)
+class SnailJobAutoConfiguration : JobInitPrinter {
 
     companion object {
-        private val log = org.slf4j.LoggerFactory.getLogger(SnailJobConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(SnailJobAutoConfiguration::class.java)
     }
 
     /**
@@ -39,7 +42,7 @@ class SnailJobConfiguration : JobInitPrinter {
      */
     @EventListener(SnailClientStartingEvent::class)
     fun onStarting(event: SnailClientStartingEvent) {
-        printInit(SnailJobConfiguration::class.java, log)
+        printInit(SnailJobAutoConfiguration::class.java, log)
         val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
         val snailAppender = SnailLogbackAppender<ILoggingEvent>().apply {
             name = "snail_log_appender"

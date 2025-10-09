@@ -1,6 +1,10 @@
 package com.only.engine.web.config
 
 import com.only.engine.web.WebInitPrinter
+import com.only.engine.web.advice.GlobalExceptionHandlerAdvice
+import com.only.engine.web.advice.IgnoreResultWrapperResponseAdvice
+import com.only.engine.web.advice.ResponseAdvice
+import com.only.engine.web.advice.StringResponseAdvice
 import com.only.engine.web.config.properties.AdviceProperties
 import com.only.engine.web.i18n.I18nMessageDefaultHandler
 import com.only.engine.web.i18n.I18nMessageHandler
@@ -16,12 +20,11 @@ import org.springframework.context.support.ResourceBundleMessageSource
 import java.nio.charset.StandardCharsets
 
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "only.engine.web.i18n", name = ["enable"], havingValue = "true")
 @EnableConfigurationProperties(AdviceProperties::class)
-class I18nConfiguration : WebInitPrinter {
+class AdviceAutoConfiguration : WebInitPrinter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(I18nConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(AdviceAutoConfiguration::class.java)
 
         /** 国际化消息源 Bean 名称 */
         const val I18N_MESSAGE_SOURCE = "i18nMessageSource"
@@ -35,6 +38,7 @@ class I18nConfiguration : WebInitPrinter {
      */
     @Bean(name = [I18N_MESSAGE_SOURCE])
     @ConditionalOnMissingBean(name = [I18N_MESSAGE_SOURCE])
+    @ConditionalOnProperty(prefix = "only.engine.web.i18n", name = ["enable"], havingValue = "true")
     fun i18nMessageSource(): MessageSource {
         printInit(I18N_MESSAGE_SOURCE, log)
         return ResourceBundleMessageSource().apply {
@@ -48,8 +52,37 @@ class I18nConfiguration : WebInitPrinter {
      */
     @Bean(name = [I18N_MESSAGE_HANDLER])
     @ConditionalOnMissingBean(name = [I18N_MESSAGE_HANDLER])
+    @ConditionalOnProperty(prefix = "only.engine.web.i18n", name = ["enable"], havingValue = "true")
     fun i18nMessageHandler(@Qualifier(I18N_MESSAGE_SOURCE) messageSource: MessageSource): I18nMessageHandler {
         printInit(I18nMessageDefaultHandler::class.java, log)
         return I18nMessageDefaultHandler(messageSource)
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "only.engine.web.global-exception-handler", name = ["enable"], havingValue = "true")
+    fun globalExceptionHandlerAdvice(): GlobalExceptionHandlerAdvice {
+        printInit(GlobalExceptionHandlerAdvice::class.java, log)
+        return GlobalExceptionHandlerAdvice()
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "only.engine.web.response-wrapper", name = ["enable"], havingValue = "true")
+    fun ignoreResultWrapperResponseAdvice(): IgnoreResultWrapperResponseAdvice {
+        printInit(IgnoreResultWrapperResponseAdvice::class.java, log)
+        return IgnoreResultWrapperResponseAdvice()
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "only.engine.web.response-wrapper", name = ["enable"], havingValue = "true")
+    fun responseAdvice(): ResponseAdvice {
+        printInit(ResponseAdvice::class.java, log)
+        return ResponseAdvice()
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "only.engine.web.response-wrapper", name = ["enable"], havingValue = "true")
+    fun stringResponseAdvice(): StringResponseAdvice {
+        printInit(StringResponseAdvice::class.java, log)
+        return StringResponseAdvice()
     }
 }

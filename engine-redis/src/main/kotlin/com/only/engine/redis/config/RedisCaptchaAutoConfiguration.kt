@@ -5,6 +5,7 @@ import com.only.engine.redis.store.RedisCaptchaStore
 import com.only.engine.spi.captcha.CaptchaStore
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 
@@ -38,11 +39,8 @@ class RedisCaptchaAutoConfiguration() : RedisInitPrinter {
      * 仅在配置 only.engine.captcha.provider.store=redis 时生效
      */
     @Bean
-    @ConditionalOnProperty(
-        prefix = "only.engine.captcha.provider",
-        name = ["store"],
-        havingValue = "redis"
-    )
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "only.engine.captcha.provider", name = ["store"], havingValue = "redis")
     fun redisCaptchaStore(): CaptchaStore {
         printInit(RedisCaptchaStore::class.java, log)
         return RedisCaptchaStore()

@@ -12,35 +12,38 @@ import com.only.engine.spi.idempotent.TokenProvider
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
-import org.springframework.core.annotation.Order
 
 @AutoConfiguration
 @EnableConfigurationProperties(CaptchaProperties::class)
-class CaptchaConfig(
+@ConditionalOnProperty(prefix = "only.engine.captcha", name = ["enable"], havingValue = "true")
+class CaptchaAutoConfiguration(
     private val properties: CaptchaProperties,
 ) : CaptchaInitPrinter {
 
     companion object {
-        private val log = org.slf4j.LoggerFactory.getLogger(CaptchaConfig::class.java)
+        private val log = org.slf4j.LoggerFactory.getLogger(CaptchaAutoConfiguration::class.java)
     }
 
     @Bean
-    @Order
+    @ConditionalOnMissingBean
     fun imageCaptchaGenerator(): CaptchaGenerator {
         printInit(DefaultCaptchaGenerator::class.java, log)
         return DefaultCaptchaGenerator()
     }
 
     @Bean
-    @Order
+    @ConditionalOnMissingBean
     fun inlineCaptchaSender(): CaptchaSender {
         printInit(CaptchaSender::class.java, log)
         return InlineResponseSender()
     }
 
     @Bean
+    @ConditionalOnMissingBean
     @ConditionalOnBean(TokenProvider::class)
     fun captchaService(
         generators: ObjectProvider<CaptchaGenerator>,

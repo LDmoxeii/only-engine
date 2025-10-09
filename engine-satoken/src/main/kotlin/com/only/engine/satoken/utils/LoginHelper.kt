@@ -15,8 +15,8 @@ object LoginHelper {
 
     private val log = LoggerFactory.getLogger(LoginHelper::class.java)
 
-    const val ADMIN_USER_KEY = "adminUser"
-    const val ADMIN_USER_ID = "adminUserId"
+    const val USER_INFO = "userInfo"
+    const val USER_ID = "userId"
     const val USER_PERMISSIONS = "userPermissions"
     const val USER_ROLES = "userRoles"
 
@@ -25,16 +25,16 @@ object LoginHelper {
      */
     @JvmStatic
     @JvmOverloads
-    fun login(loginUser: UserInfo, model: SaLoginModel? = null) {
+    fun login(userInfo: UserInfo, model: SaLoginModel? = null) {
         val loginModel = model ?: SaLoginModel()
 
         StpUtil.login(
-            loginUser.id,
-            loginModel.setExtra(ADMIN_USER_ID, loginUser.id)
-                .setExtra(USER_ROLES, loginUser.roles)
-                .setExtra(USER_PERMISSIONS, loginUser.permissions)
+            userInfo.id,
+            loginModel.setExtra(USER_ID, userInfo.id)
+                .setExtra(USER_ROLES, userInfo.roles)
+                .setExtra(USER_PERMISSIONS, userInfo.permissions)
         )
-        StpUtil.getSession().set(ADMIN_USER_KEY, loginUser)
+        StpUtil.getSession().set(USER_INFO, userInfo)
     }
 
     /**
@@ -49,7 +49,7 @@ object LoginHelper {
         }
 
         return if (session != null) {
-            StpUtil.getSession().get(ADMIN_USER_KEY) as? UserInfo
+            StpUtil.getSession().get(USER_INFO) as? UserInfo
         } else {
             null
         }
@@ -66,7 +66,7 @@ object LoginHelper {
             return null
         }
 
-        return session?.get(ADMIN_USER_KEY) as? UserInfo
+        return session?.get(USER_INFO) as? UserInfo
     }
 
     /**
@@ -109,7 +109,7 @@ object LoginHelper {
     @JvmStatic
     fun getUserId(): Long? {
         return try {
-            val userId = getExtra(ADMIN_USER_ID)
+            val userId = getExtra(USER_ID)
             when (userId) {
                 is Long -> userId
                 is Number -> userId.toLong()

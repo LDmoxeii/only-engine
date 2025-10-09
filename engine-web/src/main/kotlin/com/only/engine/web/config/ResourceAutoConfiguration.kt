@@ -25,13 +25,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
  */
 @AutoConfiguration
 @EnableConfigurationProperties(CorsProperties::class, PerformanceInterceptorProperties::class)
-class ResourceConfiguration(
+class ResourceAutoConfiguration(
     private val corsProperties: CorsProperties,
     private val performanceInterceptorProperties: PerformanceInterceptorProperties,
 ) : WebMvcConfigurer, WebInitPrinter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(ResourceConfiguration::class.java)
+        private val log = LoggerFactory.getLogger(ResourceAutoConfiguration::class.java)
         const val CORS_FILTER_BEAN_NAME = "corsFilter"
     }
 

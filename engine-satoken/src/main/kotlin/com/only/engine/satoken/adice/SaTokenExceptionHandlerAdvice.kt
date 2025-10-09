@@ -1,4 +1,4 @@
-package com.only.engine.satoken.handler
+package com.only.engine.satoken.adice
 
 import cn.dev33.satoken.exception.NotLoginException
 import cn.dev33.satoken.exception.NotPermissionException
@@ -7,17 +7,15 @@ import com.only.engine.entity.Result
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
-import org.springframework.core.annotation.Order
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-@Order(-1) // 优先处理Sa-Token异常
 @ConditionalOnClass(NotLoginException::class)
-class SaTokenExceptionHandler {
+class SaTokenExceptionHandlerAdvice {
 
     companion object {
-        private val log = LoggerFactory.getLogger(SaTokenExceptionHandler::class.java)
+        private val log = LoggerFactory.getLogger(SaTokenExceptionHandlerAdvice::class.java)
     }
 
     /**

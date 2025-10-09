@@ -11,29 +11,17 @@ class CaptchaProperties(
 
     var verifyPolicy: VerifyPolicyConfig = VerifyPolicyConfig(),
 ) {
-    /**
-     * SPI 提供商配置
-     */
     data class ProviderConfig(
-        /**
-         * CaptchaGenerator 提供商名称
-         */
         val generator: String = "",
 
-        /**
-         * CaptchaSender 提供商名称
-         */
         val sender: String = "",
 
-        /**
-         * CaptchaStore 提供商名称
-         */
         val store: String = "redis",
     )
 
     data class VerifyPolicyConfig(
-        val onceOnly: Boolean = true,          // 成功后删除
-        val deleteOnFail: Boolean = false,     // 失败即删除
+        val onceOnly: Boolean = true,
+        val deleteOnFail: Boolean = false,
         val caseInsensitive: Boolean = true,
     )
 }
