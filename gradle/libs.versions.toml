@@ -42,9 +42,8 @@ springdoc = "2.6.0"
 therapi-javadoc = "0.15.0"
 
 # Redis
-redisson = "3.34.1"
+redisson = "3.51.0"
 lock4j = "2.2.7"
-caffeine = "3.1.8"
 
 # Testing
 junit = "5.13.4"
@@ -117,7 +116,7 @@ commons-lang3 = { module = "org.apache.commons:commons-lang3" }
 # Redis
 redisson-spring-boot-starter = { module = "org.redisson:redisson-spring-boot-starter", version.ref = "redisson" }
 lock4j-redisson-spring-boot-starter = { module = "com.baomidou:lock4j-redisson-spring-boot-starter", version.ref = "lock4j" }
-caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine" }
 
 # Testing
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
