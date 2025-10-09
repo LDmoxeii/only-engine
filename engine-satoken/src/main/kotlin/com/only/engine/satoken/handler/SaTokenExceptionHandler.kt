@@ -24,7 +24,7 @@ class SaTokenExceptionHandler {
      * 权限码异常
      */
     @ExceptionHandler(NotPermissionException::class)
-    fun handleNotPermissionException(e: NotPermissionException, request: HttpServletRequest): Result<Void> {
+    fun handleNotPermissionException(e: NotPermissionException, request: HttpServletRequest): Result<Unit> {
         val requestURI = request.requestURI
         log.error("请求地址 '$requestURI', 权限码校验失败 '${e.message}'")
         return Result.error(403, "没有访问权限，请联系管理员授权")
@@ -34,7 +34,7 @@ class SaTokenExceptionHandler {
      * 角色权限异常
      */
     @ExceptionHandler(NotRoleException::class)
-    fun handleNotRoleException(e: NotRoleException, request: HttpServletRequest): Result<Void> {
+    fun handleNotRoleException(e: NotRoleException, request: HttpServletRequest): Result<Unit> {
         val requestURI = request.requestURI
         log.error("请求地址 '$requestURI', 角色权限校验失败 '${e.message}'")
         return Result.error(403, "没有访问权限，请联系管理员授权")
@@ -44,7 +44,7 @@ class SaTokenExceptionHandler {
      * 认证失败
      */
     @ExceptionHandler(NotLoginException::class)
-    fun handleNotLoginException(e: NotLoginException, request: HttpServletRequest): Result<Void> {
+    fun handleNotLoginException(e: NotLoginException, request: HttpServletRequest): Result<Unit> {
         val requestURI = request.requestURI
         log.error("请求地址 '$requestURI', 认证失败 '${e.message}'")
         return Result.error(401, "认证失败，无法访问系统资源")

@@ -51,7 +51,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
      * 找不到路由
      */
     @ExceptionHandler(NoHandlerFoundException::class)
-    fun handleNoHandlerFoundException(ex: NoHandlerFoundException, request: HttpServletRequest): Result<Void> {
+    fun handleNoHandlerFoundException(ex: NoHandlerFoundException, request: HttpServletRequest): Result<Unit> {
         val requestURI = request.requestURI
         logError(request, "请求地址'$requestURI'不存在", ex)
         return Result.error(StandardCode.UserSide.Exception.code, "请求地址不存在")
@@ -64,7 +64,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
     fun handleMethodNotSupported(
         ex: HttpRequestMethodNotSupportedException,
         request: HttpServletRequest,
-    ): Result<Void> {
+    ): Result<Unit> {
         val requestURI = request.requestURI
         logWarning(request, "请求地址'$requestURI',不支持'${ex.method}'请求", ex)
         return Result.error(StandardCode.UserSide.Exception.code, "不支持的请求方法")
@@ -77,7 +77,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
     fun handleMissingParameter(
         ex: MissingServletRequestParameterException,
         request: HttpServletRequest,
-    ): Result<Void> {
+    ): Result<Unit> {
         val message = "缺少必要的请求参数: ${ex.parameterName}"
         logWarning(request, message, ex)
         return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
@@ -90,7 +90,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
     fun handleTypeMismatch(
         ex: MethodArgumentTypeMismatchException,
         request: HttpServletRequest,
-    ): Result<Void> {
+    ): Result<Unit> {
         val message =
             "请求参数类型不匹配，参数[${ex.name}]要求类型为：'${ex.requiredType?.name}',但输入值为：'${ex.value}'"
         logWarning(request, message, ex)
@@ -104,7 +104,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
     fun handleMissingPathVariable(
         ex: MissingPathVariableException,
         request: HttpServletRequest,
-    ): Result<Void> {
+    ): Result<Unit> {
         val message = "请求路径中缺少必需的路径变量[${ex.variableName}]"
         logError(request, message, ex)
         return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
@@ -117,14 +117,14 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
     fun handleMissingHeader(
         ex: MissingRequestHeaderException,
         request: HttpServletRequest,
-    ): Result<Void> {
+    ): Result<Unit> {
         val message = "缺少必要的 Header 参数: ${ex.headerName}"
         logWarning(request, message, ex)
         return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
     }
 
     @ExceptionHandler(HttpClientErrorException::class, HttpServerErrorException::class)
-    fun restTemplateException(ex: Exception, request: HttpServletRequest): Result<Void> {
+    fun restTemplateException(ex: Exception, request: HttpServletRequest): Result<Unit> {
         logError(request, ex.message ?: "未知错误", ex)
         return Result.error(StandardCode.ThirdParty.Exception)
     }
@@ -133,7 +133,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
     fun handleConstraintViolationException(
         ex: ConstraintViolationException,
         request: HttpServletRequest,
-    ): Result<Void> {
+    ): Result<Unit> {
         val errors = ex.constraintViolations.joinToString(", ") { "${it.propertyPath}: ${it.message}" }
         val msg = "请求参数无效: $errors"
         logInfo(request, msg, ex)
@@ -145,10 +145,10 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
     fun validationMethodArgumentException(
         ex: MethodArgumentNotValidException,
         request: HttpServletRequest
-    ): Result<Void> = validationBindException(ex, request)
+    ): Result<Unit> = validationBindException(ex, request)
 
     @ExceptionHandler(BindException::class)
-    fun validationBindException(ex: BindException, request: HttpServletRequest): Result<Void> {
+    fun validationBindException(ex: BindException, request: HttpServletRequest): Result<Unit> {
         val errors = ex.bindingResult.fieldErrors.joinToString(", ") { "${it.field}：${it.defaultMessage}" }
         val msg = "请求参数无效: $errors"
         logInfo(request, msg, ex)
@@ -159,7 +159,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
     fun httpMessageNotReadableException(
         ex: HttpMessageNotReadableException,
         request: HttpServletRequest,
-    ): Result<Void> {
+    ): Result<Unit> {
         val message = "参数格式不匹配"
         logWarning(request, ex.message ?: message, ex)
         return Result.error(StandardCode.UserSide.RequestParameterFormatNotMatch)
@@ -185,7 +185,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
         ex: WarnException,
         request: HttpServletRequest,
         response: HttpServletResponse
-    ): Result<Void> {
+    ): Result<Unit> {
         logWarning(request, ex.message ?: "", ex)
         handlerResponseStatus(ex, response)
         return Result.error(ex.code, ex.message ?: "")
@@ -195,14 +195,14 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
     fun illegalArgumentException(
         ex: IllegalArgumentException,
         request: HttpServletRequest
-    ): Result<Void> {
+    ): Result<Unit> {
         val message = ex.message ?: "参数错误"
         logWarning(request, message, ex)
         return Result.error(StandardCode.UserSide.RequestParameterException)
     }
 
     @ExceptionHandler(Exception::class)
-    fun exception(ex: Exception, request: HttpServletRequest): Result<Void> {
+    fun exception(ex: Exception, request: HttpServletRequest): Result<Unit> {
         logError(request, ex.message ?: "系统异常", ex)
         return Result.error(StandardCode.SystemSide.Exception)
     }
@@ -211,7 +211,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
      * Servlet 异常
      */
     @ExceptionHandler(ServletException::class)
-    fun handleServletException(ex: ServletException, request: HttpServletRequest): Result<Void> {
+    fun handleServletException(ex: ServletException, request: HttpServletRequest): Result<Unit> {
         val requestURI = request.requestURI
         logError(request, "请求地址'$requestURI',发生未知异常", ex)
         return Result.error(StandardCode.SystemSide.Exception)
@@ -222,7 +222,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
      * 特殊处理 SSE 连接中断
      */
     @ExceptionHandler(IOException::class)
-    fun handleIOException(ex: IOException, request: HttpServletRequest): Result<Void>? {
+    fun handleIOException(ex: IOException, request: HttpServletRequest): Result<Unit>? {
         val requestURI = request.requestURI
         // SSE 经常性连接中断，例如关闭浏览器，直接屏蔽
         if (requestURI.contains("sse", ignoreCase = true)) {
@@ -236,7 +236,7 @@ class GlobalExceptionHandlerAdvice() : WebInitPrinter {
      * 运行时异常
      */
     @ExceptionHandler(RuntimeException::class)
-    fun handleRuntimeException(ex: RuntimeException, request: HttpServletRequest): Result<Void> {
+    fun handleRuntimeException(ex: RuntimeException, request: HttpServletRequest): Result<Unit> {
         val requestURI = request.requestURI
         logError(request, "请求地址'$requestURI',发生运行时异常", ex)
         return Result.error(StandardCode.SystemSide.Exception)

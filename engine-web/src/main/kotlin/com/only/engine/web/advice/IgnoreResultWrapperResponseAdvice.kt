@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 
 @Order(3)
 @AutoConfiguration
-@RestControllerAdvice(basePackages = ["edu.only"])
+@RestControllerAdvice
 @ConditionalOnProperty(prefix = "only.engine.web.result-wrapper", name = ["enable"], havingValue = "true")
 class IgnoreResultWrapperResponseAdvice : ResponseBodyAdvice<Any>, WebInitPrinter {
 

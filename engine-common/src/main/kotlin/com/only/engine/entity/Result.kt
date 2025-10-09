@@ -33,7 +33,7 @@ data class Result<T>(
             Result(ResultCode.SUCCESS, data)
 
         @JvmStatic
-        fun error(code: Int = ResultCode.BASE_ERROR.code, message: String): Result<Void> =
+        fun error(code: Int = ResultCode.BASE_ERROR.code, message: String): Result<Unit> =
             Result(code, message, null)
 
         @JvmStatic
