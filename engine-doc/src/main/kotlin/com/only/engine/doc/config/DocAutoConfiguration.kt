@@ -1,7 +1,7 @@
 package com.only.engine.doc.config
 
 import com.only.engine.doc.DocInitPrinter
-import com.only.engine.doc.config.properties.SpringDocProperties
+import com.only.engine.doc.config.properties.DocProperties
 import com.only.engine.doc.handler.OpenApiHandler
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Paths
@@ -31,7 +31,7 @@ import java.util.*
  * @author LD_moxeii
  */
 @AutoConfiguration(before = [SpringDocConfiguration::class])
-@EnableConfigurationProperties(SpringDocProperties::class)
+@EnableConfigurationProperties(DocProperties::class)
 @ConditionalOnProperty(prefix = "only.engine.doc", name = ["enable"], havingValue = "true")
 class DocAutoConfiguration(
     private val serverProperties: ServerProperties,
@@ -46,7 +46,7 @@ class DocAutoConfiguration(
      */
     @Bean
     @ConditionalOnMissingBean
-    fun openApi(properties: SpringDocProperties): OpenAPI {
+    fun openApi(properties: DocProperties): OpenAPI {
         val openApi = OpenAPI()
 
         // 文档基本信息
@@ -120,7 +120,7 @@ class DocAutoConfiguration(
         }
     }
 
-    private fun SpringDocProperties.InfoProperties.convertInfo(): Info = Info().also {
+    private fun DocProperties.InfoProperties.convertInfo(): Info = Info().also {
         title = this.title
         description = this.description
         contact = this.contact

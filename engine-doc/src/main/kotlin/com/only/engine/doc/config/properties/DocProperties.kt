@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * @author LD_moxeii
  */
 @ConfigurationProperties(prefix = "only.engine.doc")
-data class SpringDocProperties(
+data class DocProperties(
 
     /**
      * 是否启用文档

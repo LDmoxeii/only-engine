@@ -4,9 +4,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "only.engine.web.advice")
 class AdviceProperties(
-    var i18n: I18nProperties,
-    var globalExceptionHandler: GlobalExceptionProperties,
-    var responseWrapper: ResponseWrapperProperties,
+    var i18n: I18nProperties = I18nProperties(),
+    var globalExceptionHandler: GlobalExceptionProperties = GlobalExceptionProperties(),
+    var responseWrapper: ResponseWrapperProperties = ResponseWrapperProperties(),
 ) {
     data class I18nProperties(
         /** 是否启用国际化，默认 false */
