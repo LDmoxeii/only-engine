@@ -38,7 +38,7 @@ class AdviceAutoConfiguration : WebInitPrinter {
      */
     @Bean(name = [I18N_MESSAGE_SOURCE])
     @ConditionalOnMissingBean(name = [I18N_MESSAGE_SOURCE])
-    @ConditionalOnProperty(prefix = "only.engine.web.i18n", name = ["enable"], havingValue = "true")
+    @ConditionalOnProperty(prefix = "only.engine.web.advice.i18n", name = ["enable"], havingValue = "true")
     fun i18nMessageSource(): MessageSource {
         printInit(I18N_MESSAGE_SOURCE, log)
         return ResourceBundleMessageSource().apply {
@@ -59,28 +59,32 @@ class AdviceAutoConfiguration : WebInitPrinter {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "only.engine.web.global-exception-handler", name = ["enable"], havingValue = "true")
+    @ConditionalOnProperty(
+        prefix = "only.engine.web.advice.global-exception-handler",
+        name = ["enable"],
+        havingValue = "true"
+    )
     fun globalExceptionHandlerAdvice(): GlobalExceptionHandlerAdvice {
         printInit(GlobalExceptionHandlerAdvice::class.java, log)
         return GlobalExceptionHandlerAdvice()
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "only.engine.web.response-wrapper", name = ["enable"], havingValue = "true")
+    @ConditionalOnProperty(prefix = "only.engine.web.advice.response-wrapper", name = ["enable"], havingValue = "true")
     fun ignoreResultWrapperResponseAdvice(): IgnoreResultWrapperResponseAdvice {
         printInit(IgnoreResultWrapperResponseAdvice::class.java, log)
         return IgnoreResultWrapperResponseAdvice()
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "only.engine.web.response-wrapper", name = ["enable"], havingValue = "true")
+    @ConditionalOnProperty(prefix = "only.engine.web.advice.response-wrapper", name = ["enable"], havingValue = "true")
     fun responseAdvice(): ResponseAdvice {
         printInit(ResponseAdvice::class.java, log)
         return ResponseAdvice()
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "only.engine.web.response-wrapper", name = ["enable"], havingValue = "true")
+    @ConditionalOnProperty(prefix = "only.engine.web.advice.response-wrapper", name = ["enable"], havingValue = "true")
     fun stringResponseAdvice(): StringResponseAdvice {
         printInit(StringResponseAdvice::class.java, log)
         return StringResponseAdvice()
