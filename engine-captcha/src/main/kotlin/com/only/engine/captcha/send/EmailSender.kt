@@ -1,7 +1,9 @@
 package com.only.engine.captcha.send
 
-import com.only.engine.captcha.core.CaptchaSender
-import com.only.engine.captcha.enums.CaptchaChannel
+import com.only.engine.captcha.core.entity.SendContext
+import com.only.engine.captcha.core.enums.CaptchaChannel
+import com.only.engine.spi.captcha.CaptchaSender
+
 
 class EmailSender : CaptchaSender {
     override fun supports(channel: CaptchaChannel) = channel == CaptchaChannel.EMAIL

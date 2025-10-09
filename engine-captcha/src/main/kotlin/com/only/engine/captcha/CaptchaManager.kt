@@ -1,16 +1,16 @@
 package com.only.engine.captcha
 
 import com.only.engine.captcha.config.properties.CaptchaProperties
-import com.only.engine.captcha.core.CaptchaGenerator
-import com.only.engine.captcha.core.CaptchaSender
-import com.only.engine.captcha.core.CaptchaStore
-import com.only.engine.captcha.entity.*
-import com.only.engine.captcha.enums.CaptchaChannel
+import com.only.engine.captcha.core.entity.*
+import com.only.engine.captcha.core.enums.CaptchaChannel
+import com.only.engine.spi.captcha.CaptchaGenerator
+import com.only.engine.spi.captcha.CaptchaSender
+import com.only.engine.spi.captcha.CaptchaStore
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.*
 
-class CaptchaService(
+class CaptchaManager(
     private val generators: List<CaptchaGenerator>,
     private val senders: List<CaptchaSender>,
     private val store: CaptchaStore,

@@ -1,9 +1,9 @@
 package com.only.engine.captcha.generate
 
-import com.only.engine.captcha.core.CaptchaGenerator
-import com.only.engine.captcha.entity.CaptchaContent
-import com.only.engine.captcha.entity.GenerateCommand
-import com.only.engine.captcha.enums.CaptchaType
+import com.only.engine.captcha.core.entity.CaptchaContent
+import com.only.engine.captcha.core.entity.GenerateCommand
+import com.only.engine.captcha.core.enums.CaptchaType
+import com.only.engine.spi.captcha.CaptchaGenerator
 import kotlin.random.Random
 
 class TextCaptchaGenerator : CaptchaGenerator {

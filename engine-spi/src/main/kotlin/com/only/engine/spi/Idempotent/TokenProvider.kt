@@ -1,4 +1,4 @@
-package com.only.engine.spi.provider
+package com.only.engine.spi.Idempotent
 
 /**
  * Token 提供者接口

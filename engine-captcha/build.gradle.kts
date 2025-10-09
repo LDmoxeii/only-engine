@@ -8,6 +8,7 @@ dependencies {
     kapt(libs.spring.boot.configuration.processor)
 
     implementation(project(":engine-common"))
+    implementation(project(":engine-spi"))
 
     compileOnly(libs.spring.boot.autoconfigure)
 

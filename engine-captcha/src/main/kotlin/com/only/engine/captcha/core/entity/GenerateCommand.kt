@@ -1,7 +1,8 @@
-package com.only.engine.captcha.entity
+package com.only.engine.captcha.core.entity
 
-import com.only.engine.captcha.enums.CaptchaChannel
-import com.only.engine.captcha.enums.CaptchaType
+import com.only.engine.captcha.core.enums.CaptchaChannel
+import com.only.engine.captcha.core.enums.CaptchaType
+
 
 data class GenerateCommand(
     val bizType: String,

@@ -1,4 +1,4 @@
-package com.only.engine.spi.service
+package com.only.engine.spi.authentication
 
 /**
  * 用户权限处理

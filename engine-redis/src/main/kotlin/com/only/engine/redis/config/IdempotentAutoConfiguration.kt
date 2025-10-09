@@ -3,7 +3,7 @@ package com.only.engine.redis.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.only.engine.redis.RedisInitPrinter
 import com.only.engine.redis.aspectj.RepeatSubmitAspect
-import com.only.engine.spi.provider.TokenProvider
+import com.only.engine.spi.Idempotent.TokenProvider
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean

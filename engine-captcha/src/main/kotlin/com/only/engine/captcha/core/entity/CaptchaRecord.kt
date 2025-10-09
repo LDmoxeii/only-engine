@@ -1,6 +1,6 @@
-package com.only.engine.captcha.entity
+package com.only.engine.captcha.core.entity
 
-import com.only.engine.captcha.enums.CaptchaType
+import com.only.engine.captcha.core.enums.CaptchaType
 import java.time.Instant
 
 data class CaptchaRecord(

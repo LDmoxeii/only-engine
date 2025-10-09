@@ -6,7 +6,7 @@ import cn.dev33.satoken.interceptor.SaInterceptor
 import cn.dev33.satoken.router.SaRouter
 import cn.dev33.satoken.stp.StpUtil
 import com.only.engine.collector.UrlCollector
-import com.only.engine.spi.interceptor.SecurityInterceptor
+import com.only.engine.spi.security.SecurityInterceptor
 
 /**
  * Sa-Token 拦截器包装类

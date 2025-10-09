@@ -2,7 +2,7 @@ package com.only.engine.security.config
 
 import com.only.engine.security.SecurityInitPrinter
 import com.only.engine.security.config.properties.SecurityProperties
-import com.only.engine.spi.interceptor.SecurityInterceptor
+import com.only.engine.spi.security.SecurityInterceptor
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration

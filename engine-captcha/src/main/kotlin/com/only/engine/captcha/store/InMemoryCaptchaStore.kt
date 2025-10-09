@@ -1,7 +1,7 @@
 package com.only.engine.captcha.store
 
-import com.only.engine.captcha.core.CaptchaStore
-import com.only.engine.captcha.entity.CaptchaRecord
+import com.only.engine.captcha.core.entity.CaptchaRecord
+import com.only.engine.spi.captcha.CaptchaStore
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 

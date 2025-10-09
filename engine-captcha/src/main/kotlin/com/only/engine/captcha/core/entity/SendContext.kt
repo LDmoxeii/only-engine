@@ -1,6 +1,7 @@
-package com.only.engine.captcha.entity
+package com.only.engine.captcha.core.entity
 
-import com.only.engine.captcha.enums.CaptchaChannel
+import com.only.engine.captcha.core.enums.CaptchaChannel
+
 
 data class SendContext(
     val channel: CaptchaChannel,

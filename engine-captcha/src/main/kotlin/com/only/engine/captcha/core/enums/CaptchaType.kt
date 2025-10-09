@@ -1,4 +1,4 @@
-package com.only.engine.captcha.enums
+package com.only.engine.captcha.core.enums
 
 enum class CaptchaType {
     IMAGE,

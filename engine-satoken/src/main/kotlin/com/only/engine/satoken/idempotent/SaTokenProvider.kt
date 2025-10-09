@@ -1,7 +1,7 @@
 package com.only.engine.satoken.idempotent
 
 import cn.dev33.satoken.stp.StpUtil
-import com.only.engine.spi.provider.TokenProvider
+import com.only.engine.spi.Idempotent.TokenProvider
 
 /**
  * Sa-Token 实现的 Token 提供者
