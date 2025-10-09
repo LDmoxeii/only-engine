@@ -14,8 +14,8 @@ import com.only.engine.satoken.core.service.SaPermission
 import com.only.engine.satoken.handler.SaTokenExceptionHandler
 import com.only.engine.satoken.idempotent.SaTokenProvider
 import com.only.engine.satoken.interceptor.SaTokenSecurityInterceptor
-import com.only.engine.spi.Idempotent.TokenProvider
 import com.only.engine.spi.authentication.PermissionService
+import com.only.engine.spi.idempotent.TokenProvider
 import com.only.engine.spi.security.SecurityInterceptor
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ObjectProvider

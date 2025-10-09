@@ -9,8 +9,6 @@ dependencies {
 
     implementation(project(":engine-common"))
 
-    compileOnly(project(":engine-captcha"))
-
     compileOnly(libs.spring.webmvc)
     compileOnly(libs.spring.boot.autoconfigure)
 

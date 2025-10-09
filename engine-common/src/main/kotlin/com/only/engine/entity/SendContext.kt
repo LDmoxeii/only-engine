@@ -1,6 +1,6 @@
-package com.only.engine.captcha.core.entity
+package com.only.engine.entity
 
-import com.only.engine.captcha.core.enums.CaptchaChannel
+import com.only.engine.enums.CaptchaChannel
 
 
 data class SendContext(

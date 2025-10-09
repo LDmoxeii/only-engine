@@ -1,8 +1,8 @@
 package com.only.engine.spi.captcha
 
-import com.only.engine.captcha.core.entity.CaptchaContent
-import com.only.engine.captcha.core.entity.GenerateCommand
-import com.only.engine.captcha.core.enums.CaptchaType
+import com.only.engine.entity.CaptchaContent
+import com.only.engine.entity.GenerateCommand
+import com.only.engine.enums.CaptchaType
 
 
 interface CaptchaGenerator {

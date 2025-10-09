@@ -10,6 +10,10 @@ dependencies {
     implementation(project(":engine-common"))
     implementation(project(":engine-spi"))
 
+    implementation(libs.hutool.core)
+    implementation(libs.hutool.captcha)
+    implementation(libs.hutool.crypto)
+
     compileOnly(libs.spring.boot.autoconfigure)
 
     testImplementation(platform(libs.junit.bom))

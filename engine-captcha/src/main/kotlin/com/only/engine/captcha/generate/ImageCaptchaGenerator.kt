@@ -1,43 +1,44 @@
 package com.only.engine.captcha.generate
 
-import com.only.engine.captcha.core.entity.CaptchaContent
-import com.only.engine.captcha.core.entity.GenerateCommand
-import com.only.engine.captcha.core.enums.CaptchaType
+import cn.hutool.core.util.ReflectUtil
+import com.only.engine.entity.CaptchaContent
+import com.only.engine.entity.GenerateCommand
+import com.only.engine.enums.CaptchaType
 import com.only.engine.spi.captcha.CaptchaGenerator
+import org.springframework.expression.spel.standard.SpelExpressionParser
 import java.awt.Color
 import java.awt.Font
-import java.awt.image.BufferedImage
-import java.io.ByteArrayOutputStream
-import javax.imageio.ImageIO
-import kotlin.random.Random
 
 class ImageCaptchaGenerator : CaptchaGenerator {
+
+    companion object {
+        private val BACKGROUND = Color.LIGHT_GRAY
+        private val FONT = Font("Arial", Font.BOLD, 48)
+    }
+
     override fun supports(type: CaptchaType) = type == CaptchaType.IMAGE
 
     override fun generate(cmd: GenerateCommand): CaptchaContent {
         val width = cmd.width ?: 120
         val height = cmd.height ?: 40
-        val text = TextCaptchaGenerator()
-            .generate(cmd.copy(type = CaptchaType.TEXT))
-            .let { (it as CaptchaContent.Text).value }
+        val length = cmd.length
+        val charsetPolicy = cmd.charsetPolicy
 
-        val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-        val g = image.createGraphics()
-        try {
-            g.color = Color(240, 240, 240)
-            g.fillRect(0, 0, width, height)
-            g.font = Font("Arial", Font.BOLD, (height * 0.6).toInt())
-            text.forEachIndexed { i, c ->
-                g.color = Color(Random.nextInt(50, 150), Random.nextInt(50, 150), Random.nextInt(50, 150))
-                val x = (width * (0.1 + (i.toDouble() / text.length) * 0.8)).toInt()
-                val y = (height * 0.7).toInt()
-                g.drawString(c.toString(), x, y)
-            }
-        } finally {
-            g.dispose()
+        val isMath = charsetPolicy == GenerateCommand.CharsetPolicy.MATH
+
+        val codeGenerator = ReflectUtil.newInstance(charsetPolicy.clazz, length)
+        val captcha = ReflectUtil.newInstance(cmd.category.clazz, width, height)
+        captcha.setBackground(BACKGROUND)
+        captcha.setFont(FONT)
+        captcha.generator = codeGenerator
+
+        var code = captcha.code
+        if (isMath) {
+            val parser = SpelExpressionParser()
+            val exp = parser.parseExpression(code.replace("=", ""))
+            code = exp.getValue(String::class.java) ?: code
         }
-        val baos = ByteArrayOutputStream()
-        ImageIO.write(image, "png", baos)
-        return CaptchaContent.Image(baos.toByteArray(), "image/png", text)
+        val imageBytes = captcha.imageBytes
+        return CaptchaContent.Image(imageBytes, text = code)
     }
 }

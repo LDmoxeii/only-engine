@@ -1,4 +1,4 @@
-package com.only.engine.captcha.core.entity
+package com.only.engine.entity
 
 sealed class CaptchaContent {
     data class Image(val bytes: ByteArray, val mime: String = "image/png", val text: String) : CaptchaContent() {

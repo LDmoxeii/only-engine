@@ -1,6 +1,6 @@
 package com.only.engine.spi.captcha
 
-import com.only.engine.captcha.core.entity.CaptchaRecord
+import com.only.engine.entity.CaptchaRecord
 import java.time.Instant
 
 interface CaptchaStore {

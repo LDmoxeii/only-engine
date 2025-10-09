@@ -1,4 +1,4 @@
-package com.only.engine.web.misc
+package com.only.engine.misc
 
 import cn.hutool.captcha.generator.CodeGenerator
 import cn.hutool.core.math.Calculator

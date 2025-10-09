@@ -1,4 +1,4 @@
-package com.only.engine.web.enums
+package com.only.engine.enums
 
 import cn.hutool.captcha.AbstractCaptcha
 import cn.hutool.captcha.CircleCaptcha

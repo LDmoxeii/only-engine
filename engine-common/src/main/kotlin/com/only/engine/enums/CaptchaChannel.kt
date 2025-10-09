@@ -1,4 +1,4 @@
-package com.only.engine.captcha.core.enums
+package com.only.engine.enums
 
 enum class CaptchaChannel {
     INLINE,

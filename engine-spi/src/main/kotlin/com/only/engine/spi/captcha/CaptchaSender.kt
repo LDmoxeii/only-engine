@@ -1,7 +1,7 @@
 package com.only.engine.spi.captcha
 
-import com.only.engine.captcha.core.entity.SendContext
-import com.only.engine.captcha.core.enums.CaptchaChannel
+import com.only.engine.entity.SendContext
+import com.only.engine.enums.CaptchaChannel
 
 
 interface CaptchaSender {

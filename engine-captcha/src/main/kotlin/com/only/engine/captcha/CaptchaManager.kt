@@ -1,14 +1,15 @@
 package com.only.engine.captcha
 
+import cn.hutool.core.util.IdUtil
+import cn.hutool.crypto.SecureUtil
 import com.only.engine.captcha.config.properties.CaptchaProperties
-import com.only.engine.captcha.core.entity.*
-import com.only.engine.captcha.core.enums.CaptchaChannel
+import com.only.engine.constants.GlobalConstants
+import com.only.engine.entity.*
+import com.only.engine.enums.CaptchaChannel
 import com.only.engine.spi.captcha.CaptchaGenerator
 import com.only.engine.spi.captcha.CaptchaSender
 import com.only.engine.spi.captcha.CaptchaStore
-import java.security.MessageDigest
 import java.time.Instant
-import java.util.*
 
 class CaptchaManager(
     private val generators: List<CaptchaGenerator>,
@@ -21,7 +22,7 @@ class CaptchaManager(
         val generator = generators.firstOrNull { it.supports(cmd.type) }
             ?: error("No generator for ${cmd.type}")
         val content = generator.generate(cmd)
-        val id = UUID.randomUUID().toString()
+        val id = GlobalConstants.CAPTCHA_CODE_KEY + IdUtil.simpleUUID()
         val hash = hashValue(content)
         val record = CaptchaRecord(
             id = id,
@@ -85,8 +86,6 @@ class CaptchaManager(
     private fun normalize(v: String) =
         if (config.verifyPolicy.caseInsensitive) v.lowercase() else v
 
-    private fun hash(v: String): String {
-        val md = MessageDigest.getInstance("SHA-256")
-        return md.digest(v.toByteArray()).joinToString("") { "%02x".format(it) }
-    }
+    private fun hash(v: String): String =
+        SecureUtil.sha256().digest(v.toByteArray()).joinToString("") { "%02x".format(it) }
 }

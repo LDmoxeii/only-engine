@@ -11,6 +11,7 @@ dependencies {
     api(libs.slf4j.api)
 
     implementation(libs.fastjson)
+    implementation(libs.hutool.captcha)
     implementation(libs.hutool.extra)
     implementation(libs.hutool.jwt)
     implementation(libs.hutool.http)

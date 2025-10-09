@@ -1,5 +1,8 @@
 package com.only.engine.captcha.config.properties
 
+import org.springframework.boot.context.properties.ConfigurationProperties
+
+@ConfigurationProperties("only.engine.captcha")
 class CaptchaProperties(
 
     var enable: Boolean = true,
