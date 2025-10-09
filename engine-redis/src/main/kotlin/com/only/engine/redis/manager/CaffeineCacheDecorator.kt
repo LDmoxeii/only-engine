@@ -32,13 +32,13 @@ class CaffeineCacheDecorator(
     }
 
     override fun <T> get(key: Any, type: Class<T>?): T? {
-        val o = CAFFEINE.get(getUniqueKey(key)) { cache.get(key, type) }
+        val o = CAFFEINE.get(getUniqueKey(key)) { cache.get(key, type)!! }
         @Suppress("UNCHECKED_CAST")
         return o as? T
     }
 
     override fun <T> get(key: Any, valueLoader: Callable<T>): T? {
-        val o = CAFFEINE.get(getUniqueKey(key)) { cache.get(key, valueLoader) }
+        val o = CAFFEINE.get(getUniqueKey(key)) { cache.get(key, valueLoader)!! }
         @Suppress("UNCHECKED_CAST")
         return o as? T
     }
@@ -65,7 +65,10 @@ class CaffeineCacheDecorator(
         return result
     }
 
-    override fun clear() = cache.clear()
+    override fun clear() {
+        CAFFEINE.invalidateAll()
+        cache.clear()
+    }
 
     override fun invalidate(): Boolean = cache.invalidate()
 }

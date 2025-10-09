@@ -8,7 +8,7 @@ publish-plugin = "2.0.0"
 ksp = "2.2.0-2.0.2"
 
 # Spring framework
-spring-boot = "3.1.12"
+spring-boot = "3.5.6"
 
 # Thread Local
 transmittable-thread-local = "2.14.2"
@@ -22,14 +22,14 @@ slf4j = "2.0.13"
 kotlin-logging = "7.0.12"
 
 # Tools
-hutool = "5.8.39"
+hutool = "5.8.40"
 
 # Validation
 validation = "3.0.2"
 jakarta-servlet = "6.0.0"
 
 # Sa-Token
-sa-token = "1.38.0"
+sa-token = "1.44.0"
 
 # Jimmer ORM
 jimmer = "0.9.106"
@@ -38,7 +38,7 @@ jimmer = "0.9.106"
 snailjob = "1.1.2"
 
 # SpringDoc/OpenAPI
-springdoc = "2.6.0"
+springdoc = "2.8.13"
 therapi-javadoc = "0.15.0"
 
 # Redis
