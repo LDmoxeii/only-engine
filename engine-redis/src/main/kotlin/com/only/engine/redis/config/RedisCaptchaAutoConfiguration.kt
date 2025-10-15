@@ -5,6 +5,7 @@ import com.only.engine.redis.store.RedisCaptchaStore
 import com.only.engine.spi.captcha.CaptchaStore
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Bean
  * @author LD_moxeii
  */
 @AutoConfiguration
+@AutoConfigureBefore(name = ["com.only.engine.captcha.config.CaptchaAutoConfiguration"])
 @ConditionalOnProperty(prefix = "only.engine.redis", name = ["enable"], havingValue = "true")
 class RedisCaptchaAutoConfiguration() : RedisInitPrinter {
 

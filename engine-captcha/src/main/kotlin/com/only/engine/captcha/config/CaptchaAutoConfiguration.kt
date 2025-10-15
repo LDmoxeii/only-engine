@@ -8,7 +8,6 @@ import com.only.engine.captcha.send.InlineResponseSender
 import com.only.engine.spi.captcha.CaptchaGenerator
 import com.only.engine.spi.captcha.CaptchaSender
 import com.only.engine.spi.captcha.CaptchaStore
-import com.only.engine.spi.idempotent.TokenProvider
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -44,7 +43,7 @@ class CaptchaAutoConfiguration(
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnBean(TokenProvider::class)
+    @ConditionalOnBean(CaptchaStore::class)
     fun captchaService(
         generators: ObjectProvider<CaptchaGenerator>,
         store: CaptchaStore,
