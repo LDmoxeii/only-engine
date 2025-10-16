@@ -3,8 +3,6 @@ package com.only.engine.web.advice
 import com.only.engine.entity.Result
 import com.only.engine.web.annotation.IgnoreResultWrapper
 import com.only.engine.web.misc.AdviceUtils
-import org.springframework.boot.autoconfigure.AutoConfiguration
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.MethodParameter
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.core.annotation.Order
@@ -16,14 +14,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 
 @Order(3)
-@AutoConfiguration
 @RestControllerAdvice
-@ConditionalOnProperty(prefix = "only.engine.web.result-wrapper", name = ["enable"], havingValue = "true")
-class IgnoreResultWrapperResponseAdvice : ResponseBodyAdvice<Any> {
+class IgnoreResultWrapperResponseAdvice(
+    private val basePackages: List<String>,
+) : ResponseBodyAdvice<Any> {
 
     override fun supports(returnType: MethodParameter, converterType: Class<out HttpMessageConverter<*>>): Boolean {
-        return returnType.hasAnnotationOrClassAnnotation<IgnoreResultWrapper>()
-                || AdviceUtils.realHasAnnotation(returnType, IgnoreResultWrapper::class.java)
+        val controllerPackage = returnType.containingClass.`package`?.name ?: ""
+        val isInTargetPackage = basePackages.any { controllerPackage.startsWith(it) }
+
+        return isInTargetPackage &&
+            (returnType.hasAnnotationOrClassAnnotation<IgnoreResultWrapper>()
+                || AdviceUtils.realHasAnnotation(returnType, IgnoreResultWrapper::class.java))
     }
 
     override fun beforeBodyWrite(

@@ -2,8 +2,6 @@ package com.only.engine.web.advice
 
 import com.only.engine.entity.Result
 import com.only.engine.json.misc.JsonUtils
-import org.springframework.boot.autoconfigure.AutoConfiguration
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.MethodParameter
 import org.springframework.core.annotation.Order
 import org.springframework.http.MediaType
@@ -14,15 +12,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 
 @Order(5)
-@AutoConfiguration
 @RestControllerAdvice
-@ConditionalOnProperty(prefix = "only.engine.web.result-wrapper", name = ["enable"], havingValue = "true")
-class StringResponseAdvice : ResponseBodyAdvice<Any> {
+class StringResponseAdvice(
+    private val basePackages: List<String>,
+) : ResponseBodyAdvice<Any> {
 
     override fun supports(
         returnType: MethodParameter,
         converterType: Class<out HttpMessageConverter<*>>,
-    ): Boolean = true
+    ): Boolean {
+        val controllerPackage = returnType.containingClass.`package`?.name ?: ""
+        return basePackages.any { controllerPackage.startsWith(it) }
+    }
 
     override fun beforeBodyWrite(
         body: Any?,

@@ -2,6 +2,7 @@ package com.only.engine.web.config
 
 import com.only.engine.web.WebInitPrinter
 import com.only.engine.web.advice.GlobalExceptionHandlerAdvice
+import com.only.engine.web.advice.I18nResponseAdvice
 import com.only.engine.web.advice.IgnoreResultWrapperResponseAdvice
 import com.only.engine.web.advice.ResponseAdvice
 import com.only.engine.web.advice.StringResponseAdvice
@@ -9,6 +10,7 @@ import com.only.engine.web.config.properties.AdviceProperties
 import com.only.engine.web.i18n.I18nMessageDefaultHandler
 import com.only.engine.web.i18n.I18nMessageHandler
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -71,22 +73,32 @@ class AdviceAutoConfiguration : WebInitPrinter {
 
     @Bean
     @ConditionalOnProperty(prefix = "only.engine.web.advice.response-wrapper", name = ["enable"], havingValue = "true")
-    fun ignoreResultWrapperResponseAdvice(): IgnoreResultWrapperResponseAdvice {
+    fun ignoreResultWrapperResponseAdvice(properties: AdviceProperties): IgnoreResultWrapperResponseAdvice {
         printInit(IgnoreResultWrapperResponseAdvice::class.java, log)
-        return IgnoreResultWrapperResponseAdvice()
+        return IgnoreResultWrapperResponseAdvice(properties.basePackages)
     }
 
     @Bean
     @ConditionalOnProperty(prefix = "only.engine.web.advice.response-wrapper", name = ["enable"], havingValue = "true")
-    fun responseAdvice(): ResponseAdvice {
+    fun responseAdvice(properties: AdviceProperties): ResponseAdvice {
         printInit(ResponseAdvice::class.java, log)
-        return ResponseAdvice()
+        return ResponseAdvice(properties.basePackages)
     }
 
     @Bean
     @ConditionalOnProperty(prefix = "only.engine.web.advice.response-wrapper", name = ["enable"], havingValue = "true")
-    fun stringResponseAdvice(): StringResponseAdvice {
+    fun stringResponseAdvice(properties: AdviceProperties): StringResponseAdvice {
         printInit(StringResponseAdvice::class.java, log)
-        return StringResponseAdvice()
+        return StringResponseAdvice(properties.basePackages)
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "only.engine.web.advice.i18n", name = ["enable"], havingValue = "true")
+    fun i18nResponseAdvice(
+        i18nMessageHandlerObjectProvider: ObjectProvider<I18nMessageHandler>,
+        properties: AdviceProperties
+    ): I18nResponseAdvice {
+        printInit(I18nResponseAdvice::class.java, log)
+        return I18nResponseAdvice(i18nMessageHandlerObjectProvider, properties.basePackages)
     }
 }
