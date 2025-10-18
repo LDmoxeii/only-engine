@@ -32,7 +32,6 @@ plugins {
 include(":engine-common")
 include(":engine-spi")
 include(":engine-doc")
-include(":engine-jimmer")
 include(":engine-job")
 include(":engine-json")
 include(":engine-redis")
