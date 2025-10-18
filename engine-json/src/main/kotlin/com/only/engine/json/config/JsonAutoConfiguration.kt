@@ -61,7 +61,6 @@ class JsonAutoConfiguration : JsonInitPrinter {
             builder
                 .featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .featuresToEnable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
-                .modules(KotlinModule.Builder().build())
                 .mixIn(Result::class.java, ResultMixIn::class.java)
                 .timeZone(TimeZone.getDefault())
         }

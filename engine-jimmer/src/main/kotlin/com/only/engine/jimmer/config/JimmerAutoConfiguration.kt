@@ -1,5 +1,6 @@
 package com.only.engine.jimmer.config
 
+import com.fasterxml.jackson.databind.Module
 import com.only.engine.jimmer.JimmerInitPrinter
 import com.only.engine.jimmer.config.properties.JimmerProperties
 import org.babyfish.jimmer.jackson.ImmutableModule
@@ -27,12 +28,8 @@ class JimmerAutoConfiguration : JimmerInitPrinter {
     }
 
     @Bean
-    fun jimmerJackson2ObjectMapperBuilderCustomizer(): Jackson2ObjectMapperBuilderCustomizer {
-        printInit("jimmerJackson2ObjectMapperBuilderCustomizer", log)
-
-        return Jackson2ObjectMapperBuilderCustomizer { jacksonObjectMapperBuilder ->
-            jacksonObjectMapperBuilder.modules(ImmutableModule())
-        }
-
+    fun immutableModule(): Module {
+        printInit(ImmutableModule::class.java, log)
+        return ImmutableModule()
     }
 }
