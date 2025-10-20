@@ -13,8 +13,8 @@ class RedisProperties(
     /**
      * SPI 提供商配置
      */
-    data class ProviderConfig(
+    class ProviderConfig {
 
-        val tokenProvider: String = "",
-    )
+        var tokenProvider: String = ""
+    }
 }

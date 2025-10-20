@@ -9,18 +9,18 @@ class AdviceProperties(
     var responseWrapper: ResponseWrapperProperties = ResponseWrapperProperties(),
     var basePackages: List<String>,
 ) {
-    data class I18nProperties(
+    class I18nProperties {
         /** 是否启用国际化，默认 false */
-        var enable: Boolean = false,
-    )
+        var enable: Boolean = false
+    }
 
-    data class GlobalExceptionProperties(
+    class GlobalExceptionProperties {
         /** 是否启用全局异常处理，默认 true */
-        var enable: Boolean = true,
-    )
+        var enable: Boolean = true
+    }
 
-    data class ResponseWrapperProperties(
+    class ResponseWrapperProperties {
         /** 是否启用响应包装，默认 true */
-        var enable: Boolean = true,
-    )
+        var enable: Boolean = true
+    }
 }

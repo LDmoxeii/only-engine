@@ -3,9 +3,17 @@ package com.only.engine.security.config.properties
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "only.engine.security")
-data class SecurityProperties(
-    val enable: Boolean = false,
-    val excludes: Array<String> = arrayOf(
+class SecurityProperties {
+
+    /**
+     * 是否启用安全拦截器
+     */
+    var enable: Boolean = false
+
+    /**
+     * 排除的路径列表
+     */
+    var excludes: Array<String> = arrayOf(
         "/favicon.ico",
         "/actuator/**",
         "/error",
@@ -13,36 +21,20 @@ data class SecurityProperties(
         "/swagger-resources/**",
         "/webjars/**",
         "/v3/api-docs/**"
-    ),
-    var provider: ProviderConfig = ProviderConfig(),
-) {
+    )
 
     /**
      * SPI 提供商配置
      */
-    data class ProviderConfig(
+    var provider: ProviderConfig = ProviderConfig()
 
-        val securityInterceptor: String = "",
-
-        )
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as SecurityProperties
-
-        if (enable != other.enable) return false
-        if (provider != other.provider) return false
-        if (!excludes.contentEquals(other.excludes)) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = enable.hashCode()
-        result = 31 * result + provider.hashCode()
-        result = 31 * result + excludes.contentHashCode()
-        return result
+    /**
+     * SPI 提供商配置
+     */
+    class ProviderConfig {
+        /**
+         * 安全拦截器实现类全限定名
+         */
+        var securityInterceptor: String = ""
     }
 }

@@ -14,38 +14,37 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * @author LD_moxeii
  */
 @ConfigurationProperties(prefix = "only.engine.doc")
-data class DocProperties(
+class DocProperties {
 
     /**
      * 是否启用文档
      */
-    var enable: Boolean = false,
+    var enable: Boolean = false
 
     /**
      * 文档基本信息
      */
-    var info: InfoProperties = InfoProperties(),
+    var info: InfoProperties = InfoProperties()
 
     /**
      * 扩展文档地址
      */
-    var externalDocs: ExternalDocumentation? = null,
+    var externalDocs: ExternalDocumentation? = null
 
     /**
      * 标签
      */
-    var tags: List<Tag>? = null,
+    var tags: List<Tag>? = null
 
     /**
      * 路径
      */
-    var paths: Paths? = null,
+    var paths: Paths? = null
 
     /**
      * 组件
      */
-    var components: Components? = null,
-) {
+    var components: Components? = null
 
     /**
      * 文档的基础属性信息
@@ -54,30 +53,30 @@ data class DocProperties(
      *
      * 为了 SpringBoot 自动生成配置提示信息,所以这里复制一个类出来
      */
-    data class InfoProperties(
+    class InfoProperties {
         /**
          * 标题
          */
-        var title: String? = null,
+        var title: String? = null
 
         /**
          * 描述
          */
-        var description: String? = null,
+        var description: String? = null
 
         /**
          * 联系人信息
          */
-        var contact: Contact? = null,
+        var contact: Contact? = null
 
         /**
          * 许可证
          */
-        var license: License? = null,
+        var license: License? = null
 
         /**
          * 版本
          */
-        var version: String? = null,
-    )
+        var version: String? = null
+    }
 }

@@ -11,17 +11,17 @@ class CaptchaProperties(
 
     var verifyPolicy: VerifyPolicyConfig = VerifyPolicyConfig(),
 ) {
-    data class ProviderConfig(
-        val generator: String = "",
+    class ProviderConfig {
+        var generator: String = ""
 
-        val sender: String = "",
+        var sender: String = ""
 
-        val store: String = "redis",
-    )
+        var store: String = "redis"
+    }
 
-    data class VerifyPolicyConfig(
-        val onceOnly: Boolean = true,
-        val deleteOnFail: Boolean = false,
-        val caseInsensitive: Boolean = true,
-    )
+    class VerifyPolicyConfig {
+        var onceOnly: Boolean = true
+        var deleteOnFail: Boolean = false
+        var caseInsensitive: Boolean = true
+    }
 }
