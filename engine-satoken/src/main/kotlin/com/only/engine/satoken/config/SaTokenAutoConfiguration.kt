@@ -27,6 +27,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
 import org.springframework.http.HttpStatus
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
 
 @AutoConfiguration
 @EnableConfigurationProperties(SaTokenProperties::class)
@@ -60,6 +61,14 @@ class SaTokenAutoConfiguration() : SaTokenInitPrinter {
         val handler = SaTokenExceptionHandlerAdvice()
         printInit(SaTokenExceptionHandlerAdvice::class.java, log)
         return handler
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun urlCollector(requestMappingHandlerMapping: RequestMappingHandlerMapping): UrlCollector {
+        val collector = UrlCollector(requestMappingHandlerMapping)
+        printInit(UrlCollector::class.java, log)
+        return collector
     }
 
     @Bean

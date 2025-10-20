@@ -9,6 +9,7 @@ dependencies {
 
     implementation(project(":engine-common"))
     implementation(project(":engine-spi"))
+    implementation(libs.hutool.extra)
 
     compileOnly(libs.spring.web)
     compileOnly(libs.spring.webmvc)
