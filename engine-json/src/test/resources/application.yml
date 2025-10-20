@@ -1,0 +1,9 @@
+# JSON 测试配置
+spring:
+  application:
+    name: json-test
+
+# 日志配置
+logging:
+  level:
+    com.only.engine.json: DEBUG

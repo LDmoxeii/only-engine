@@ -22,4 +22,9 @@ dependencies {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }
     testRuntimeOnly(libs.bundles.junit.runtime)
+
+    testImplementation(libs.spring.boot.starter.test) {
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+    }
+    testImplementation(libs.spring.boot.starter)
 }

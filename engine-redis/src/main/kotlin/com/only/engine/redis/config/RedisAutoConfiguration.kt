@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.only.engine.redis.RedisInitPrinter
 import com.only.engine.redis.config.properties.RedisProperties
 import com.only.engine.redis.config.properties.RedissonProperties
@@ -27,13 +28,6 @@ import java.util.*
 /**
  * Redis 自动配置
  *
- * 当满足以下条件时生效:
- * 1. Redisson 自动配置已启用
- *
- * 集成了以下功能:
- * - 自定义 Redisson 配置(序列化、线程池、编解码器)
- * - 配置 Key 前缀处理器
- * - 支持单机/集群模式
  *
  * @author LD_moxeii
  */
@@ -66,14 +60,21 @@ class RedisAutoConfiguration(
 
             // 配置 ObjectMapper
             val om = ObjectMapper().apply {
+                // 注册 Kotlin 模块，支持 Kotlin data class 序列化/反序列化
+                registerModule(KotlinModule.Builder().build())
                 registerModule(javaTimeModule)
                 setTimeZone(TimeZone.getDefault())
                 setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY)
-                // 注意：移除了 activateDefaultTyping，避免为所有对象添加类型信息
-                // 如果需要多态类型支持，建议在具体的类上使用 @JsonTypeInfo 注解
+                // 指定序列化输入的类型，序列化时将对象全类名一起保存下来
+                // 注意：Kotlin 的类默认是 final 的，使用 EVERYTHING 确保所有对象都添加类型信息
+                // EVERYTHING: 为所有类型（包括 final 类）添加类型信息，适用于 Kotlin
+                activateDefaultTyping(
+                    LaissezFaireSubTypeValidator.instance,
+                    ObjectMapper.DefaultTyping.EVERYTHING
+                )
             }
 
-            // 配置编解码器: key 使用 String, value 使用 JSON
+            // 配置编解码器: key 使用 String, value 使用 TypedJsonJacksonCodec
             val jsonCodec = TypedJsonJacksonCodec(Any::class.java, om)
             val codec = CompositeCodec(StringCodec.INSTANCE, jsonCodec, jsonCodec)
 
@@ -135,20 +136,22 @@ class RedisAutoConfiguration(
      *       ssl:
      *         enabled: false
      *
-     * redisson:
-     *   threads: 16
-     *   nettyThreads: 32
-     *   clusterServersConfig:
-     *     clientName: ${app.name}
-     *     masterConnectionMinimumIdleSize: 32
-     *     masterConnectionPoolSize: 64
-     *     slaveConnectionMinimumIdleSize: 32
-     *     slaveConnectionPoolSize: 64
-     *     idleConnectionTimeout: 10000
-     *     timeout: 3000
-     *     subscriptionConnectionPoolSize: 50
-     *     readMode: "SLAVE"
-     *     subscriptionMode: "MASTER"
+     * only:
+     *   engine:
+     *     redisson:
+     *       threads: 16
+     *       nettyThreads: 32
+     *       clusterServersConfig:
+     *         clientName: ${app.name}
+     *         masterConnectionMinimumIdleSize: 32
+     *         masterConnectionPoolSize: 64
+     *         slaveConnectionMinimumIdleSize: 32
+     *         slaveConnectionPoolSize: 64
+     *         idleConnectionTimeout: 10000
+     *         timeout: 3000
+     *         subscriptionConnectionPoolSize: 50
+     *         readMode: "SLAVE"
+     *         subscriptionMode: "MASTER"
      * ```
      */
 }

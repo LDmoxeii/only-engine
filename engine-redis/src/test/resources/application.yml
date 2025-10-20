@@ -1,0 +1,31 @@
+# Redis 测试配置
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 0
+
+# 启用 Redis 模块
+only:
+  engine:
+    redis:
+      enable: true
+    redisson:
+      key-prefix: test
+      threads: 4
+      netty-threads: 8
+      single-server-config:
+        client-name: redis-codec-test
+        connection-pool-size: 10
+        connection-minimum-idle-size: 2
+        idle-connection-timeout: 10000
+        timeout: 3000
+        subscription-connection-pool-size: 5
+
+# 日志配置
+logging:
+  level:
+    com.only.engine.redis: DEBUG
+    org.redisson: INFO

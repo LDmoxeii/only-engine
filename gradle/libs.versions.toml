@@ -69,7 +69,6 @@ spring-webmvc = { module = "org.springframework:spring-webmvc", version.ref = "s
 # Spring Boot Starters
 spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "spring-boot" }
 spring-boot-starter-aop = { module = "org.springframework.boot:spring-boot-starter-aop", version.ref = "spring-boot" }
-spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 
 # Thread Local
 transmittable-thread-local = { module = "com.alibaba:transmittable-thread-local", version.ref = "transmittable-thread-local" }
@@ -126,6 +125,7 @@ junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", vers
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kotlin-compile-testing = { module = "dev.zacsweers.kctfork:ksp", version.ref = "kotlin-compile-testing" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 
 # Libraries can be bundled together for easier import
 [bundles]

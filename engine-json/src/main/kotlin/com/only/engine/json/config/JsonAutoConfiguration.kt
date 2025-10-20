@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.only.engine.entity.Result
 import com.only.engine.json.JsonInitPrinter
 import com.only.engine.json.config.properties.JsonProperties
