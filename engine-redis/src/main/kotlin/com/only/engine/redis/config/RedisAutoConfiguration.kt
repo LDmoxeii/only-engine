@@ -69,8 +69,8 @@ class RedisAutoConfiguration(
                 registerModule(javaTimeModule)
                 setTimeZone(TimeZone.getDefault())
                 setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY)
-                // 指定序列化输入的类型,类必须是非 final 修饰的。序列化时将对象全类名一起保存下来
-                activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL)
+                // 注意：移除了 activateDefaultTyping，避免为所有对象添加类型信息
+                // 如果需要多态类型支持，建议在具体的类上使用 @JsonTypeInfo 注解
             }
 
             // 配置编解码器: key 使用 String, value 使用 JSON
