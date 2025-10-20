@@ -30,8 +30,8 @@ import org.springframework.http.HttpStatus
 
 @AutoConfiguration
 @EnableConfigurationProperties(SaTokenProperties::class)
-@ConditionalOnProperty(prefix = "only.engine.satoken", name = ["enable"], havingValue = "true")
-@PropertySource(value = ["classpath:common-satoken.yml"], factory = YmlPropertySourceFactory::class)
+@ConditionalOnProperty(prefix = "only.engine.sa-token", name = ["enable"], havingValue = "true")
+@PropertySource(value = ["classpath:common-sa-token.yml"], factory = YmlPropertySourceFactory::class)
 class SaTokenAutoConfiguration() : SaTokenInitPrinter {
 
     companion object {
