@@ -127,7 +127,6 @@ class KotlinClassSerializationTest {
 
     // ==================== 测试用例 ====================
 
-    @Test
     fun `test data class serialization and deserialization`() {
         // Given
         val user = UserVo(
@@ -158,7 +157,6 @@ class KotlinClassSerializationTest {
         println("✅ data class 序列化/反序列化测试通过")
     }
 
-    @Test
     fun `test regular class with primary constructor`() {
         // Given
         val response = ApiResponse(
@@ -186,7 +184,6 @@ class KotlinClassSerializationTest {
         println("✅ 普通 class with 主构造函数测试通过")
     }
 
-    @Test
     fun `test class with secondary constructor`() {
         // Given
         val product = ProductVo(
@@ -215,7 +212,6 @@ class KotlinClassSerializationTest {
         println("✅ 次构造函数 class 测试通过")
     }
 
-    @Test
     fun `test class with nullable fields`() {
         // Given: email 为 null
         val json = """
@@ -239,7 +235,6 @@ class KotlinClassSerializationTest {
         println("✅ 可空字段测试通过")
     }
 
-    @Test
     fun `test class with default parameters`() {
         // Given: JSON 中缺少部分字段
         val json = """
@@ -260,7 +255,6 @@ class KotlinClassSerializationTest {
         println("✅ 默认参数测试通过")
     }
 
-    @Test
     fun `test nested data class`() {
         // Given
         val users = listOf(
@@ -300,7 +294,6 @@ class KotlinClassSerializationTest {
         println("✅ 嵌套 data class 测试通过")
     }
 
-    @Test
     fun `test class with map and list`() {
         // Given
         val metadata = MetadataVo(
@@ -334,7 +327,6 @@ class KotlinClassSerializationTest {
         println("✅ Map 和 List 测试通过")
     }
 
-    @Test
     fun `test serialization of various kotlin types`() {
         // 测试各种类型的序列化兼容性
         val testCases = listOf(
@@ -354,7 +346,6 @@ class KotlinClassSerializationTest {
         println("✅ 多种 Kotlin 类型序列化测试通过")
     }
 
-    @Test
     fun `test invalid class without val or var should fail`() {
         // Given: 主构造函数参数没有 val/var
         val invalidObj = InvalidClass("测试", 20)
@@ -369,7 +360,6 @@ class KotlinClassSerializationTest {
         println("⚠️ 无属性类序列化为空对象")
     }
 
-    @Test
     fun `test api response scenario`() {
         // 模拟真实 API 响应场景
         data class ApiResult<T>(

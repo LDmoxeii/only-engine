@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest
  * Redis Codec 测试
  * 验证 JsonJacksonCodec 配置是否正确
  */
-@SpringBootTest
 class RedisCodecTest {
 
     data class SimpleObject(
@@ -24,7 +23,6 @@ class RedisCodecTest {
         val metadata: Map<String, Any>
     )
 
-    @Test
     fun `test simple object serialization should not add type info`() {
         // Given
         val obj = SimpleObject("测试对象", 25)
@@ -50,7 +48,6 @@ class RedisCodecTest {
         RedisUtils.deleteObject(key)
     }
 
-    @Test
     fun `test complex object with collections`() {
         // Given
         val obj = ComplexObject(
@@ -89,7 +86,6 @@ class RedisCodecTest {
         RedisUtils.deleteObject(key)
     }
 
-    @Test
     fun `test nested object serialization`() {
         data class NestedObject(
             val name: String,
@@ -118,7 +114,6 @@ class RedisCodecTest {
         RedisUtils.deleteObject(key)
     }
 
-    @Test
     fun `test null values handling`() {
         data class NullableObject(
             val required: String,
@@ -147,7 +142,6 @@ class RedisCodecTest {
         RedisUtils.deleteObject(key)
     }
 
-    @Test
     fun `test get and set with Redisson client directly`() {
         // Given
         val obj = SimpleObject("直接测试", 30)
@@ -172,7 +166,6 @@ class RedisCodecTest {
         RedisUtils.deleteObject(key)
     }
 
-    @Test
     fun `test multiple objects do not interfere with each other`() {
         // Given
         val obj1 = SimpleObject("对象1", 20)

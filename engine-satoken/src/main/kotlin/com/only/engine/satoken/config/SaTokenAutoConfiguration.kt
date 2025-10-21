@@ -7,7 +7,6 @@ import cn.dev33.satoken.stp.StpInterface
 import cn.dev33.satoken.stp.StpLogic
 import cn.dev33.satoken.util.SaResult
 import cn.hutool.extra.spring.SpringUtil
-import com.only.engine.collector.UrlCollector
 import com.only.engine.factory.YmlPropertySourceFactory
 import com.only.engine.satoken.SaTokenInitPrinter
 import com.only.engine.satoken.adice.SaTokenExceptionHandlerAdvice
@@ -27,7 +26,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
 import org.springframework.http.HttpStatus
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
 
 @AutoConfiguration
 @EnableConfigurationProperties(SaTokenProperties::class)
@@ -65,21 +63,13 @@ class SaTokenAutoConfiguration() : SaTokenInitPrinter {
 
     @Bean
     @ConditionalOnMissingBean
-    fun urlCollector(requestMappingHandlerMapping: RequestMappingHandlerMapping): UrlCollector {
-        val collector = UrlCollector(requestMappingHandlerMapping)
-        printInit(UrlCollector::class.java, log)
-        return collector
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
     @ConditionalOnProperty(
         prefix = "only.engine.security.provider",
         name = ["security-interceptor"],
         havingValue = "sa-token"
     )
-    fun saTokenSecurityInterceptor(urlCollector: UrlCollector): SecurityInterceptor {
-        val interceptor = SaTokenSecurityInterceptor(urlCollector)
+    fun saTokenSecurityInterceptor(): SecurityInterceptor {
+        val interceptor = SaTokenSecurityInterceptor()
         printInit(SaTokenSecurityInterceptor::class.java, log)
         return interceptor
     }
