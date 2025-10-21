@@ -39,6 +39,7 @@ import java.io.IOException
 class GlobalExceptionHandlerAdvice() {
 
     companion object {
+        // 需要补充 jakarta.validation.UnexpectedTypeException
         private val log = LoggerFactory.getLogger(GlobalExceptionHandlerAdvice::class.java)
     }
 
