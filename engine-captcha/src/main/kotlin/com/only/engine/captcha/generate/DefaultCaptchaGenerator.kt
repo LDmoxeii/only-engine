@@ -38,7 +38,6 @@ class DefaultCaptchaGenerator : CaptchaGenerator {
             val exp = parser.parseExpression(code.replace("=", ""))
             code = exp.getValue(String::class.java) ?: code
         }
-        val imageBytes = captcha.imageBytes
-        return CaptchaContent.Image(imageBytes, text = code)
+        return CaptchaContent.Image(captcha.imageBase64, text = code)
     }
 }
