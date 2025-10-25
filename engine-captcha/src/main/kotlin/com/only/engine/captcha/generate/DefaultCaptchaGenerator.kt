@@ -13,7 +13,7 @@ class DefaultCaptchaGenerator : CaptchaGenerator {
 
     companion object {
         private val BACKGROUND = Color.LIGHT_GRAY
-        private val FONT = Font("Arial", Font.BOLD, 48)
+        private val FONT = Font("Arial", Font.BOLD, 32)
     }
 
     override fun supports(type: CaptchaType) = type == CaptchaType.IMAGE
