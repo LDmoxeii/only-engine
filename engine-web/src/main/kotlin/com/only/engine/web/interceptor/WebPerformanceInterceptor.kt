@@ -1,10 +1,10 @@
 package com.only.engine.web.interceptor
 
-import cn.hutool.core.io.IoUtil
 import cn.hutool.core.map.MapUtil
 import cn.hutool.core.util.ObjectUtil
 import com.only.engine.json.misc.JsonUtils
 import com.only.engine.web.WebInitPrinter
+import com.only.engine.web.filter.CachedBodyHttpServletRequest
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.lang3.time.StopWatch
@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.ModelAndView
-import org.springframework.web.util.ContentCachingRequestWrapper
-import java.io.BufferedReader
 
 /**
  * Web 请求性能拦截器
@@ -105,10 +103,10 @@ class WebPerformanceInterceptor(
      * 获取 JSON 参数
      */
     private fun getJsonParam(request: HttpServletRequest): String {
-        if (request is ContentCachingRequestWrapper) {
-            val reader: BufferedReader = request.reader
-            return IoUtil.read(reader)
+        val rawPayload = when (request) {
+            is CachedBodyHttpServletRequest -> request.cachedBodyAsString()
+            else -> ""
         }
-        return ""
+        return JsonUtils.compressJson(rawPayload)
     }
 }

@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
-import org.springframework.web.util.ContentCachingRequestWrapper
 import org.springframework.web.util.ContentCachingResponseWrapper
 import java.io.IOException
 
@@ -37,8 +36,8 @@ class RequestBodyWrapperFilter(
         try {
             if (request is HttpServletRequest) {
                 if (isNotSkipPath(request) && isNotFormPost(request)) {
-                    if (request !is ContentCachingRequestWrapper) {
-                        request = ContentCachingRequestWrapper(request)
+                    if (request !is CachedBodyHttpServletRequest) {
+                        request = CachedBodyHttpServletRequest(request)
                     }
                     if (response !is ContentCachingResponseWrapper) {
                         response = ContentCachingResponseWrapper(response as HttpServletResponse)

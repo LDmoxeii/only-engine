@@ -163,4 +163,9 @@ object JsonUtils {
             throw RuntimeException(e)
         }
     }
+
+    fun compressJson(jsonStr: String): String {
+        val tree = OBJECT_MAPPER.readTree(jsonStr)
+        return OBJECT_MAPPER.writeValueAsString(tree)
+    }
 }
