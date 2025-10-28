@@ -1,15 +1,19 @@
 package com.only.engine.web.advice
 
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.only.engine.annotation.RespStatus
 import com.only.engine.constants.StandardCode
 import com.only.engine.entity.Result
 import com.only.engine.enums.HttpStatus
+import com.only.engine.exception.ErrorException
 import com.only.engine.exception.KnownException
 import com.only.engine.exception.WarnException
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.ConstraintViolationException
+import org.apache.catalina.connector.ClientAbortException
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -39,7 +43,6 @@ import java.io.IOException
 class GlobalExceptionHandlerAdvice() {
 
     companion object {
-        // 需要补充 jakarta.validation.UnexpectedTypeException
         private val log = LoggerFactory.getLogger(GlobalExceptionHandlerAdvice::class.java)
     }
 
@@ -132,84 +135,96 @@ class GlobalExceptionHandlerAdvice() {
     ): Result<Unit> {
         val errors = ex.constraintViolations.joinToString(", ") { "${it.propertyPath}: ${it.message}" }
         val msg = "请求参数无效: $errors"
-        logInfo(request, msg, ex)
+        logWarning(request, msg, ex)
         return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, msg)
     }
-
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun validationMethodArgumentException(
         ex: MethodArgumentNotValidException,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): Result<Unit> = validationBindException(ex, request)
 
     @ExceptionHandler(BindException::class)
     fun validationBindException(ex: BindException, request: HttpServletRequest): Result<Unit> {
         val errors = ex.bindingResult.fieldErrors.joinToString(", ") { "${it.field}：${it.defaultMessage}" }
         val msg = "请求参数无效: $errors"
-        logInfo(request, msg, ex)
+        logWarning(request, msg, ex)
         return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, msg)
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException::class)
-    fun httpMessageNotReadableException(
-        ex: HttpMessageNotReadableException,
+    @ExceptionHandler(
+        HttpMessageNotReadableException::class,
+        JsonProcessingException::class,
+        JsonParseException::class,
+    )
+    fun handleJsonPayloadException(
+        ex: Exception,
         request: HttpServletRequest,
     ): Result<Unit> {
-        val message = "参数格式不匹配"
-        logWarning(request, ex.message ?: message, ex)
+        val message = ex.message ?: "参数格式不匹配"
+        logWarning(request, message, ex)
         return Result.error(StandardCode.UserSide.RequestParameterFormatNotMatch)
     }
 
-    @ExceptionHandler(KnownException::class)
-    fun knownException(
-        ex: KnownException,
+    @ExceptionHandler(ErrorException::class)
+    fun handleErrorException(
+        ex: ErrorException,
         request: HttpServletRequest,
-        response: HttpServletResponse
-    ): Result<*> {
-        when (ex.level) {
-            org.slf4j.event.Level.ERROR -> logError(request, ex.message ?: "", ex)
-            org.slf4j.event.Level.WARN -> logWarning(request, ex.message ?: "", ex)
-            else -> logInfo(request, ex.message ?: "", ex)
-        }
-        handlerResponseStatus(ex, response)
-        return Result.error(ex.code, ex.message ?: "")
-    }
+        response: HttpServletResponse,
+    ): Result<Unit> = handleKnownExceptionInternal(ex, request, response, HttpStatus.INTERNAL_SERVER_ERROR)
 
     @ExceptionHandler(WarnException::class)
-    fun warnException(
+    fun handleWarnException(
         ex: WarnException,
         request: HttpServletRequest,
-        response: HttpServletResponse
-    ): Result<Unit> {
-        logWarning(request, ex.message ?: "", ex)
-        handlerResponseStatus(ex, response)
-        return Result.error(ex.code, ex.message ?: "")
-    }
+        response: HttpServletResponse,
+    ): Result<Unit> = handleKnownExceptionInternal(ex, request, response, HttpStatus.BAD_REQUEST)
+
+    @ExceptionHandler(KnownException::class)
+    fun handleKnownException(
+        ex: KnownException,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ): Result<Unit> = handleKnownExceptionInternal(ex, request, response, HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(IllegalArgumentException::class)
     fun illegalArgumentException(
         ex: IllegalArgumentException,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): Result<Unit> {
         val message = ex.message ?: "参数错误"
         logWarning(request, message, ex)
         return Result.error(StandardCode.UserSide.RequestParameterException)
     }
 
-    @ExceptionHandler(Exception::class)
-    fun exception(ex: Exception, request: HttpServletRequest): Result<Unit> {
-        logError(request, ex.message ?: "系统异常", ex)
-        return Result.error(StandardCode.SystemSide.Exception)
+    @ExceptionHandler(ClientAbortException::class)
+    fun handleClientAbortException(
+        ex: ClientAbortException,
+        request: HttpServletRequest,
+    ): Result<Unit>? {
+        if (log.isDebugEnabled) {
+            log.debug(
+                "Path: [{}], Client aborted connection: [{}]",
+                request.requestURI,
+                ex.message ?: ex.javaClass.simpleName,
+            )
+        }
+        return null
     }
 
     /**
      * Servlet 异常
      */
     @ExceptionHandler(ServletException::class)
-    fun handleServletException(ex: ServletException, request: HttpServletRequest): Result<Unit> {
+    fun handleServletException(
+        ex: ServletException,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ): Result<Unit> {
         val requestURI = request.requestURI
         logError(request, "请求地址'$requestURI',发生未知异常", ex)
+        handlerResponseStatus(ex, response, HttpStatus.INTERNAL_SERVER_ERROR)
         return Result.error(StandardCode.SystemSide.Exception)
     }
 
@@ -218,62 +233,86 @@ class GlobalExceptionHandlerAdvice() {
      * 特殊处理 SSE 连接中断
      */
     @ExceptionHandler(IOException::class)
-    fun handleIOException(ex: IOException, request: HttpServletRequest): Result<Unit>? {
+    fun handleIOException(
+        ex: IOException,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ): Result<Unit>? {
         val requestURI = request.requestURI
-        // SSE 经常性连接中断，例如关闭浏览器，直接屏蔽
         if (requestURI.contains("sse", ignoreCase = true)) {
+            if (log.isDebugEnabled) {
+                log.debug(
+                    "Path: [{}], SSE connection closed by client: [{}]",
+                    requestURI,
+                    ex.message ?: "连接中断",
+                )
+            }
             return null
         }
         logError(request, "请求地址'$requestURI',连接中断", ex)
+        handlerResponseStatus(ex, response, HttpStatus.INTERNAL_SERVER_ERROR)
         return Result.error(StandardCode.SystemSide.Exception)
     }
 
-    /**
-     * 运行时异常
-     */
-    @ExceptionHandler(RuntimeException::class)
-    fun handleRuntimeException(ex: RuntimeException, request: HttpServletRequest): Result<Unit> {
-        val requestURI = request.requestURI
-        logError(request, "请求地址'$requestURI',发生运行时异常", ex)
-        return Result.error(StandardCode.SystemSide.Exception)
+    @ExceptionHandler(Throwable::class)
+    fun handleThrowable(
+        ex: Throwable,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ): Result<Unit> {
+        val message = resolveUserMessage(ex, StandardCode.SystemSide.Exception.message)
+        logError(request, message, ex)
+        handlerResponseStatus(ex, response, HttpStatus.INTERNAL_SERVER_ERROR)
+        return Result.error(StandardCode.SystemSide.EXCEPTION, message)
     }
 
     /**
      * 判断是否为敏感异常（不应该暴露给用户的内部异常）
      */
-    private fun isSensitiveException(ex: Exception): Boolean {
-        return when {
-            ex is NullPointerException -> true
-            ex is ClassCastException -> true
-            ex is NoSuchMethodException -> true
-            ex.message?.contains("database", ignoreCase = true) == true -> true
-            ex.message?.contains("sql", ignoreCase = true) == true -> true
-            ex.message?.contains("connection", ignoreCase = true) == true -> true
-            else -> false
+    private fun isSensitiveException(ex: Throwable): Boolean {
+        return when (ex) {
+            is NullPointerException,
+            is ClassCastException,
+            is NoSuchMethodException -> true
+
+            else -> {
+                val msg = ex.message ?: return false
+                msg.contains("database", ignoreCase = true) ||
+                        msg.contains("sql", ignoreCase = true) ||
+                        msg.contains("connection", ignoreCase = true)
+            }
         }
+    }
+
+    private fun resolveUserMessage(ex: Throwable, fallback: String): String {
+        val message = ex.message
+        if (message.isNullOrBlank()) {
+            return fallback
+        }
+        return if (isSensitiveException(ex)) fallback else message
     }
 
     /**
      * 日志工具函数
      */
-    private fun logInfo(request: HttpServletRequest, message: String, e: Exception) {
+    private fun logInfo(request: HttpServletRequest, message: String, e: Throwable) {
         log.info(
             "Path: [{}], Exception message: [{}], Exception: [{}]",
-            request.requestURI, message, e::class.simpleName
+            request.requestURI, message, e::class.simpleName,
         )
     }
 
-    private fun logWarning(request: HttpServletRequest, message: String, e: Exception) {
+    private fun logWarning(request: HttpServletRequest, message: String, e: Throwable) {
         log.warn(
             "Path: [{}], Exception message: [{}], Exception: [{}]",
-            request.requestURI, message, e::class.simpleName
+            request.requestURI, message, e::class.simpleName,
         )
     }
 
-    private fun logError(request: HttpServletRequest, message: String, e: Exception) {
+    private fun logError(request: HttpServletRequest, message: String, e: Throwable) {
         log.error(
             "Path: [{}], Exception message: [{}], Exception: [{}]",
-            request.requestURI, message, e::class.simpleName, e
+            request.requestURI, message, e::class.simpleName, e,
         )
     }
 
@@ -281,12 +320,31 @@ class GlobalExceptionHandlerAdvice() {
      * 响应状态处理
      */
     private fun handlerResponseStatus(
-        ex: Exception,
+        ex: Throwable,
         response: HttpServletResponse,
-        defStatus: HttpStatus? = null
+        defStatus: HttpStatus? = null,
     ) {
+        if (response.isCommitted) {
+            return
+        }
         val respStatus = ex::class.java.getDeclaredAnnotation(RespStatus::class.java)
         val status = respStatus?.value ?: defStatus ?: HttpStatus.INTERNAL_SERVER_ERROR
         response.status = status.value
+    }
+
+    private fun handleKnownExceptionInternal(
+        ex: KnownException,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        defaultStatus: HttpStatus,
+    ): Result<Unit> {
+        val message = ex.msg.ifBlank { StandardCode.SystemSide.Exception.message }
+        when (ex.level) {
+            org.slf4j.event.Level.ERROR -> logError(request, message, ex)
+            org.slf4j.event.Level.WARN -> logWarning(request, message, ex)
+            else -> logInfo(request, message, ex)
+        }
+        handlerResponseStatus(ex, response, defaultStatus)
+        return Result.error(ex.code, message)
     }
 }
