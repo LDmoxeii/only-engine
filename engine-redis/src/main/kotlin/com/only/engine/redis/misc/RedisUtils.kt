@@ -2,18 +2,12 @@ package com.only.engine.redis.misc
 
 import cn.hutool.extra.spring.SpringUtil
 import org.redisson.api.*
+import org.redisson.client.protocol.ScoredEntry
 import java.time.Duration
 import java.util.function.Consumer
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
-/**
- * Redis 工具类
- *
- * @author LD_moxeii
- * @version 3.1.0 新增
- */
-@Suppress("UNCHECKED_CAST")
 object RedisUtils {
 
     private val CLIENT: RedissonClient by lazy {
@@ -587,5 +581,262 @@ object RedisUtils {
     fun hasKey(key: String): Boolean {
         val rKeys = CLIENT.keys
         return rKeys.countExists(key) > 0
+    }
+
+    /**
+     * 添加 ZSet 元素
+     *
+     * @param key   缓存的键值
+     * @param value 元素值
+     * @param score 分数
+     * @return 添加成功返回 true
+     */
+    @JvmStatic
+    fun <T> addCacheZSet(key: String, value: T, score: Double): Boolean {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.add(score, value)
+    }
+
+    /**
+     * 批量添加 ZSet 元素
+     *
+     * @param key    缓存的键值
+     * @param values 元素值和分数的映射
+     * @return 添加成功的元素数量
+     */
+    @JvmStatic
+    fun <T> addAllCacheZSet(key: String, values: Map<T, Double>): Int {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.addAll(values)
+    }
+
+    /**
+     * 获取 ZSet 所有元素(按分数升序)
+     *
+     * @param key 缓存的键值
+     * @return 元素集合
+     */
+    @JvmStatic
+    fun <T> getCacheZSet(key: String): Collection<T> {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.readAll()
+    }
+
+    /**
+     * 获取 ZSet 指定范围的元素(按分数升序,索引从 0 开始)
+     *
+     * @param key        缓存的键值
+     * @param startIndex 起始索引
+     * @param endIndex   结束索引
+     * @return 元素集合
+     */
+    @JvmStatic
+    fun <T> getCacheZSetRange(key: String, startIndex: Int, endIndex: Int): Collection<T> {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.valueRange(startIndex, endIndex)
+    }
+
+    /**
+     * 获取 ZSet 指定范围的元素(按分数降序,索引从 0 开始)
+     *
+     * @param key        缓存的键值
+     * @param startIndex 起始索引
+     * @param endIndex   结束索引
+     * @return 元素集合
+     */
+    @JvmStatic
+    fun <T> getCacheZSetRevRange(key: String, startIndex: Int, endIndex: Int): Collection<T> {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.valueRangeReversed(startIndex, endIndex)
+    }
+
+    /**
+     * 根据分数范围获取 ZSet 元素(按分数升序)
+     *
+     * @param key      缓存的键值
+     * @param minScore 最小分数
+     * @param maxScore 最大分数
+     * @return 元素集合
+     */
+    @JvmStatic
+    fun <T> getCacheZSetRangeByScore(key: String, minScore: Double, maxScore: Double): Collection<T> {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.valueRange(minScore, true, maxScore, true)
+    }
+
+    /**
+     * 获取 ZSet 指定范围的元素及分数(按分数升序)
+     *
+     * @param key        缓存的键值
+     * @param startIndex 起始索引
+     * @param endIndex   结束索引
+     * @return 元素和分数的集合
+     */
+    @JvmStatic
+    fun <T> getCacheZSetWithScores(key: String, startIndex: Int, endIndex: Int): Collection<ScoredEntry<T>> {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.entryRange(startIndex, endIndex)
+    }
+
+    /**
+     * 获取 ZSet 指定范围的元素及分数(按分数降序)
+     *
+     * @param key        缓存的键值
+     * @param startIndex 起始索引
+     * @param endIndex   结束索引
+     * @return 元素和分数的集合
+     */
+    @JvmStatic
+    fun <T> getCacheZSetRevWithScores(key: String, startIndex: Int, endIndex: Int): Collection<ScoredEntry<T>> {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.entryRangeReversed(startIndex, endIndex)
+    }
+
+    /**
+     * 根据分数范围获取 ZSet 元素及分数
+     *
+     * @param key      缓存的键值
+     * @param minScore 最小分数
+     * @param maxScore 最大分数
+     * @return 元素和分数的集合
+     */
+    @JvmStatic
+    fun <T> getCacheZSetRangeByScoreWithScores(key: String, minScore: Double, maxScore: Double): Collection<ScoredEntry<T>> {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.entryRange(minScore, true, maxScore, true)
+    }
+
+    /**
+     * 获取 ZSet 元素的分数
+     *
+     * @param key   缓存的键值
+     * @param value 元素值
+     * @return 分数,不存在返回 null
+     */
+    @JvmStatic
+    fun <T> getZSetScore(key: String, value: T): Double? {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.getScore(value)
+    }
+
+    /**
+     * 获取 ZSet 元素的排名(按分数升序,排名从 0 开始)
+     *
+     * @param key   缓存的键值
+     * @param value 元素值
+     * @return 排名,不存在返回 null
+     */
+    @JvmStatic
+    fun <T> getZSetRank(key: String, value: T): Int? {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.rank(value)
+    }
+
+    /**
+     * 获取 ZSet 元素的排名(按分数降序,排名从 0 开始)
+     *
+     * @param key   缓存的键值
+     * @param value 元素值
+     * @return 排名,不存在返回 null
+     */
+    @JvmStatic
+    fun <T> getZSetRevRank(key: String, value: T): Int? {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.revRank(value)
+    }
+
+    /**
+     * 删除 ZSet 元素
+     *
+     * @param key   缓存的键值
+     * @param value 元素值
+     * @return 删除成功返回 true
+     */
+    @JvmStatic
+    fun <T> removeCacheZSetValue(key: String, value: T): Boolean {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.remove(value)
+    }
+
+    /**
+     * 删除 ZSet 指定索引范围的元素
+     *
+     * @param key        缓存的键值
+     * @param startIndex 起始索引
+     * @param endIndex   结束索引
+     * @return 删除的元素数量
+     */
+    @JvmStatic
+    fun removeCacheZSetRange(key: String, startIndex: Int, endIndex: Int): Int {
+        val rScoredSortedSet: RScoredSortedSet<Any> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.removeRangeByRank(startIndex, endIndex)
+    }
+
+    /**
+     * 删除 ZSet 指定分数范围的元素
+     *
+     * @param key      缓存的键值
+     * @param minScore 最小分数
+     * @param maxScore 最大分数
+     * @return 删除的元素数量
+     */
+    @JvmStatic
+    fun removeCacheZSetRangeByScore(key: String, minScore: Double, maxScore: Double): Int {
+        val rScoredSortedSet: RScoredSortedSet<Any> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.removeRangeByScore(minScore, true, maxScore, true)
+    }
+
+    /**
+     * 获取 ZSet 元素数量
+     *
+     * @param key 缓存的键值
+     * @return 元素数量
+     */
+    @JvmStatic
+    fun getCacheZSetSize(key: String): Int {
+        val rScoredSortedSet: RScoredSortedSet<Any> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.size()
+    }
+
+    /**
+     * 统计 ZSet 指定分数范围内的元素数量
+     *
+     * @param key      缓存的键值
+     * @param minScore 最小分数
+     * @param maxScore 最大分数
+     * @return 元素数量
+     */
+    @JvmStatic
+    fun countCacheZSetByScore(key: String, minScore: Double, maxScore: Double): Int {
+        val rScoredSortedSet: RScoredSortedSet<Any> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.count(minScore, true, maxScore, true)
+    }
+
+    /**
+     * 增加 ZSet 元素的分数
+     *
+     * @param key   缓存的键值
+     * @param value 元素值
+     * @param delta 增量(可为负数)
+     * @return 增加后的分数
+     */
+    @JvmStatic
+    fun <T> incrZSetScore(key: String, value: T, delta: Double): Double {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        return rScoredSortedSet.addScore(value, delta)
+    }
+
+    /**
+     * 注册 ZSet 监听器
+     *
+     * key 监听器需开启 `notify-keyspace-events` 等 redis 相关配置
+     *
+     * @param key      缓存的键值
+     * @param listener 监听器配置
+     */
+    @JvmStatic
+    fun <T> addZSetListener(key: String, listener: ObjectListener) {
+        val rScoredSortedSet: RScoredSortedSet<T> = CLIENT.getScoredSortedSet(key)
+        rScoredSortedSet.addListener(listener)
     }
 }
