@@ -1,1 +1,2 @@
 com.only.engine.security.config.SecurityAutoConfiguration
+com.only.engine.security.config.AllUrlAutoConfiguration

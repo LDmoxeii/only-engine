@@ -34,4 +34,6 @@ class SecurityAutoConfiguration(
             )
         }
     }
+
+    // AllUrlHandler bean moved to AllUrlAutoConfiguration
 }

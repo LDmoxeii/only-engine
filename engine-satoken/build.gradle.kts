@@ -9,6 +9,7 @@ dependencies {
 
     implementation(project(":engine-common"))
     implementation(project(":engine-spi"))
+    implementation(project(":engine-security"))
 
     implementation(libs.hutool.extra)
 
