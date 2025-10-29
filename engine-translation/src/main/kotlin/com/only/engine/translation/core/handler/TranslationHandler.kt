@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.ContextualSerializer
 import com.only.engine.translation.annotation.Translation
+import com.only.engine.translation.core.TranslationContext
 import com.only.engine.translation.core.TranslationInterface
 import kotlin.reflect.full.memberProperties
 
@@ -33,7 +34,10 @@ class TranslationHandler(
                 return
             }
             try {
-                val result = impl.translation(src, ann.other)
+                val cached = TranslationContext.get(ann.type, ann.other, src)
+                val result = cached ?: impl.translation(src, ann.other).also {
+                    TranslationContext.put(ann.type, ann.other, src, it)
+                }
                 gen.writeObject(result)
             } catch (e: Exception) {
                 // 异常降级输出原值，保证健壮性
@@ -66,4 +70,3 @@ class TranslationHandler(
         }
     }
 }
-
