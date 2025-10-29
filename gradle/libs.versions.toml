@@ -93,6 +93,7 @@ hutool-captcha = { module = "cn.hutool:hutool-captcha", version.ref = "hutool" }
 # Validation
 jakarta-validation-api = { module = "jakarta.validation:jakarta.validation-api", version.ref = "validation" }
 jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version.ref = "jakarta-servlet" }
+jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api" }
 
 # Sa-Token
 sa-token-spring-boot3-starter = { module = "cn.dev33:sa-token-spring-boot3-starter", version.ref = "sa-token" }
