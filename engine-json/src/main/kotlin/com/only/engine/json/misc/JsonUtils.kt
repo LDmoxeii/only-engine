@@ -168,4 +168,46 @@ object JsonUtils {
         val tree = OBJECT_MAPPER.readTree(jsonStr)
         return OBJECT_MAPPER.writeValueAsString(tree)
     }
+
+    /**
+     * 判断字符串是否为合法 JSON（对象或数组）
+     *
+     * @param str 待校验字符串
+     * @return true = 合法 JSON，false = 非法或空
+     */
+    fun isJson(str: String?): Boolean {
+        if (str.isNullOrBlank()) return false
+        return try {
+            OBJECT_MAPPER.readTree(str)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    /**
+     * 判断字符串是否为 JSON 对象（{}）
+     */
+    fun isJsonObject(str: String?): Boolean {
+        if (str.isNullOrBlank()) return false
+        return try {
+            val node = OBJECT_MAPPER.readTree(str)
+            node.isObject
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    /**
+     * 判断字符串是否为 JSON 数组（[]）
+     */
+    fun isJsonArray(str: String?): Boolean {
+        if (str.isNullOrBlank()) return false
+        return try {
+            val node = OBJECT_MAPPER.readTree(str)
+            node.isArray
+        } catch (_: Exception) {
+            false
+        }
+    }
 }

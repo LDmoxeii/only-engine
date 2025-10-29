@@ -11,6 +11,7 @@ JSON 序列化和反序列化模块，为 engine-web 提供完整的 JSON 处理
 - **Kotlin 支持**: 完整的 Kotlin 类型支持
 - **自动装配**: 当 JSON 功能存在于 classpath 时自动启用
 - **条件配置**: 支持通过 `only.engine.json.enabled` 属性控制启用/禁用
+- **JSON 校验注解**: 提供 `@JsonPattern` 校验 JSON 字符串格式（对象/数组/任意）
 
 ## 使用方式
 
@@ -64,6 +65,12 @@ val obj = JsonMessageConverterUtils.parseObject(bytes, MyClass::class.java)
 
 // 获取 ObjectMapper 实例
 val objectMapper = JsonMessageConverterUtils.getObjectMapper()
+
+// JSON 校验（Bean Validation）
+data class MyForm(
+  @JsonPattern(type = JsonType.OBJECT, message = "参数必须是 JSON 对象")
+  val ext: String?
+)
 ```
 
 ## 工作原理
@@ -73,6 +80,7 @@ val objectMapper = JsonMessageConverterUtils.getObjectMapper()
 3. 配置 JavaTimeModule 处理时间类型
 4. 设置时区和其他序列化选项
 5. 初始化 JsonMessageConverterUtils 工具类
+6. 提供 Bean Validation 注解 `@JsonPattern` 与校验器
 
 ## 大数字处理
 
@@ -88,3 +96,13 @@ val objectMapper = JsonMessageConverterUtils.getObjectMapper()
 
 - `@ConditionalOnProperty`: 支持通过配置启用/禁用
 - `@ConditionalOnMissingBean`: 允许自定义实现覆盖默认配置
+
+## JSON 校验能力
+
+- 注解：`@JsonPattern`
+  - 参数：`type` 可选值 `ANY`/`OBJECT`/`ARRAY`
+  - 默认消息：`不是有效的 JSON 格式`
+- 工具方法：
+  - `JsonUtils.isJson(String?)` 判断是否为合法 JSON
+  - `JsonUtils.isJsonObject(String?)` 判断是否为 JSON 对象
+  - `JsonUtils.isJsonArray(String?)` 判断是否为 JSON 数组

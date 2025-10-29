@@ -14,6 +14,7 @@ dependencies {
     api(libs.bundles.jackson)
 
     compileOnly(libs.spring.boot.autoconfigure)
+    compileOnly(libs.jakarta.validation.api)
     compileOnly(libs.spring.web)
 
     testImplementation(platform(libs.junit.bom))
