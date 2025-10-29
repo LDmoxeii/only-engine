@@ -1,8 +1,10 @@
 package com.only.engine.translation.core.collector
 
 import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.BeanProperty
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.ser.ContextualSerializer
 import com.only.engine.translation.core.BatchTranslationInterface
 import com.only.engine.translation.core.TranslationContext
 import com.only.engine.translation.core.handler.TranslationRegistry
@@ -12,7 +14,7 @@ class PrecollectingCollectionSerializer(
     private val threshold: Int = 8,
     private val cacheEnabled: Boolean = true,
     private val maxKeysPerGroup: Int = 2000,
-) : JsonSerializer<Any>() {
+) : JsonSerializer<Any>(), ContextualSerializer {
 
     override fun serialize(value: Any?, gen: JsonGenerator, serializers: SerializerProvider) {
         val coll = value as? Collection<*> ?: run {
@@ -72,6 +74,19 @@ class PrecollectingCollectionSerializer(
                 TranslationContext.endScope()
             }
         }
+    }
+
+    override fun createContextual(prov: SerializerProvider, property: BeanProperty?): JsonSerializer<*> {
+        val ctxDelegate = if (delegate is ContextualSerializer) {
+            delegate.createContextual(prov, property)
+        } else delegate
+        @Suppress("UNCHECKED_CAST")
+        return PrecollectingCollectionSerializer(
+            ctxDelegate as JsonSerializer<Any>,
+            threshold,
+            cacheEnabled,
+            maxKeysPerGroup
+        )
     }
 }
 
