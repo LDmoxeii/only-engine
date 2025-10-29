@@ -39,14 +39,14 @@ class WebPerformanceInterceptor(
         // 打印请求参数
         if (isJsonRequest(request)) {
             val jsonParam = getJsonParam(request)
-            log.info("[PLUS]开始请求 => URL[{}],参数类型[json],参数:[{}]", url, jsonParam)
+            log.info("[ONLY]开始请求 => URL[{}],参数类型[json],参数:[{}]", url, jsonParam)
         } else {
             val parameterMap = request.parameterMap
             if (MapUtil.isNotEmpty(parameterMap)) {
                 val parameters = JsonUtils.toJsonString(parameterMap)
-                log.info("[PLUS]开始请求 => URL[{}],参数类型[param],参数:[{}]", url, parameters)
+                log.info("[ONLY]开始请求 => URL[{}],参数类型[param],参数:[{}]", url, parameters)
             } else {
-                log.info("[PLUS]开始请求 => URL[{}],无参数", url)
+                log.info("[ONLY]开始请求 => URL[{}],无参数", url)
             }
         }
 
@@ -82,9 +82,9 @@ class WebPerformanceInterceptor(
             // 判断是否为慢请求
             val threshold = slowRequestThreshold
             if (time > threshold) {
-                log.warn("[PLUS]慢请求告警 => URL[{}],耗时:[{}]毫秒,阈值:[{}]毫秒", url, time, threshold)
+                log.warn("[ONLY]慢请求告警 => URL[{}],耗时:[{}]毫秒,阈值:[{}]毫秒", url, time, threshold)
             } else {
-                log.info("[PLUS]结束请求 => URL[{}],耗时:[{}]毫秒", url, time)
+                log.info("[ONLY]结束请求 => URL[{}],耗时:[{}]毫秒", url, time)
             }
 
             stopWatchThreadLocal.remove()
