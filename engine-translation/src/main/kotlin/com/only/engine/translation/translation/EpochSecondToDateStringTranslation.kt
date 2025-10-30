@@ -3,7 +3,6 @@ package com.only.engine.translation.translation
 import com.only.engine.translation.annotation.TranslationType
 import com.only.engine.translation.core.BatchTranslationInterface
 import com.only.engine.translation.core.TranslationInterface
-import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -13,7 +12,6 @@ import java.time.format.DateTimeFormatter
  * 使用 other 传入日期格式，例如：yyyy-MM-dd（默认使用该格式）
  */
 @TranslationType(type = EpochSecondToDateStringTranslation.TYPE)
-@Component
 class EpochSecondToDateStringTranslation :
     TranslationInterface<String>, BatchTranslationInterface<String> {
 

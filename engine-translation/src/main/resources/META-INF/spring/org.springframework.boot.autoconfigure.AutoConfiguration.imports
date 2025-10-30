@@ -1,1 +1,2 @@
 com.only.engine.translation.config.TranslationAutoConfiguration
+com.only.engine.translation.config.BuiltinTranslationAutoConfiguration
