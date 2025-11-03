@@ -1,11 +1,14 @@
 package com.only.engine.translation.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.only.engine.translation.TranslationInitPrinter
 import com.only.engine.translation.annotation.TranslationType
+import com.only.engine.translation.config.properties.TranslationBatchProperties
 import com.only.engine.translation.core.TranslationInterface
 import com.only.engine.translation.core.handler.TranslationBeanSerializerModifier
 import com.only.engine.translation.core.handler.TranslationRegistry
 import jakarta.annotation.PostConstruct
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -18,10 +21,15 @@ class TranslationAutoConfiguration(
     private val objectMapper: ObjectMapper,
     private val providers: ObjectProvider<List<TranslationInterface<*>>>,
     private val batchProps: TranslationBatchProperties,
-) {
+) : TranslationInitPrinter {
+
+    companion object {
+        private val log = LoggerFactory.getLogger(TranslationAutoConfiguration::class.java)
+    }
 
     @PostConstruct
     fun init() {
+        printInit("translation-registry", log)
         val map = mutableMapOf<String, TranslationInterface<*>>()
         providers.ifAvailable { list ->
             list.forEach { impl ->
@@ -33,6 +41,7 @@ class TranslationAutoConfiguration(
         }
         TranslationRegistry.TRANSLATION_MAPPER.putAll(map)
 
+        printInit("TranslationBeanSerializerModifier", log)
         objectMapper.setSerializerFactory(
             objectMapper.serializerFactory.withSerializerModifier(
                 TranslationBeanSerializerModifier(

@@ -1,4 +1,4 @@
-package com.only.engine.translation.config
+package com.only.engine.translation.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -9,4 +9,3 @@ class TranslationBatchProperties {
     var cacheEnabled: Boolean = true
     var maxKeysPerGroup: Int = 2000
 }
-

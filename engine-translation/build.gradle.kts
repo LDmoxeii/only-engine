@@ -8,6 +8,7 @@ dependencies {
     kapt(libs.spring.boot.configuration.processor)
 
     implementation(project(":engine-common"))
+    implementation(project(":engine-json"))
 
     api(libs.bundles.jackson)
 
