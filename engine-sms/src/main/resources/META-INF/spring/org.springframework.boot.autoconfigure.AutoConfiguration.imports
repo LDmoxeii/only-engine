@@ -1,0 +1,2 @@
+com.only.engine.sms.config.SmsAutoConfiguration
+com.only.engine.sms.config.CaptchaSenderConfiguration
