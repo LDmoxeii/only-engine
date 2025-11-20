@@ -38,6 +38,36 @@ object LoginHelper {
     }
 
     /**
+     * 刷新用户信息（多端同步）
+     *
+     * @param newUserInfo 最新的用户信息对象
+     */
+    @JvmStatic
+    fun refreshUserInfo(newUserInfo: UserInfo) {
+        try {
+            val userId = newUserInfo.id
+
+            // 1. 获取 userId 对应的所有会话（多端登录）
+            val session = StpUtil.getSessionByLoginId(userId, false)
+                ?: return   // 用户可能未登录
+
+            // 2. 刷新 Session 中的 userInfo
+            session.set(USER_INFO, newUserInfo)
+
+            // 3. 同步更新 extra 信息（roles、permissions、userId）
+            session.set(USER_ID, userId)
+
+            session.set(USER_ID, userId)
+            session.set(USER_ROLES, newUserInfo.roles)
+            session.set(USER_PERMISSIONS, newUserInfo.permissions)
+
+        } catch (e: Exception) {
+            log.error("更新用户信息失败: ${e.message}", e)
+        }
+    }
+
+
+    /**
      * 获取用户基于session
      */
     @JvmStatic
