@@ -9,7 +9,6 @@ import cn.dev33.satoken.util.SaResult
 import cn.hutool.extra.spring.SpringUtil
 import com.only.engine.factory.YmlPropertySourceFactory
 import com.only.engine.satoken.SaTokenInitPrinter
-import com.only.engine.satoken.adice.SaTokenExceptionHandlerAdvice
 import com.only.engine.satoken.config.properties.SaTokenProperties
 import com.only.engine.satoken.core.service.SaPermission
 import com.only.engine.satoken.interceptor.SaTokenSecurityInterceptor
@@ -51,14 +50,6 @@ class SaTokenAutoConfiguration() : SaTokenInitPrinter {
         val impl = SaPermission(permissionService)
         printInit(StpInterface::class.java, log)
         return impl
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun saTokenExceptionHandler(): SaTokenExceptionHandlerAdvice {
-        val handler = SaTokenExceptionHandlerAdvice()
-        printInit(SaTokenExceptionHandlerAdvice::class.java, log)
-        return handler
     }
 
     @Bean

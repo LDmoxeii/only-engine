@@ -1,4 +1,4 @@
-package com.only.engine.satoken.adice
+package com.only.engine.web.advice
 
 import cn.dev33.satoken.exception.NotLoginException
 import cn.dev33.satoken.exception.NotPermissionException
@@ -7,11 +7,13 @@ import com.only.engine.entity.Result
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 @ConditionalOnClass(NotLoginException::class)
+@ConditionalOnProperty(prefix = "only.engine.sa-token", name = ["enable"], havingValue = "true")
 class SaTokenExceptionHandlerAdvice {
 
     companion object {

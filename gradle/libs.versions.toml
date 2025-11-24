@@ -100,6 +100,7 @@ jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api" 
 
 # Sa-Token
 sa-token-spring-boot3-starter = { module = "cn.dev33:sa-token-spring-boot3-starter", version.ref = "sa-token" }
+sa-token-core = { module = "cn.dev33:sa-token-core", version.ref = "sa-token" }
 sa-token-jwt = { module = "cn.dev33:sa-token-jwt", version.ref = "sa-token" }
 
 # Jimmer ORM
@@ -118,11 +119,12 @@ commons-lang3 = { module = "org.apache.commons:commons-lang3" }
 
 # Redis
 redisson-spring-boot-starter = { module = "org.redisson:redisson-spring-boot-starter", version.ref = "redisson" }
-lock4j-redisson-spring-boot-starter = { module = "com.baomidou:lock4j-redisson-spring-boot-starter", version.ref = "lock4j" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine" }
+lock4j-core = { module = "com.baomidou:lock4j-core", version.ref = "lock4j" }
 
 # SMS
 sms4j-spring-boot-starter = { module = "org.dromara.sms4j:sms4j-spring-boot-starter", version.ref = "sms4j" }
+sms4j-comm = { module = "org.dromara.sms4j:sms4j-comm", version.ref = "sms4j" }
 
 # Testing
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }

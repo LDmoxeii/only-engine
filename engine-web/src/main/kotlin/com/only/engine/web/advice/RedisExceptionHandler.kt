@@ -1,18 +1,18 @@
-package com.only.engine.redis.handler
+package com.only.engine.web.advice
 
 import com.baomidou.lock.exception.LockFailureException
 import com.only.engine.entity.Result
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 /**
  * Redis 异常处理器
- *
- * @author AprilWind
  */
 @RestControllerAdvice
+@ConditionalOnClass(LockFailureException::class)
 class RedisExceptionHandler {
 
     companion object {

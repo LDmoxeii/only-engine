@@ -1,4 +1,4 @@
-package com.only.engine.sms.handler
+package com.only.engine.web.advice
 
 import com.only.engine.entity.Result
 import jakarta.servlet.http.HttpServletRequest
@@ -31,4 +31,3 @@ class SmsExceptionHandler {
         return Result.error(50000, "短信发送失败，请稍后再试...")
     }
 }
-

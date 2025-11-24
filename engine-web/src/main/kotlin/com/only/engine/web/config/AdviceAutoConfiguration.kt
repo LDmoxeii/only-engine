@@ -1,18 +1,26 @@
 package com.only.engine.web.config
 
+import cn.dev33.satoken.exception.NotLoginException
 import com.only.engine.web.WebInitPrinter
 import com.only.engine.web.advice.GlobalExceptionHandlerAdvice
 import com.only.engine.web.advice.I18nResponseAdvice
 import com.only.engine.web.advice.IgnoreResultWrapperResponseAdvice
+import com.only.engine.web.advice.RedisExceptionHandler
 import com.only.engine.web.advice.ResponseAdvice
+import com.only.engine.web.advice.SaTokenExceptionHandlerAdvice
+import com.only.engine.web.advice.SmsExceptionHandler
+import com.only.engine.web.advice.SaTokenExceptionHandlerAdvice
 import com.only.engine.web.advice.StringResponseAdvice
 import com.only.engine.web.config.properties.AdviceProperties
 import com.only.engine.web.i18n.I18nMessageDefaultHandler
 import com.only.engine.web.i18n.I18nMessageHandler
+import com.baomidou.lock.exception.LockFailureException
+import org.dromara.sms4j.comm.exception.SmsBlendException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -69,6 +77,31 @@ class AdviceAutoConfiguration : WebInitPrinter {
     fun globalExceptionHandlerAdvice(): GlobalExceptionHandlerAdvice {
         printInit(GlobalExceptionHandlerAdvice::class.java, log)
         return GlobalExceptionHandlerAdvice()
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(NotLoginException::class)
+    @ConditionalOnProperty(prefix = "only.engine.sa-token", name = ["enable"], havingValue = "true")
+    fun saTokenExceptionHandlerAdvice(): SaTokenExceptionHandlerAdvice {
+        printInit(SaTokenExceptionHandlerAdvice::class.java, log)
+        return SaTokenExceptionHandlerAdvice()
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(LockFailureException::class)
+    fun redisExceptionHandler(): RedisExceptionHandler {
+        printInit(RedisExceptionHandler::class.java, log)
+        return RedisExceptionHandler()
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(SmsBlendException::class)
+    fun smsExceptionHandler(): SmsExceptionHandler {
+        printInit(SmsExceptionHandler::class.java, log)
+        return SmsExceptionHandler()
     }
 
     @Bean

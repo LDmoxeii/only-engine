@@ -21,6 +21,9 @@ dependencies {
     compileOnly(libs.spring.boot.starter.tomcat)
     compileOnly(libs.jakarta.validation.api)
     compileOnly(libs.spring.boot.autoconfigure)
+    compileOnly(libs.sa.token.core)
+    compileOnly(libs.lock4j.core)
+    compileOnly(libs.sms4j.comm)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.bundles.junit.core)

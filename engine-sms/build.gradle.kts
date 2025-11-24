@@ -17,6 +17,7 @@ dependencies {
     compileOnly(libs.spring.web)
     compileOnly(libs.spring.webmvc)
     compileOnly(libs.jakarta.servlet.api)
+    compileOnly(libs.sms4j.comm)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.bundles.junit.core)

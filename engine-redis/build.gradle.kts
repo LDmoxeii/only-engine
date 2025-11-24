@@ -11,7 +11,6 @@ dependencies {
     implementation(project(":engine-spi"))
 
     api(libs.redisson.spring.boot.starter)
-    api(libs.lock4j.redisson.spring.boot.starter)
     api(libs.caffeine)
 
     implementation(libs.hutool.core)
