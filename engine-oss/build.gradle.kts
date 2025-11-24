@@ -8,6 +8,8 @@ dependencies {
     kapt(libs.spring.boot.configuration.processor)
 
     implementation(project(":engine-common"))
+    implementation(project(":engine-json"))
+    implementation(project(":engine-redis"))
 
     // AWS SDK v2 - S3 + auth
     implementation("software.amazon.awssdk:s3:2.25.69")
@@ -23,4 +25,3 @@ dependencies {
     testImplementation(libs.bundles.junit.core)
     testRuntimeOnly(libs.bundles.junit.runtime)
 }
-

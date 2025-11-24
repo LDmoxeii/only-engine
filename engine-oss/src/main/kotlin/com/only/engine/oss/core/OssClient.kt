@@ -1,6 +1,8 @@
 package com.only.engine.oss.core
 
+import com.only.engine.exception.KnownException
 import com.only.engine.oss.config.OssProperties
+import com.only.engine.oss.enums.AccessPolicyType
 import org.slf4j.LoggerFactory
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
@@ -14,7 +16,10 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
 import java.io.File
 import java.io.InputStream
+import java.io.OutputStream
 import java.net.URI
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.Duration
 import java.time.LocalDate
 import java.util.*
@@ -121,6 +126,41 @@ class OssClient(
         return s3.getObject(req)
     }
 
+    fun fileDownload(path: String): Path {
+        val key = removeBaseUrl(path)
+        val tempFile = Files.createTempFile("oss-", ".tmp")
+        try {
+            s3.getObject(
+                GetObjectRequest.builder().bucket(properties.bucketName).key(key).build(),
+                tempFile
+            )
+            return tempFile
+        } catch (e: Exception) {
+            Files.deleteIfExists(tempFile)
+            throw KnownException("文件下载失败，错误信息: ${e.message ?: "未知错误"}")
+        }
+    }
+
+    fun download(keyOrUrl: String, out: OutputStream, contentLengthConsumer: ((Long) -> Unit)? = null) {
+        val key = removeBaseUrl(keyOrUrl)
+        val req = GetObjectRequest.builder()
+            .bucket(properties.bucketName)
+            .key(key)
+            .build()
+        try {
+            s3.getObject(req).use { stream ->
+                contentLengthConsumer?.invoke(stream.response().contentLength())
+                stream.copyTo(out)
+            }
+        } catch (e: Exception) {
+            throw KnownException("文件下载失败，错误信息: ${e.message ?: "未知错误"}")
+        }
+    }
+
+    fun download(keyOrUrl: String, contentLengthConsumer: ((Long) -> Unit)? = null): (OutputStream) -> Unit {
+        return { out -> download(keyOrUrl, out, contentLengthConsumer) }
+    }
+
     fun delete(keyOrUrl: String) {
         val key = removeBaseUrl(keyOrUrl)
         s3.deleteObject(
@@ -159,8 +199,13 @@ class OssClient(
                 properties.secretKey == other.secretKey &&
                 properties.bucketName == other.bucketName &&
                 properties.region == other.region &&
-                properties.https == other.https
+                properties.https == other.https &&
+                properties.accessPolicy == other.accessPolicy &&
+                properties.tenantId == other.tenantId
     }
+
+    fun getAccessPolicy(): AccessPolicyType =
+            AccessPolicyType.valueOf(properties.accessPolicy)
 
     private fun guessContentType(suffix: String): String? {
         val s = suffix.lowercase()
@@ -175,4 +220,3 @@ class OssClient(
         }
     }
 }
-

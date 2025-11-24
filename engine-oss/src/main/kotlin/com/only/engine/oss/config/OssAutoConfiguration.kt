@@ -1,5 +1,6 @@
 package com.only.engine.oss.config
 
+import com.only.engine.oss.OssInitPrinter
 import com.only.engine.oss.core.OssClient
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -10,15 +11,14 @@ import org.springframework.context.annotation.Bean
 @AutoConfiguration
 @EnableConfigurationProperties(OssProperties::class)
 @ConditionalOnProperty(prefix = "only.engine.oss", name = ["enable"], havingValue = "true")
-class OssAutoConfiguration {
+class OssAutoConfiguration : OssInitPrinter {
     companion object {
         private val log = LoggerFactory.getLogger(OssAutoConfiguration::class.java)
     }
 
     @Bean
     fun ossClient(props: OssProperties): OssClient {
-        log.info("Initializing OssClient for bucket: {} endpoint: {}", props.bucketName, props.endpoint)
+        printInit(OssClient::class.java, log)
         return OssClient("default", props)
     }
 }
-
