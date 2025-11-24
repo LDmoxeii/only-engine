@@ -9,7 +9,6 @@ import com.only.engine.web.advice.RedisExceptionHandler
 import com.only.engine.web.advice.ResponseAdvice
 import com.only.engine.web.advice.SaTokenExceptionHandlerAdvice
 import com.only.engine.web.advice.SmsExceptionHandler
-import com.only.engine.web.advice.SaTokenExceptionHandlerAdvice
 import com.only.engine.web.advice.StringResponseAdvice
 import com.only.engine.web.config.properties.AdviceProperties
 import com.only.engine.web.i18n.I18nMessageDefaultHandler
