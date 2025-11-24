@@ -2,3 +2,4 @@ com.only.engine.redis.config.RedisAutoConfiguration
 com.only.engine.redis.config.CacheAutoConfiguration
 com.only.engine.redis.config.IdempotentAutoConfiguration
 com.only.engine.redis.config.RedisCaptchaAutoConfiguration
+com.only.engine.redis.config.SaTokenDaoAutoConfiguration

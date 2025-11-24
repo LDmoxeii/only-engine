@@ -23,6 +23,7 @@ dependencies {
     compileOnly(libs.spring.boot.autoconfigure)
     compileOnly(libs.spring.boot.starter.aop)
     compileOnly(libs.jakarta.servlet.api)
+    compileOnly(libs.sa.token.core)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.bundles.junit.core)
