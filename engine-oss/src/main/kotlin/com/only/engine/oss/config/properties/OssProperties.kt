@@ -1,4 +1,4 @@
-package com.only.engine.oss.config
+package com.only.engine.oss.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -21,7 +21,7 @@ class OssProperties {
     var bucketName: String = ""
     var region: String = ""
 
-    // Whether to build public URL with https when domain is used
+    // Whether to build public URL with https when domain/endpoint has no scheme
     var https: Boolean = true
 
     // 桶权限类型(0:private 1:public 2:custom)

@@ -2,7 +2,7 @@ package com.only.engine.oss.factory
 
 import com.only.engine.exception.KnownException
 import com.only.engine.json.misc.JsonUtils
-import com.only.engine.oss.config.OssProperties
+import com.only.engine.oss.config.properties.OssProperties
 import com.only.engine.oss.constant.OssConstant
 import com.only.engine.oss.core.OssClient
 import com.only.engine.redis.misc.CacheUtils
@@ -20,6 +20,15 @@ object OssFactory {
     private val log = LoggerFactory.getLogger(OssFactory::class.java)
     private val clientCache = ConcurrentHashMap<String, OssClient>()
     private val lock = ReentrantLock()
+    @Volatile
+    private var defaultProperties: OssProperties? = null
+
+    private const val DEFAULT_LOCAL_KEY = "default"
+
+    @JvmStatic
+    fun registerDefaultProperties(props: OssProperties) {
+        defaultProperties = props
+    }
 
     /**
      * 获取默认配置的 OssClient
@@ -27,7 +36,9 @@ object OssFactory {
     @JvmStatic
     fun instance(): OssClient {
         val configKey = RedisUtils.getCacheObject<String>(OssConstant.DEFAULT_CONFIG_KEY)
-            ?: throw KnownException("文件存储服务类型无法找到!")
+        if (configKey.isNullOrBlank()) {
+            return fallbackInstance(DEFAULT_LOCAL_KEY)
+        }
         return instance(configKey)
     }
 
@@ -37,10 +48,24 @@ object OssFactory {
     @JvmStatic
     fun instance(configKey: String): OssClient {
         val json = CacheUtils.get<String>(OssConstant.OSS_CONFIG_CACHE, configKey)
-            ?: throw KnownException("系统异常, '$configKey' 配置信息不存在!")
+        if (json.isNullOrBlank()) {
+            return fallbackInstance(configKey)
+        }
         val properties = JsonUtils.parseObject(json, OssProperties::class.java)
-            ?: throw KnownException("OSS 配置信息解析失败")
+            ?: return fallbackInstance(configKey)
+        return instanceFromProperties(configKey, properties)
+    }
 
+    private fun fallbackInstance(configKey: String): OssClient {
+        val properties = defaultProperties
+            ?: throw KnownException("文件存储服务类型无法找到!")
+        if (configKey != DEFAULT_LOCAL_KEY) {
+            log.info("OSS 配置 '{}' 不存在，使用本地 OssProperties 配置", configKey)
+        }
+        return instanceFromProperties(configKey, properties)
+    }
+
+    private fun instanceFromProperties(configKey: String, properties: OssProperties): OssClient {
         val cacheKey = buildCacheKey(configKey, properties)
         var client = clientCache[cacheKey]
         if (client == null || !client.checkPropertiesSame(properties)) {
