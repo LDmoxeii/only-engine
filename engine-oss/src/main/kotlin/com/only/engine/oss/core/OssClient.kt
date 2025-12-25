@@ -9,14 +9,19 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.core.async.AsyncResponseTransformer
 import software.amazon.awssdk.core.async.BlockingInputStreamAsyncRequestBody
 import software.amazon.awssdk.core.async.ResponsePublisher
+import software.amazon.awssdk.core.sync.ResponseTransformer
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.S3Configuration
+import software.amazon.awssdk.services.s3.model.Delete
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.GetObjectResponse
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
@@ -258,6 +263,71 @@ class OssClient(
         s3.deleteObject(
             DeleteObjectRequest.builder().bucket(properties.bucketName).key(key).build()
         )
+    }
+
+    fun listKeysByPrefix(prefix: String): List<String> {
+        val cleanPrefix = prefix.trim().trimStart('/')
+        if (cleanPrefix.isBlank()) {
+            throw KnownException.illegalArgument("prefix")
+        }
+        val results = mutableListOf<String>()
+        var token: String? = null
+        do {
+            val resp = s3.listObjectsV2(
+                ListObjectsV2Request.builder()
+                    .bucket(properties.bucketName)
+                    .prefix(cleanPrefix)
+                    .continuationToken(token)
+                    .maxKeys(1000)
+                    .build()
+            )
+            results.addAll(resp.contents().map { it.key() })
+            token = resp.nextContinuationToken()
+        } while (token.isNullOrBlank().not())
+        return results
+    }
+
+    fun downloadToFile(keyOrUrl: String, target: Path) {
+        val key = removeBaseUrl(keyOrUrl)
+        val req = GetObjectRequest.builder()
+            .bucket(properties.bucketName)
+            .key(key)
+            .build()
+        s3.getObject(req, ResponseTransformer.toFile(target))
+    }
+
+    fun deleteByPrefix(prefix: String): Int {
+        val cleanPrefix = prefix.trim().trimStart('/').trimEnd('/') + "/"
+        if (cleanPrefix == "/") {
+            throw KnownException.illegalArgument("prefix")
+        }
+        var deletedCount = 0
+        var token: String? = null
+        do {
+            val resp = s3.listObjectsV2(
+                ListObjectsV2Request.builder()
+                    .bucket(properties.bucketName)
+                    .prefix(cleanPrefix)
+                    .continuationToken(token)
+                    .maxKeys(1000)
+                    .build()
+            )
+            val keys = resp.contents().map { it.key() }.filter { it.isNotBlank() }
+            if (keys.isNotEmpty()) {
+                val deleteReq = DeleteObjectsRequest.builder()
+                    .bucket(properties.bucketName)
+                    .delete(
+                        Delete.builder()
+                            .objects(keys.map { ObjectIdentifier.builder().key(it).build() })
+                            .build()
+                    )
+                    .build()
+                val deleteResp = s3.deleteObjects(deleteReq)
+                deletedCount += deleteResp.deleted().size
+            }
+            token = resp.nextContinuationToken()
+        } while (token.isNullOrBlank().not())
+        return deletedCount
     }
 
     fun getPrivateUrl(objectKey: String, expired: Duration): String {
