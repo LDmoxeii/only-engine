@@ -1,14 +1,23 @@
 package com.only.engine.web.advice
 
+import cn.dev33.satoken.exception.NotLoginException
+import cn.dev33.satoken.exception.NotPermissionException
+import cn.dev33.satoken.exception.NotRoleException
+import com.baomidou.lock.exception.LockFailureException
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonProcessingException
-import com.only.engine.annotation.RespStatus
-import com.only.engine.constants.StandardCode
 import com.only.engine.entity.Result
-import com.only.engine.enums.HttpStatus
-import com.only.engine.exception.ErrorException
-import com.only.engine.exception.KnownException
-import com.only.engine.exception.WarnException
+import com.only.engine.error.AuthErrors
+import com.only.engine.error.CommonErrors
+import com.only.engine.error.ErrorCategory
+import com.only.engine.exception.AppException
+import com.only.engine.exception.AuthenticationException
+import com.only.engine.exception.AuthorizationException
+import com.only.engine.exception.DependencyException
+import com.only.engine.exception.RateLimitException
+import com.only.engine.exception.RequestException
+import com.only.engine.exception.SystemException
+import com.only.engine.misc.ThreadLocalUtils
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -18,6 +27,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.annotation.Order
+import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.BindException
 import org.springframework.web.HttpRequestMethodNotSupportedException
@@ -33,318 +43,163 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException
 import java.io.IOException
 
-/**
- * 全局异常处理器
- */
 @Order(3)
 @AutoConfiguration
 @RestControllerAdvice
 @ConditionalOnProperty(prefix = "only.engine.web.exception-handler", name = ["enable"], havingValue = "true")
-class GlobalExceptionHandlerAdvice() {
+class GlobalExceptionHandlerAdvice {
 
     companion object {
         private val log = LoggerFactory.getLogger(GlobalExceptionHandlerAdvice::class.java)
     }
 
-    /**
-     * 找不到路由
-     */
-    @ExceptionHandler(NoHandlerFoundException::class)
-    fun handleNoHandlerFoundException(ex: NoHandlerFoundException, request: HttpServletRequest): Result<Unit> {
-        val requestURI = request.requestURI
-        logError(request, "请求地址'$requestURI'不存在", ex)
-        return Result.error(StandardCode.UserSide.Exception.code, "请求地址不存在")
-    }
-
-    /**
-     * 请求方式不支持
-     */
-    @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
-    fun handleMethodNotSupported(
-        ex: HttpRequestMethodNotSupportedException,
+    @ExceptionHandler(AppException::class)
+    fun handleAppException(
+        ex: AppException,
         request: HttpServletRequest,
+        response: HttpServletResponse,
     ): Result<Unit> {
-        val requestURI = request.requestURI
-        logWarning(request, "请求地址'$requestURI',不支持'${ex.method}'请求", ex)
-        return Result.error(StandardCode.UserSide.Exception.code, "不支持的请求方法")
-    }
-
-    /**
-     * 缺少请求参数
-     */
-    @ExceptionHandler(MissingServletRequestParameterException::class)
-    fun handleMissingParameter(
-        ex: MissingServletRequestParameterException,
-        request: HttpServletRequest,
-    ): Result<Unit> {
-        val message = "缺少必要的请求参数: ${ex.parameterName}"
-        logWarning(request, message, ex)
-        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
-    }
-
-    /**
-     * 请求参数类型不匹配
-     */
-    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
-    fun handleTypeMismatch(
-        ex: MethodArgumentTypeMismatchException,
-        request: HttpServletRequest,
-    ): Result<Unit> {
-        val message =
-            "请求参数类型不匹配，参数[${ex.name}]要求类型为：'${ex.requiredType?.name}',但输入值为：'${ex.value}'"
-        logWarning(request, message, ex)
-        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
-    }
-
-    /**
-     * 缺少路径变量
-     */
-    @ExceptionHandler(MissingPathVariableException::class)
-    fun handleMissingPathVariable(
-        ex: MissingPathVariableException,
-        request: HttpServletRequest,
-    ): Result<Unit> {
-        val message = "请求路径中缺少必需的路径变量[${ex.variableName}]"
-        logError(request, message, ex)
-        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
-    }
-
-    /**
-     * 缺少 Header 参数
-     */
-    @ExceptionHandler(MissingRequestHeaderException::class)
-    fun handleMissingHeader(
-        ex: MissingRequestHeaderException,
-        request: HttpServletRequest,
-    ): Result<Unit> {
-        val message = "缺少必要的 Header 参数: ${ex.headerName}"
-        logWarning(request, message, ex)
-        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, message)
-    }
-
-    @ExceptionHandler(HttpClientErrorException::class, HttpServerErrorException::class)
-    fun restTemplateException(ex: Exception, request: HttpServletRequest): Result<Unit> {
-        logError(request, ex.message ?: "未知错误", ex)
-        return Result.error(StandardCode.ThirdParty.Exception)
-    }
-
-    @ExceptionHandler(ConstraintViolationException::class)
-    fun handleConstraintViolationException(
-        ex: ConstraintViolationException,
-        request: HttpServletRequest,
-    ): Result<Unit> {
-        val errors = ex.constraintViolations.joinToString(", ") { "${it.propertyPath}: ${it.message}" }
-        val msg = "请求参数无效: $errors"
-        logWarning(request, msg, ex)
-        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, msg)
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun validationMethodArgumentException(
-        ex: MethodArgumentNotValidException,
-        request: HttpServletRequest,
-    ): Result<Unit> = validationBindException(ex, request)
-
-    @ExceptionHandler(BindException::class)
-    fun validationBindException(ex: BindException, request: HttpServletRequest): Result<Unit> {
-        val errors = ex.bindingResult.fieldErrors.joinToString(", ") { "${it.field}：${it.defaultMessage}" }
-        val msg = "请求参数无效: $errors"
-        logWarning(request, msg, ex)
-        return Result.error(StandardCode.UserSide.REQUEST_PARAMETER_EXCEPTION, msg)
+        val status = resolveStatus(ex)
+        response.status = status.value()
+        logByCategory(ex.errorCode.category, request, ex.message, ex)
+        return buildErrorResult(ex, request)
     }
 
     @ExceptionHandler(
+        MissingServletRequestParameterException::class,
+        MissingRequestHeaderException::class,
+        MissingPathVariableException::class,
+        MethodArgumentTypeMismatchException::class,
+        MethodArgumentNotValidException::class,
+        BindException::class,
+        ConstraintViolationException::class,
         HttpMessageNotReadableException::class,
         JsonProcessingException::class,
         JsonParseException::class,
+        IllegalArgumentException::class,
+        HttpRequestMethodNotSupportedException::class,
+        NoHandlerFoundException::class,
     )
-    fun handleJsonPayloadException(
+    fun handleRequestFailures(
         ex: Exception,
         request: HttpServletRequest,
-    ): Result<Unit> {
-        val message = ex.message ?: "参数格式不匹配"
-        logWarning(request, message, ex)
-        return Result.error(StandardCode.UserSide.RequestParameterFormatNotMatch)
-    }
+        response: HttpServletResponse,
+    ): Result<Unit> = handleAppException(
+        RequestException(CommonErrors.PARAM_INVALID, resolveRequestMessage(ex)),
+        request,
+        response,
+    )
 
-    @ExceptionHandler(ErrorException::class)
-    fun handleErrorException(
-        ex: ErrorException,
+    @ExceptionHandler(NotLoginException::class)
+    fun handleNotLogin(
+        ex: NotLoginException,
         request: HttpServletRequest,
         response: HttpServletResponse,
-    ): Result<Unit> = handleKnownExceptionInternal(ex, request, response, HttpStatus.INTERNAL_SERVER_ERROR)
+    ): Result<Unit> = handleAppException(AuthenticationException(AuthErrors.LOGIN_REQUIRED), request, response)
 
-    @ExceptionHandler(WarnException::class)
-    fun handleWarnException(
-        ex: WarnException,
+    @ExceptionHandler(NotPermissionException::class, NotRoleException::class)
+    fun handleForbidden(
+        ex: RuntimeException,
         request: HttpServletRequest,
         response: HttpServletResponse,
-    ): Result<Unit> = handleKnownExceptionInternal(ex, request, response, HttpStatus.BAD_REQUEST)
+    ): Result<Unit> = handleAppException(AuthorizationException(AuthErrors.ACCESS_DENIED), request, response)
 
-    @ExceptionHandler(KnownException::class)
-    fun handleKnownException(
-        ex: KnownException,
+    @ExceptionHandler(LockFailureException::class)
+    fun handleRateLimit(
+        ex: LockFailureException,
         request: HttpServletRequest,
         response: HttpServletResponse,
-    ): Result<Unit> = handleKnownExceptionInternal(ex, request, response, HttpStatus.BAD_REQUEST)
+    ): Result<Unit> = handleAppException(
+        RateLimitException(CommonErrors.REQUEST_RATE_LIMITED, ex.message ?: CommonErrors.REQUEST_RATE_LIMITED.message),
+        request,
+        response,
+    )
 
-    @ExceptionHandler(IllegalArgumentException::class)
-    fun illegalArgumentException(
-        ex: IllegalArgumentException,
+    @ExceptionHandler(HttpClientErrorException::class, HttpServerErrorException::class)
+    fun handleDependencyHttpError(
+        ex: Exception,
         request: HttpServletRequest,
-    ): Result<Unit> {
-        val message = ex.message ?: "参数错误"
-        logWarning(request, message, ex)
-        return Result.error(StandardCode.UserSide.RequestParameterException)
-    }
+        response: HttpServletResponse,
+    ): Result<Unit> = handleAppException(
+        DependencyException(CommonErrors.DEPENDENCY_ERROR, CommonErrors.DEPENDENCY_ERROR.message, cause = ex),
+        request,
+        response,
+    )
 
     @ExceptionHandler(ClientAbortException::class)
-    fun handleClientAbortException(
+    fun handleClientAbort(
         ex: ClientAbortException,
         request: HttpServletRequest,
-    ): Result<Unit>? {
-        if (log.isDebugEnabled) {
-            log.debug(
-                "Path: [{}], Client aborted connection: [{}]",
-                request.requestURI,
-                ex.message ?: ex.javaClass.simpleName,
-            )
-        }
-        return null
-    }
+    ): Result<Unit>? = null
 
-    /**
-     * Servlet 异常
-     */
-    @ExceptionHandler(ServletException::class)
-    fun handleServletException(
-        ex: ServletException,
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-    ): Result<Unit> {
-        val requestURI = request.requestURI
-        logError(request, "请求地址'$requestURI',发生未知异常", ex)
-        handlerResponseStatus(ex, response, HttpStatus.INTERNAL_SERVER_ERROR)
-        return Result.error(StandardCode.SystemSide.Exception)
-    }
-
-    /**
-     * IO 异常处理
-     * 特殊处理 SSE 连接中断
-     */
-    @ExceptionHandler(IOException::class)
-    fun handleIOException(
-        ex: IOException,
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-    ): Result<Unit>? {
-        val requestURI = request.requestURI
-        if (requestURI.contains("sse", ignoreCase = true)) {
-            if (log.isDebugEnabled) {
-                log.debug(
-                    "Path: [{}], SSE connection closed by client: [{}]",
-                    requestURI,
-                    ex.message ?: "连接中断",
-                )
-            }
-            return null
-        }
-        logError(request, "请求地址'$requestURI',连接中断", ex)
-        handlerResponseStatus(ex, response, HttpStatus.INTERNAL_SERVER_ERROR)
-        return Result.error(StandardCode.SystemSide.Exception)
-    }
-
-    @ExceptionHandler(Throwable::class)
+    @ExceptionHandler(ServletException::class, IOException::class, Throwable::class)
     fun handleThrowable(
         ex: Throwable,
         request: HttpServletRequest,
         response: HttpServletResponse,
-    ): Result<Unit> {
-        val message = resolveUserMessage(ex, StandardCode.SystemSide.Exception.message)
-        logError(request, message, ex)
-        handlerResponseStatus(ex, response, HttpStatus.INTERNAL_SERVER_ERROR)
-        return Result.error(StandardCode.SystemSide.EXCEPTION, message)
-    }
+    ): Result<Unit> = handleAppException(
+        SystemException(CommonErrors.SYSTEM_ERROR, resolveSafeSystemMessage(ex), cause = ex),
+        request,
+        response,
+    )
 
-    /**
-     * 判断是否为敏感异常（不应该暴露给用户的内部异常）
-     */
-    private fun isSensitiveException(ex: Throwable): Boolean {
-        return when (ex) {
-            is NullPointerException,
-            is ClassCastException,
-            is NoSuchMethodException -> true
+    private fun resolveStatus(ex: AppException): HttpStatus =
+        when (ex.errorCode.category) {
+            ErrorCategory.BUSINESS -> HttpStatus.OK
+            ErrorCategory.REQUEST -> HttpStatus.BAD_REQUEST
+            ErrorCategory.AUTHENTICATION -> HttpStatus.UNAUTHORIZED
+            ErrorCategory.AUTHORIZATION -> HttpStatus.FORBIDDEN
+            ErrorCategory.RATE_LIMIT -> HttpStatus.TOO_MANY_REQUESTS
+            ErrorCategory.SYSTEM -> HttpStatus.INTERNAL_SERVER_ERROR
+            ErrorCategory.DEPENDENCY -> HttpStatus.SERVICE_UNAVAILABLE
+        }
 
-            else -> {
-                val msg = ex.message ?: return false
-                msg.contains("database", ignoreCase = true) ||
-                        msg.contains("sql", ignoreCase = true) ||
-                        msg.contains("connection", ignoreCase = true)
+    private fun logByCategory(
+        category: ErrorCategory,
+        request: HttpServletRequest,
+        message: String,
+        ex: Throwable,
+    ) {
+        when (category) {
+            ErrorCategory.BUSINESS, ErrorCategory.AUTHENTICATION -> {
+                log.info(
+                    "Path: [{}], Exception message: [{}], Exception: [{}]",
+                    request.requestURI,
+                    message,
+                    ex::class.simpleName,
+                )
+            }
+            ErrorCategory.REQUEST, ErrorCategory.AUTHORIZATION, ErrorCategory.RATE_LIMIT -> {
+                log.warn(
+                    "Path: [{}], Exception message: [{}], Exception: [{}]",
+                    request.requestURI,
+                    message,
+                    ex::class.simpleName,
+                )
+            }
+            ErrorCategory.SYSTEM, ErrorCategory.DEPENDENCY -> {
+                log.error(
+                    "Path: [{}], Exception message: [{}], Exception: [{}]",
+                    request.requestURI,
+                    message,
+                    ex::class.simpleName,
+                    ex,
+                )
             }
         }
     }
 
-    private fun resolveUserMessage(ex: Throwable, fallback: String): String {
-        val message = ex.message
-        if (message.isNullOrBlank()) {
-            return fallback
-        }
-        return if (isSensitiveException(ex)) fallback else message
-    }
+    private fun resolveRequestMessage(ex: Exception): String =
+        ex.message?.takeIf { it.isNotBlank() } ?: CommonErrors.PARAM_INVALID.message
 
-    /**
-     * 日志工具函数
-     */
-    private fun logInfo(request: HttpServletRequest, message: String, e: Throwable) {
-        log.info(
-            "Path: [{}], Exception message: [{}], Exception: [{}]",
-            request.requestURI, message, e::class.simpleName,
+    private fun resolveSafeSystemMessage(ex: Throwable): String =
+        ex.message?.takeIf { it.isNotBlank() } ?: CommonErrors.SYSTEM_ERROR.message
+
+    private fun buildErrorResult(ex: AppException, request: HttpServletRequest): Result<Unit> =
+        Result(
+            code = ex.errorCode.code,
+            message = ex.message,
+            requestId = ThreadLocalUtils.getBizTrackCodeOrNull(),
+            path = request.requestURI,
         )
-    }
-
-    private fun logWarning(request: HttpServletRequest, message: String, e: Throwable) {
-        log.warn(
-            "Path: [{}], Exception message: [{}], Exception: [{}]",
-            request.requestURI, message, e::class.simpleName,
-        )
-    }
-
-    private fun logError(request: HttpServletRequest, message: String, e: Throwable) {
-        log.error(
-            "Path: [{}], Exception message: [{}], Exception: [{}]",
-            request.requestURI, message, e::class.simpleName, e,
-        )
-    }
-
-    /**
-     * 响应状态处理
-     */
-    private fun handlerResponseStatus(
-        ex: Throwable,
-        response: HttpServletResponse,
-        defStatus: HttpStatus? = null,
-    ) {
-        if (response.isCommitted) {
-            return
-        }
-        val respStatus = ex::class.java.getDeclaredAnnotation(RespStatus::class.java)
-        val status = respStatus?.value ?: defStatus ?: HttpStatus.INTERNAL_SERVER_ERROR
-        response.status = status.value
-    }
-
-    private fun handleKnownExceptionInternal(
-        ex: KnownException,
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-        defaultStatus: HttpStatus,
-    ): Result<Unit> {
-        val message = ex.msg.ifBlank { StandardCode.SystemSide.Exception.message }
-        when (ex.level) {
-            org.slf4j.event.Level.ERROR -> logError(request, message, ex)
-            org.slf4j.event.Level.WARN -> logWarning(request, message, ex)
-            else -> logInfo(request, message, ex)
-        }
-        handlerResponseStatus(ex, response, defaultStatus)
-        return Result.error(ex.code, message)
-    }
 }
