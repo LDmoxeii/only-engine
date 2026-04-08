@@ -7,37 +7,58 @@ interface ErrorCode {
     val category: ErrorCategory
 }
 
-interface BusinessErrorCode : ErrorCode {
-    override val category: ErrorCategory
-        get() = ErrorCategory.BUSINESS
+abstract class BusinessErrorCode(
+    final override val code: Int,
+    final override val name: String,
+    final override val message: String,
+) : ErrorCode {
+    final override val category: ErrorCategory = ErrorCategory.BUSINESS
 }
 
-interface RequestErrorCode : ErrorCode {
-    override val category: ErrorCategory
-        get() = ErrorCategory.REQUEST
+abstract class RequestErrorCode(
+    final override val code: Int,
+    final override val name: String,
+    final override val message: String,
+) : ErrorCode {
+    final override val category: ErrorCategory = ErrorCategory.REQUEST
 }
 
-interface AuthenticationErrorCode : ErrorCode {
-    override val category: ErrorCategory
-        get() = ErrorCategory.AUTHENTICATION
+abstract class AuthenticationErrorCode(
+    final override val code: Int,
+    final override val name: String,
+    final override val message: String,
+) : ErrorCode {
+    final override val category: ErrorCategory = ErrorCategory.AUTHENTICATION
 }
 
-interface AuthorizationErrorCode : ErrorCode {
-    override val category: ErrorCategory
-        get() = ErrorCategory.AUTHORIZATION
+abstract class AuthorizationErrorCode(
+    final override val code: Int,
+    final override val name: String,
+    final override val message: String,
+) : ErrorCode {
+    final override val category: ErrorCategory = ErrorCategory.AUTHORIZATION
 }
 
-interface RateLimitErrorCode : ErrorCode {
-    override val category: ErrorCategory
-        get() = ErrorCategory.RATE_LIMIT
+abstract class RateLimitErrorCode(
+    final override val code: Int,
+    final override val name: String,
+    final override val message: String,
+) : ErrorCode {
+    final override val category: ErrorCategory = ErrorCategory.RATE_LIMIT
 }
 
-interface SystemErrorCode : ErrorCode {
-    override val category: ErrorCategory
-        get() = ErrorCategory.SYSTEM
+abstract class SystemErrorCode(
+    final override val code: Int,
+    final override val name: String,
+    final override val message: String,
+) : ErrorCode {
+    final override val category: ErrorCategory = ErrorCategory.SYSTEM
 }
 
-interface DependencyErrorCode : ErrorCode {
-    override val category: ErrorCategory
-        get() = ErrorCategory.DEPENDENCY
+abstract class DependencyErrorCode(
+    final override val code: Int,
+    final override val name: String,
+    final override val message: String,
+) : ErrorCode {
+    final override val category: ErrorCategory = ErrorCategory.DEPENDENCY
 }

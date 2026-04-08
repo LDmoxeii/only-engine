@@ -9,7 +9,6 @@ import com.only.engine.error.SystemErrorCode
 import com.only.engine.misc.ThreadLocalUtils
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
 class AppExceptionTest {
@@ -24,17 +23,17 @@ class AppExceptionTest {
     }
 
     @Test
-    fun `system exception should reject invalid system error category`() {
-        val invalidSystemErrorCode = object : SystemErrorCode {
-            override val code: Int = 50001
-            override val name: String = "INVALID_SYSTEM_ERROR"
-            override val message: String = "invalid system error"
-            override val category: ErrorCategory = ErrorCategory.BUSINESS
+    fun `system error code base class should enforce system category`() {
+        val customSystemErrorCode = object : SystemErrorCode(
+            code = 50001,
+            name = "CUSTOM_SYSTEM_ERROR",
+            message = "custom system error",
+        ) {
         }
+        val ex = SystemException(customSystemErrorCode)
 
-        assertThrows(IllegalArgumentException::class.java) {
-            SystemException(invalidSystemErrorCode)
-        }
+        assertEquals(ErrorCategory.SYSTEM, customSystemErrorCode.category)
+        assertEquals(ErrorCategory.SYSTEM, ex.errorCode.category)
     }
 
     @Test
