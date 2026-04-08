@@ -115,7 +115,20 @@ class GlobalExceptionHandlerAdvice {
             is MissingRequestHeaderException -> "缺少必要的请求头: ${ex.headerName}"
             is MissingPathVariableException -> "缺少必要的路径参数: ${ex.variableName}"
             is MethodArgumentTypeMismatchException -> "请求参数类型不匹配: ${ex.name}"
-            is MethodArgumentNotValidException, is BindException, is ConstraintViolationException -> "请求参数校验失败"
+            is ConstraintViolationException -> ex.constraintViolations
+                .asSequence()
+                .map { it.message.trim() }
+                .filter { it.isNotEmpty() }
+                .distinct()
+                .joinToString("；")
+                .ifBlank { "请求参数校验失败" }
+            is BindException -> ex.bindingResult.allErrors
+                .asSequence()
+                .mapNotNull { it.defaultMessage?.trim() }
+                .filter { it.isNotEmpty() }
+                .distinct()
+                .joinToString("；")
+                .ifBlank { "请求参数校验失败" }
             is HttpMessageNotReadableException, is JsonProcessingException, is JsonParseException -> "请求体格式错误"
             is HttpRequestMethodNotSupportedException -> "不支持的请求方法"
             is NoHandlerFoundException -> "请求地址不存在"
