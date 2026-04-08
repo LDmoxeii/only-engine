@@ -3,8 +3,11 @@ package com.only.engine.web.advice
 import cn.dev33.satoken.exception.NotLoginException
 import cn.dev33.satoken.exception.NotPermissionException
 import cn.dev33.satoken.exception.NotRoleException
+import com.only.engine.error.AuthErrors
+import com.only.engine.error.ErrorCategory
 import com.only.engine.entity.Result
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -12,7 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-@ConditionalOnClass(NotLoginException::class)
+@ConditionalOnClass(name = ["cn.dev33.satoken.exception.NotLoginException"])
 @ConditionalOnProperty(prefix = "only.engine.sa-token", name = ["enable"], havingValue = "true")
 class SaTokenExceptionHandlerAdvice {
 
@@ -23,30 +26,36 @@ class SaTokenExceptionHandlerAdvice {
     /**
      * 权限码异常
      */
-    @ExceptionHandler(NotPermissionException::class)
-    fun handleNotPermissionException(e: NotPermissionException, request: HttpServletRequest): Result<Unit> {
-        val requestURI = request.requestURI
-        log.error("请求地址 '$requestURI', 权限码校验失败 '${e.message}'")
-        return Result.error(403, "没有访问权限，请联系管理员授权")
-    }
-
-    /**
-     * 角色权限异常
-     */
-    @ExceptionHandler(NotRoleException::class)
-    fun handleNotRoleException(e: NotRoleException, request: HttpServletRequest): Result<Unit> {
-        val requestURI = request.requestURI
-        log.error("请求地址 '$requestURI', 角色权限校验失败 '${e.message}'")
-        return Result.error(403, "没有访问权限，请联系管理员授权")
-    }
+    @ExceptionHandler(NotPermissionException::class, NotRoleException::class)
+    fun handleForbiddenException(
+        e: RuntimeException,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ): Result<Unit> = ExceptionResponseSupport.write(
+        log = log,
+        category = ErrorCategory.AUTHORIZATION,
+        request = request,
+        response = response,
+        errorCode = AuthErrors.ACCESS_DENIED,
+        message = AuthErrors.ACCESS_DENIED.message,
+        ex = e,
+    )
 
     /**
      * 认证失败
      */
     @ExceptionHandler(NotLoginException::class)
-    fun handleNotLoginException(e: NotLoginException, request: HttpServletRequest): Result<Unit> {
-        val requestURI = request.requestURI
-        log.error("请求地址 '$requestURI', 认证失败 '${e.message}'")
-        return Result.error(401, "认证失败，无法访问系统资源")
-    }
+    fun handleNotLoginException(
+        e: NotLoginException,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ): Result<Unit> = ExceptionResponseSupport.write(
+        log = log,
+        category = ErrorCategory.AUTHENTICATION,
+        request = request,
+        response = response,
+        errorCode = AuthErrors.LOGIN_REQUIRED,
+        message = AuthErrors.LOGIN_REQUIRED.message,
+        ex = e,
+    )
 }

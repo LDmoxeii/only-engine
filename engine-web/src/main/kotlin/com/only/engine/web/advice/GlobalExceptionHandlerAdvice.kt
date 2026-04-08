@@ -1,23 +1,13 @@
 package com.only.engine.web.advice
 
-import cn.dev33.satoken.exception.NotLoginException
-import cn.dev33.satoken.exception.NotPermissionException
-import cn.dev33.satoken.exception.NotRoleException
-import com.baomidou.lock.exception.LockFailureException
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.only.engine.entity.Result
-import com.only.engine.error.AuthErrors
 import com.only.engine.error.CommonErrors
-import com.only.engine.error.ErrorCategory
 import com.only.engine.exception.AppException
-import com.only.engine.exception.AuthenticationException
-import com.only.engine.exception.AuthorizationException
 import com.only.engine.exception.DependencyException
-import com.only.engine.exception.RateLimitException
 import com.only.engine.exception.RequestException
 import com.only.engine.exception.SystemException
-import com.only.engine.misc.ThreadLocalUtils
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -27,7 +17,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.annotation.Order
-import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.BindException
 import org.springframework.web.HttpRequestMethodNotSupportedException
@@ -57,12 +46,15 @@ class GlobalExceptionHandlerAdvice {
         ex: AppException,
         request: HttpServletRequest,
         response: HttpServletResponse,
-    ): Result<Unit> {
-        val status = resolveStatus(ex)
-        response.status = status.value()
-        logByCategory(ex.errorCode.category, request, ex.message, ex)
-        return buildErrorResult(ex, request)
-    }
+    ): Result<Unit> = ExceptionResponseSupport.write(
+        log = log,
+        category = ex.errorCode.category,
+        request = request,
+        response = response,
+        errorCode = ex.errorCode,
+        message = ex.message,
+        ex = ex,
+    )
 
     @ExceptionHandler(
         MissingServletRequestParameterException::class,
@@ -85,31 +77,6 @@ class GlobalExceptionHandlerAdvice {
         response: HttpServletResponse,
     ): Result<Unit> = handleAppException(
         RequestException(CommonErrors.PARAM_INVALID, resolveRequestMessage(ex)),
-        request,
-        response,
-    )
-
-    @ExceptionHandler(NotLoginException::class)
-    fun handleNotLogin(
-        ex: NotLoginException,
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-    ): Result<Unit> = handleAppException(AuthenticationException(AuthErrors.LOGIN_REQUIRED), request, response)
-
-    @ExceptionHandler(NotPermissionException::class, NotRoleException::class)
-    fun handleForbidden(
-        ex: RuntimeException,
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-    ): Result<Unit> = handleAppException(AuthorizationException(AuthErrors.ACCESS_DENIED), request, response)
-
-    @ExceptionHandler(LockFailureException::class)
-    fun handleRateLimit(
-        ex: LockFailureException,
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-    ): Result<Unit> = handleAppException(
-        RateLimitException(CommonErrors.REQUEST_RATE_LIMITED, ex.message ?: CommonErrors.REQUEST_RATE_LIMITED.message),
         request,
         response,
     )
@@ -142,52 +109,6 @@ class GlobalExceptionHandlerAdvice {
         response,
     )
 
-    private fun resolveStatus(ex: AppException): HttpStatus =
-        when (ex.errorCode.category) {
-            ErrorCategory.BUSINESS -> HttpStatus.OK
-            ErrorCategory.REQUEST -> HttpStatus.BAD_REQUEST
-            ErrorCategory.AUTHENTICATION -> HttpStatus.UNAUTHORIZED
-            ErrorCategory.AUTHORIZATION -> HttpStatus.FORBIDDEN
-            ErrorCategory.RATE_LIMIT -> HttpStatus.TOO_MANY_REQUESTS
-            ErrorCategory.SYSTEM -> HttpStatus.INTERNAL_SERVER_ERROR
-            ErrorCategory.DEPENDENCY -> HttpStatus.SERVICE_UNAVAILABLE
-        }
-
-    private fun logByCategory(
-        category: ErrorCategory,
-        request: HttpServletRequest,
-        message: String,
-        ex: Throwable,
-    ) {
-        when (category) {
-            ErrorCategory.BUSINESS, ErrorCategory.AUTHENTICATION -> {
-                log.info(
-                    "Path: [{}], Exception message: [{}], Exception: [{}]",
-                    request.requestURI,
-                    message,
-                    ex::class.simpleName,
-                )
-            }
-            ErrorCategory.REQUEST, ErrorCategory.AUTHORIZATION, ErrorCategory.RATE_LIMIT -> {
-                log.warn(
-                    "Path: [{}], Exception message: [{}], Exception: [{}]",
-                    request.requestURI,
-                    message,
-                    ex::class.simpleName,
-                )
-            }
-            ErrorCategory.SYSTEM, ErrorCategory.DEPENDENCY -> {
-                log.error(
-                    "Path: [{}], Exception message: [{}], Exception: [{}]",
-                    request.requestURI,
-                    message,
-                    ex::class.simpleName,
-                    ex,
-                )
-            }
-        }
-    }
-
     private fun resolveRequestMessage(ex: Exception): String =
         when (ex) {
             is MissingServletRequestParameterException -> "缺少必要的请求参数: ${ex.parameterName}"
@@ -203,12 +124,4 @@ class GlobalExceptionHandlerAdvice {
         }
 
     private fun resolveSafeSystemMessage(): String = CommonErrors.SYSTEM_ERROR.message
-
-    private fun buildErrorResult(ex: AppException, request: HttpServletRequest): Result<Unit> =
-        Result(
-            code = ex.errorCode.code,
-            message = ex.message,
-            requestId = ThreadLocalUtils.getBizTrackCodeOrNull(),
-            path = request.requestURI,
-        )
 }

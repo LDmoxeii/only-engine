@@ -1,6 +1,5 @@
 package com.only.engine.web.config
 
-import cn.dev33.satoken.exception.NotLoginException
 import com.only.engine.web.WebInitPrinter
 import com.only.engine.web.advice.GlobalExceptionHandlerAdvice
 import com.only.engine.web.advice.I18nResponseAdvice
@@ -13,8 +12,6 @@ import com.only.engine.web.advice.StringResponseAdvice
 import com.only.engine.web.config.properties.AdviceProperties
 import com.only.engine.web.i18n.I18nMessageDefaultHandler
 import com.only.engine.web.i18n.I18nMessageHandler
-import com.baomidou.lock.exception.LockFailureException
-import org.dromara.sms4j.comm.exception.SmsBlendException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Qualifier
@@ -80,7 +77,7 @@ class AdviceAutoConfiguration : WebInitPrinter {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(NotLoginException::class)
+    @ConditionalOnClass(name = ["cn.dev33.satoken.exception.NotLoginException"])
     @ConditionalOnProperty(prefix = "only.engine.sa-token", name = ["enable"], havingValue = "true")
     fun saTokenExceptionHandlerAdvice(): SaTokenExceptionHandlerAdvice {
         printInit(SaTokenExceptionHandlerAdvice::class.java, log)
@@ -89,7 +86,7 @@ class AdviceAutoConfiguration : WebInitPrinter {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(LockFailureException::class)
+    @ConditionalOnClass(name = ["com.baomidou.lock.exception.LockFailureException"])
     fun redisExceptionHandler(): RedisExceptionHandler {
         printInit(RedisExceptionHandler::class.java, log)
         return RedisExceptionHandler()
@@ -97,7 +94,7 @@ class AdviceAutoConfiguration : WebInitPrinter {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(SmsBlendException::class)
+    @ConditionalOnClass(name = ["org.dromara.sms4j.comm.exception.SmsBlendException"])
     fun smsExceptionHandler(): SmsExceptionHandler {
         printInit(SmsExceptionHandler::class.java, log)
         return SmsExceptionHandler()
