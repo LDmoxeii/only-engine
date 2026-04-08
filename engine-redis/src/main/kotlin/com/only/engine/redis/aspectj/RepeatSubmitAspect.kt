@@ -5,7 +5,8 @@ import cn.hutool.crypto.SecureUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.only.engine.constants.Constants
 import com.only.engine.entity.Result
-import com.only.engine.exception.KnownException
+import com.only.engine.error.CommonErrors
+import com.only.engine.exception.RateLimitException
 import com.only.engine.misc.MessageUtils
 import com.only.engine.misc.ServletUtils
 import com.only.engine.redis.annotation.RepeatSubmit
@@ -61,7 +62,7 @@ class RepeatSubmitAspect(
             if (message.startsWith("{") && message.endsWith("}")) {
                 message = MessageUtils.message(message.substring(1, message.length - 1))
             }
-            throw KnownException(message)
+            throw RateLimitException(CommonErrors.REQUEST_RATE_LIMITED, message)
         }
     }
 

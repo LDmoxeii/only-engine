@@ -6,7 +6,6 @@ import cn.dev33.satoken.exception.NotRoleException
 import com.baomidou.lock.exception.LockFailureException
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonProcessingException
-import com.only.engine.annotation.RespStatus
 import com.only.engine.entity.Result
 import com.only.engine.error.AuthErrors
 import com.only.engine.error.CommonErrors
@@ -15,12 +14,9 @@ import com.only.engine.exception.AppException
 import com.only.engine.exception.AuthenticationException
 import com.only.engine.exception.AuthorizationException
 import com.only.engine.exception.DependencyException
-import com.only.engine.exception.ErrorException
-import com.only.engine.exception.KnownException
 import com.only.engine.exception.RateLimitException
 import com.only.engine.exception.RequestException
 import com.only.engine.exception.SystemException
-import com.only.engine.exception.WarnException
 import com.only.engine.misc.ThreadLocalUtils
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
@@ -41,8 +37,7 @@ import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.servlet.NoHandlerFoundException
 import java.io.IOException
@@ -67,27 +62,6 @@ class GlobalExceptionHandlerAdvice {
         response.status = status.value()
         logByCategory(ex.errorCode.category, request, ex.message, ex)
         return buildErrorResult(ex, request)
-    }
-
-    /**
-     * Transitional bridge for legacy exceptions before Task 3 migration removes remaining throw sites.
-     * Keep isolated from AppException flow.
-     */
-    @ExceptionHandler(ErrorException::class, WarnException::class, KnownException::class)
-    fun handleLegacyKnownException(
-        ex: KnownException,
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-    ): Result<Unit> {
-        val message = ex.msg.ifBlank { CommonErrors.SYSTEM_ERROR.message }
-        response.status = resolveLegacyStatus(ex).value()
-        logLegacyException(ex, request, message)
-        return Result(
-            code = ex.code,
-            message = message,
-            requestId = ThreadLocalUtils.getBizTrackCodeOrNull(),
-            path = request.requestURI,
-        )
     }
 
     @ExceptionHandler(
@@ -140,9 +114,9 @@ class GlobalExceptionHandlerAdvice {
         response,
     )
 
-    @ExceptionHandler(HttpClientErrorException::class, HttpServerErrorException::class)
+    @ExceptionHandler(RestClientResponseException::class)
     fun handleDependencyHttpError(
-        ex: Exception,
+        ex: RestClientResponseException,
         request: HttpServletRequest,
         response: HttpServletResponse,
     ): Result<Unit> = handleAppException(
@@ -229,45 +203,6 @@ class GlobalExceptionHandlerAdvice {
         }
 
     private fun resolveSafeSystemMessage(): String = CommonErrors.SYSTEM_ERROR.message
-
-    private fun resolveLegacyStatus(ex: KnownException): HttpStatus =
-        ex::class.java.getDeclaredAnnotation(RespStatus::class.java)
-            ?.let { HttpStatus.valueOf(it.value.value) }
-            ?: if (ex is ErrorException) {
-                HttpStatus.INTERNAL_SERVER_ERROR
-            } else {
-                HttpStatus.BAD_REQUEST
-            }
-
-    private fun logLegacyException(ex: KnownException, request: HttpServletRequest, message: String) {
-        when (ex.level) {
-            org.slf4j.event.Level.ERROR -> {
-                log.error(
-                    "Path: [{}], Exception message: [{}], Exception: [{}]",
-                    request.requestURI,
-                    message,
-                    ex::class.simpleName,
-                    ex,
-                )
-            }
-            org.slf4j.event.Level.WARN -> {
-                log.warn(
-                    "Path: [{}], Exception message: [{}], Exception: [{}]",
-                    request.requestURI,
-                    message,
-                    ex::class.simpleName,
-                )
-            }
-            else -> {
-                log.info(
-                    "Path: [{}], Exception message: [{}], Exception: [{}]",
-                    request.requestURI,
-                    message,
-                    ex::class.simpleName,
-                )
-            }
-        }
-    }
 
     private fun buildErrorResult(ex: AppException, request: HttpServletRequest): Result<Unit> =
         Result(

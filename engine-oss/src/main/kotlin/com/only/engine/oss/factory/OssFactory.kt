@@ -1,6 +1,7 @@
 package com.only.engine.oss.factory
 
-import com.only.engine.exception.KnownException
+import com.only.engine.error.CommonErrors
+import com.only.engine.exception.DependencyException
 import com.only.engine.json.misc.JsonUtils
 import com.only.engine.oss.config.properties.OssProperties
 import com.only.engine.oss.constant.OssConstant
@@ -58,7 +59,7 @@ object OssFactory {
 
     private fun fallbackInstance(configKey: String): OssClient {
         val properties = defaultProperties
-            ?: throw KnownException("文件存储服务类型无法找到!")
+            ?: throw DependencyException(CommonErrors.DEPENDENCY_ERROR, "文件存储服务类型无法找到!")
         if (configKey != DEFAULT_LOCAL_KEY) {
             log.info("OSS 配置 '{}' 不存在，使用本地 OssProperties 配置", configKey)
         }

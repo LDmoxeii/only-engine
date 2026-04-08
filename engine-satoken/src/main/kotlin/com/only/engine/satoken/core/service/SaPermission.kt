@@ -2,7 +2,8 @@ package com.only.engine.satoken.core.service
 
 import cn.dev33.satoken.stp.StpInterface
 import com.only.engine.enums.UserType
-import com.only.engine.exception.KnownException
+import com.only.engine.error.CommonErrors
+import com.only.engine.exception.SystemException
 import com.only.engine.satoken.utils.LoginHelper
 import com.only.engine.spi.authentication.PermissionService
 import org.springframework.beans.factory.ObjectProvider
@@ -17,8 +18,8 @@ class SaPermission(
 ) : StpInterface {
 
     fun getPermissionService(): PermissionService {
-        requireNotNull(permissionService.ifAvailable) { KnownException("PermissionService 实例不存在") }
-        return permissionService.ifAvailable!!
+        return permissionService.ifAvailable
+            ?: throw SystemException(CommonErrors.SYSTEM_ERROR, "PermissionService 实例不存在")
     }
 
     /**

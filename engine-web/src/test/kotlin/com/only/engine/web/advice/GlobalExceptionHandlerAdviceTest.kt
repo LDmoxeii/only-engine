@@ -6,8 +6,6 @@ import com.only.engine.exception.AuthenticationException
 import com.only.engine.exception.AuthorizationException
 import com.only.engine.exception.BusinessException
 import com.only.engine.exception.DependencyException
-import com.only.engine.exception.ErrorException
-import com.only.engine.exception.KnownException
 import com.only.engine.exception.RateLimitException
 import com.only.engine.exception.RequestException
 import com.only.engine.exception.SystemException
@@ -99,14 +97,6 @@ class GlobalExceptionHandlerAdviceTest {
     }
 
     @Test
-    fun `legacy known exception should keep non-500 response before task 3 migration`() {
-        mockMvc.perform(get("/legacy-known"))
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.code").value(40400))
-            .andExpect(jsonPath("$.message").value("legacy known message"))
-    }
-
-    @Test
     fun `generic throwable should hide sensitive internal message`() {
         mockMvc.perform(get("/throwable-sensitive"))
             .andExpect(status().isInternalServerError)
@@ -133,14 +123,6 @@ class GlobalExceptionHandlerAdviceTest {
             .andExpect(jsonPath("$.code").value(40400))
             .andExpect(jsonPath("$.message").value("请求体格式错误"))
             .andExpect(jsonPath("$.message", not(containsString("Unexpected character"))))
-    }
-
-    @Test
-    fun `legacy error exception should keep http 500 via transitional bridge`() {
-        mockMvc.perform(get("/legacy-error"))
-            .andExpect(status().isInternalServerError)
-            .andExpect(jsonPath("$.code").value(50042))
-            .andExpect(jsonPath("$.message").value("legacy error message"))
     }
 
     @RestController
@@ -174,9 +156,6 @@ class GlobalExceptionHandlerAdviceTest {
         @GetMapping("/dependency")
         fun dependency(): String = throw DependencyException(CommonErrors.DEPENDENCY_ERROR, "OSS 服务不可用")
 
-        @GetMapping("/legacy-known")
-        fun legacyKnown(): String = throw KnownException(40400, "legacy known message")
-
         @GetMapping("/throwable-sensitive")
         fun throwableSensitive(): String = throw IllegalStateException("database connection failed for jdbc:mysql://prod")
 
@@ -187,8 +166,5 @@ class GlobalExceptionHandlerAdviceTest {
         fun jsonParse(
             @RequestBody payload: DemoPayload,
         ): String = payload.name
-
-        @GetMapping("/legacy-error")
-        fun legacyError(): String = throw ErrorException(50042, "legacy error message")
     }
 }

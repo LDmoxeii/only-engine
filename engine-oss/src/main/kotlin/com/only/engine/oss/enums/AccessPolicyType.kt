@@ -1,6 +1,7 @@
 package com.only.engine.oss.enums
 
-import com.only.engine.exception.KnownException
+import com.only.engine.error.CommonErrors
+import com.only.engine.exception.RequestException
 import software.amazon.awssdk.services.s3.model.BucketCannedACL
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL
 
@@ -22,7 +23,11 @@ enum class AccessPolicyType(
         }
 
         fun valueOf(value: String?): AccessPolicyType {
-            return valueOfOrNull(value) ?: throw KnownException("枚举类型AccessPolicyType枚举值转换异常，不存在的值: $value")
+            return valueOfOrNull(value)
+                ?: throw RequestException(
+                    CommonErrors.PARAM_INVALID,
+                    "枚举类型AccessPolicyType枚举值转换异常，不存在的值: $value",
+                )
         }
 
         fun valueOfOrNull(value: String?): AccessPolicyType? {
