@@ -6,15 +6,6 @@ import com.only.engine.constants.StrConstants
 import com.only.engine.enums.BaseCode
 import com.only.engine.enums.ResultCode
 import com.only.engine.error.ErrorCode
-import com.only.engine.misc.ServletUtils
-import com.only.engine.misc.ThreadLocalUtils
-
-private fun resolveRequestPathOrNull(): String? =
-    try {
-        ServletUtils.getRequest()?.requestURI
-    } catch (_: Throwable) {
-        null
-    }
 
 /**
  * 标准API响应结果包装器
@@ -26,8 +17,8 @@ data class Result<T>(
     override var message: String = ResultCode.SUCCESS.message,
     val data: T? = null,
     val timestamp: Long = System.currentTimeMillis(),
-    val requestId: String? = ThreadLocalUtils.getBizTrackCodeOrNull(),
-    val path: String? = resolveRequestPathOrNull(),
+    val requestId: String? = null,
+    val path: String? = null,
 ) : BaseCode {
 
     @JvmOverloads

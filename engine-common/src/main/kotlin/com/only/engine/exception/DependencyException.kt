@@ -1,10 +1,10 @@
 package com.only.engine.exception
 
 import com.only.engine.error.ErrorCategory
-import com.only.engine.error.ErrorCode
+import com.only.engine.error.DependencyErrorCode
 
 class DependencyException(
-    errorCode: ErrorCode,
+    errorCode: DependencyErrorCode,
     message: String = errorCode.message,
     context: Map<String, Any?> = emptyMap(),
     cause: Throwable? = null,
