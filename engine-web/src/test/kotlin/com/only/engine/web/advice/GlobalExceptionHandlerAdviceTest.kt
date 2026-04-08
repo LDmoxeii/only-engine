@@ -6,6 +6,7 @@ import com.only.engine.exception.AuthenticationException
 import com.only.engine.exception.AuthorizationException
 import com.only.engine.exception.BusinessException
 import com.only.engine.exception.DependencyException
+import com.only.engine.exception.ErrorException
 import com.only.engine.exception.KnownException
 import com.only.engine.exception.RateLimitException
 import com.only.engine.exception.RequestException
@@ -114,6 +115,14 @@ class GlobalExceptionHandlerAdviceTest {
     }
 
     @Test
+    fun `generic throwable should hide harmless looking internal message`() {
+        mockMvc.perform(get("/throwable-harmless-internal"))
+            .andExpect(status().isInternalServerError)
+            .andExpect(jsonPath("$.code").value(50000))
+            .andExpect(jsonPath("$.message").value("系统异常"))
+    }
+
+    @Test
     fun `framework request failure should not expose parser internals`() {
         mockMvc.perform(
             post("/json-parse")
@@ -124,6 +133,14 @@ class GlobalExceptionHandlerAdviceTest {
             .andExpect(jsonPath("$.code").value(40400))
             .andExpect(jsonPath("$.message").value("请求体格式错误"))
             .andExpect(jsonPath("$.message", not(containsString("Unexpected character"))))
+    }
+
+    @Test
+    fun `legacy error exception should keep http 500 via transitional bridge`() {
+        mockMvc.perform(get("/legacy-error"))
+            .andExpect(status().isInternalServerError)
+            .andExpect(jsonPath("$.code").value(50042))
+            .andExpect(jsonPath("$.message").value("legacy error message"))
     }
 
     @RestController
@@ -163,9 +180,15 @@ class GlobalExceptionHandlerAdviceTest {
         @GetMapping("/throwable-sensitive")
         fun throwableSensitive(): String = throw IllegalStateException("database connection failed for jdbc:mysql://prod")
 
+        @GetMapping("/throwable-harmless-internal")
+        fun throwableHarmlessInternal(): String = throw IllegalStateException("internal cache warmup mismatch on shard-03")
+
         @PostMapping("/json-parse")
         fun jsonParse(
             @RequestBody payload: DemoPayload,
         ): String = payload.name
+
+        @GetMapping("/legacy-error")
+        fun legacyError(): String = throw ErrorException(50042, "legacy error message")
     }
 }

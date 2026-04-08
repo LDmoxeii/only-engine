@@ -163,7 +163,7 @@ class GlobalExceptionHandlerAdvice {
         request: HttpServletRequest,
         response: HttpServletResponse,
     ): Result<Unit> = handleAppException(
-        SystemException(CommonErrors.SYSTEM_ERROR, resolveSafeSystemMessage(ex), cause = ex),
+        SystemException(CommonErrors.SYSTEM_ERROR, resolveSafeSystemMessage(), cause = ex),
         request,
         response,
     )
@@ -228,26 +228,7 @@ class GlobalExceptionHandlerAdvice {
             else -> CommonErrors.PARAM_INVALID.message
         }
 
-    private fun resolveSafeSystemMessage(ex: Throwable): String =
-        ex.message
-            ?.takeIf { it.isNotBlank() }
-            ?.takeUnless { isSensitiveThrowableMessage(ex, it) }
-            ?: CommonErrors.SYSTEM_ERROR.message
-
-    private fun isSensitiveThrowableMessage(ex: Throwable, message: String): Boolean =
-        when (ex) {
-            is NullPointerException,
-            is ClassCastException,
-            is NoSuchMethodException -> true
-            else -> {
-                val lower = message.lowercase()
-                lower.contains("database") ||
-                    lower.contains("sql") ||
-                    lower.contains("connection") ||
-                    lower.contains("jdbc") ||
-                    lower.contains("password")
-            }
-        }
+    private fun resolveSafeSystemMessage(): String = CommonErrors.SYSTEM_ERROR.message
 
     private fun resolveLegacyStatus(ex: KnownException): HttpStatus =
         ex::class.java.getDeclaredAnnotation(RespStatus::class.java)
