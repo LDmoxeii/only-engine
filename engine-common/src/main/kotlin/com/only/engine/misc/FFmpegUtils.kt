@@ -1,7 +1,10 @@
 package com.only.engine.misc
 
 import cn.hutool.core.util.RuntimeUtil
-import com.only.engine.exception.KnownException
+import com.only.engine.error.CommonErrors
+import com.only.engine.exception.AppException
+import com.only.engine.exception.RequestException
+import com.only.engine.exception.SystemException
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.math.BigDecimal
@@ -22,14 +25,14 @@ private val logger = LoggerFactory.getLogger("FFmpegUtils")
  */
 fun createImageThumbnail(filePath: String, showLog: Boolean = false) {
     if (filePath.isBlank()) {
-        throw KnownException.illegalArgument("filePath")
+        throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'filePath' 不能为空")
     }
 
     val sourceFile = File(filePath).absoluteFile
     val targetFile = buildSiblingFile(sourceFile, IMAGE_THUMBNAIL_SUFFIX)
     targetFile.parentFile?.takeIf { !it.exists() }?.let {
         if (!it.mkdirs()) {
-            throw KnownException.systemError("无法创建缩略图目录: ${it.absolutePath}")
+            throw SystemException(CommonErrors.SYSTEM_ERROR, "无法创建缩略图目录: ${it.absolutePath}")
         }
     }
 
@@ -55,7 +58,7 @@ fun createImageThumbnail(filePath: String, showLog: Boolean = false) {
  */
 fun getVideoCodec(videoFilePath: String, showLog: Boolean = false): String {
     if (videoFilePath.isBlank()) {
-        throw KnownException.illegalArgument("videoFilePath")
+        throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'videoFilePath' 不能为空")
     }
 
     val inputFile = File(videoFilePath).absoluteFile
@@ -94,17 +97,17 @@ fun convertHevcToMp4(
     showLog: Boolean = false,
 ) {
     if (inputFilePath.isBlank()) {
-        throw KnownException.illegalArgument("inputFilePath")
+        throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'inputFilePath' 不能为空")
     }
     if (outputFilePath.isBlank()) {
-        throw KnownException.illegalArgument("outputFilePath")
+        throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'outputFilePath' 不能为空")
     }
 
     val inputFile = File(inputFilePath).absoluteFile
     val outputFile = File(outputFilePath).absoluteFile
     outputFile.parentFile?.takeIf { !it.exists() }?.let {
         if (!it.mkdirs()) {
-            throw KnownException.systemError("无法创建输出目录: ${it.absolutePath}")
+            throw SystemException(CommonErrors.SYSTEM_ERROR, "无法创建输出目录: ${it.absolutePath}")
         }
     }
 
@@ -138,18 +141,18 @@ fun convertVideoToTs(
     showLog: Boolean = false,
 ) {
     if (videoFilePath.isBlank()) {
-        throw KnownException.illegalArgument("videoFilePath")
+        throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'videoFilePath' 不能为空")
     }
     if (segmentSeconds <= 0) {
-        throw KnownException.illegalArgument("segmentSeconds")
+        throw RequestException(CommonErrors.PARAM_INVALID, "参数 'segmentSeconds' 必须大于 0")
     }
 
     val inputFile = File(videoFilePath).absoluteFile
     val outputDir = runCatching { tsFolder.canonicalFile }.getOrElse {
-        throw KnownException.systemError(it)
+        throw SystemException(CommonErrors.SYSTEM_ERROR, "获取 TS 输出目录失败", cause = it)
     }
     if (!outputDir.exists() && !outputDir.mkdirs()) {
-        throw KnownException.systemError("无法创建 TS 输出目录: ${outputDir.absolutePath}")
+        throw SystemException(CommonErrors.SYSTEM_ERROR, "无法创建 TS 输出目录: ${outputDir.absolutePath}")
     }
 
     val tsFile = File(outputDir, TS_NAME)
@@ -209,7 +212,7 @@ fun convertVideoToTs(
  */
 fun getVideoDuration(videoFilePath: String, showLog: Boolean = false): Int {
     if (videoFilePath.isBlank()) {
-        throw KnownException.illegalArgument("videoFilePath")
+        throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'videoFilePath' 不能为空")
     }
 
     val inputFile = File(videoFilePath).absoluteFile
@@ -246,7 +249,7 @@ private fun buildSiblingFile(source: File, suffix: String): File {
 
 private fun execForStdout(commands: List<String>, showLog: Boolean): String {
     if (commands.isEmpty()) {
-        throw KnownException.illegalArgument("commands")
+        throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'commands' 不能为空")
     }
 
     var process: Process? = null
@@ -279,17 +282,17 @@ private fun execForStdout(commands: List<String>, showLog: Boolean): String {
                     append(": ").append(stderr.trim())
                 }
             }
-            throw KnownException.systemError(message)
+            throw SystemException(CommonErrors.SYSTEM_ERROR, message)
         }
 
         stdout
     } catch (e: InterruptedException) {
         Thread.currentThread().interrupt()
-        throw KnownException.systemError(e)
-    } catch (e: KnownException) {
+        throw SystemException(CommonErrors.SYSTEM_ERROR, "FFmpeg 命令执行被中断", cause = e)
+    } catch (e: AppException) {
         throw e
     } catch (e: Exception) {
-        throw KnownException.systemError(e)
+        throw SystemException(CommonErrors.SYSTEM_ERROR, "FFmpeg 命令执行异常: ${e.message ?: "未知错误"}", cause = e)
     } finally {
         process?.destroy()
     }

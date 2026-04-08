@@ -1,6 +1,8 @@
 package com.only.engine.oss.core
 
-import com.only.engine.exception.KnownException
+import com.only.engine.error.CommonErrors
+import com.only.engine.exception.DependencyException
+import com.only.engine.exception.RequestException
 import com.only.engine.oss.config.properties.OssProperties
 import com.only.engine.oss.constant.OssConstant
 import com.only.engine.oss.enums.AccessPolicyType
@@ -148,7 +150,11 @@ class OssClient(
             val url = publicUrlForKey(key)
             UploadResult(url = url, filename = key, eTag = resp.response().eTag())
         } catch (e: Exception) {
-            throw KnownException("上传文件失败，错误信息: ${e.message ?: "未知错误"}")
+            throw DependencyException(
+                CommonErrors.DEPENDENCY_ERROR,
+                "上传文件失败，错误信息: ${e.message ?: "未知错误"}",
+                cause = e,
+            )
         }
     }
 
@@ -186,7 +192,11 @@ class OssClient(
             val url = publicUrlForKey(key)
             UploadResult(url = url, filename = key, eTag = resp.response().eTag())
         } catch (e: Exception) {
-            throw KnownException("上传文件失败，错误信息: ${e.message ?: "未知错误"}")
+            throw DependencyException(
+                CommonErrors.DEPENDENCY_ERROR,
+                "上传文件失败，错误信息: ${e.message ?: "未知错误"}",
+                cause = e,
+            )
         }
     }
 
@@ -217,7 +227,11 @@ class OssClient(
             return tempFile
         } catch (e: Exception) {
             Files.deleteIfExists(tempFile)
-            throw KnownException("文件下载失败，错误信息: ${e.message ?: "未知错误"}")
+            throw DependencyException(
+                CommonErrors.DEPENDENCY_ERROR,
+                "文件下载失败，错误信息: ${e.message ?: "未知错误"}",
+                cause = e,
+            )
         }
     }
 
@@ -225,7 +239,11 @@ class OssClient(
         try {
             download(keyOrUrl, contentLengthConsumer).invoke(out)
         } catch (e: Exception) {
-            throw KnownException("文件下载失败，错误信息: ${e.message ?: "未知错误"}")
+            throw DependencyException(
+                CommonErrors.DEPENDENCY_ERROR,
+                "文件下载失败，错误信息: ${e.message ?: "未知错误"}",
+                cause = e,
+            )
         }
     }
 
@@ -254,7 +272,11 @@ class OssClient(
             }
             writer
         } catch (e: Exception) {
-            throw KnownException("文件下载失败，错误信息: ${e.message ?: "未知错误"}")
+            throw DependencyException(
+                CommonErrors.DEPENDENCY_ERROR,
+                "文件下载失败，错误信息: ${e.message ?: "未知错误"}",
+                cause = e,
+            )
         }
     }
 
@@ -268,7 +290,7 @@ class OssClient(
     fun listKeysByPrefix(prefix: String): List<String> {
         val cleanPrefix = prefix.trim().trimStart('/')
         if (cleanPrefix.isBlank()) {
-            throw KnownException.illegalArgument("prefix")
+            throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'prefix' 不能为空")
         }
         val results = mutableListOf<String>()
         var token: String? = null
@@ -299,7 +321,7 @@ class OssClient(
     fun deleteByPrefix(prefix: String): Int {
         val cleanPrefix = prefix.trim().trimStart('/').trimEnd('/') + "/"
         if (cleanPrefix == "/") {
-            throw KnownException.illegalArgument("prefix")
+            throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'prefix' 不能为空")
         }
         var deletedCount = 0
         var token: String? = null

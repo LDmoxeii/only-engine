@@ -47,6 +47,12 @@ object ThreadLocalUtils {
     fun getBizTrackCode(): String =
         get(HeaderConstants.X_ONLY_BIZ_TRACK_CODE)
 
+    fun getOrNull(key: String): String? =
+        CURRENT_CONTEXT.get()?.get(key)
+
+    fun getBizTrackCodeOrNull(): String? =
+        getOrNull(HeaderConstants.X_ONLY_BIZ_TRACK_CODE)
+
     fun <T> get(key: String, clazz: Class<T>): T =
         get(key).let { JSONObject.parseObject(it, clazz) }
 

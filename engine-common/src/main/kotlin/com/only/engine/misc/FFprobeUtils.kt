@@ -1,7 +1,10 @@
 package com.only.engine.misc
 
 import cn.hutool.core.util.RuntimeUtil
-import com.only.engine.exception.KnownException
+import com.only.engine.error.CommonErrors
+import com.only.engine.exception.AppException
+import com.only.engine.exception.RequestException
+import com.only.engine.exception.SystemException
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -23,11 +26,11 @@ object FFprobeUtils {
      */
     fun probeVideoResolution(inputPath: String, showLog: Boolean = false): VideoProbeResult {
         if (inputPath.isBlank()) {
-            throw KnownException.illegalArgument("inputPath")
+            throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'inputPath' 不能为空")
         }
         val inputFile = File(inputPath).absoluteFile
         if (!inputFile.exists()) {
-            throw KnownException.systemError("视频文件不存在: ${inputFile.absolutePath}")
+            throw RequestException(CommonErrors.PARAM_INVALID, "视频文件不存在: ${inputFile.absolutePath}")
         }
 
         val resolutionCommand = listOf(
@@ -46,13 +49,13 @@ object FFprobeUtils {
             .lineSequence()
             .map { it.trim() }
             .firstOrNull { it.isNotEmpty() }
-            ?: throw KnownException.systemError("无法探测分辨率: ${inputFile.absolutePath}")
+            ?: throw SystemException(CommonErrors.SYSTEM_ERROR, "无法探测分辨率: ${inputFile.absolutePath}")
 
         val (width, height) = resolutionLine.split("x")
             .mapNotNull { it.toIntOrNull() }
             .let {
                 if (it.size == 2) it[0] to it[1]
-                else throw KnownException.systemError("分辨率格式异常: $resolutionLine")
+                else throw SystemException(CommonErrors.SYSTEM_ERROR, "分辨率格式异常: $resolutionLine")
             }
 
         val bitrateCommand = listOf(
@@ -78,7 +81,7 @@ object FFprobeUtils {
 
     private fun execForStdout(commands: List<String>, showLog: Boolean): String {
         if (commands.isEmpty()) {
-            throw KnownException.illegalArgument("commands")
+            throw RequestException(CommonErrors.PARAM_REQUIRED, "参数 'commands' 不能为空")
         }
 
         var process: Process? = null
@@ -106,17 +109,17 @@ object FFprobeUtils {
                     append("FFprobe 命令执行失败 (exitCode=").append(exitCode).append(")")
                     if (stderr.isNotBlank()) append(": ").append(stderr.trim())
                 }
-                throw KnownException.systemError(message)
+                throw SystemException(CommonErrors.SYSTEM_ERROR, message)
             }
 
             stdout
         } catch (e: InterruptedException) {
             Thread.currentThread().interrupt()
-            throw KnownException.systemError(e)
-        } catch (e: KnownException) {
+            throw SystemException(CommonErrors.SYSTEM_ERROR, "FFprobe 命令执行被中断", cause = e)
+        } catch (e: AppException) {
             throw e
         } catch (e: Exception) {
-            throw KnownException.systemError(e)
+            throw SystemException(CommonErrors.SYSTEM_ERROR, "FFprobe 命令执行异常: ${e.message ?: "未知错误"}", cause = e)
         } finally {
             process?.destroy()
         }

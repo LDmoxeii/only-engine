@@ -25,10 +25,14 @@ dependencies {
     compileOnly(libs.lock4j.core)
     compileOnly(libs.sms4j.comm)
 
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.bundles.junit.core)
-    testImplementation(libs.mockk) {
-        exclude(group = "org.slf4j", module = "slf4j-api")
+    testImplementation(libs.spring.boot.starter.test) {
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
+    testImplementation(libs.spring.web)
+    testImplementation(libs.spring.webmvc)
+    testImplementation(libs.spring.boot.starter.tomcat)
+    testImplementation(libs.jakarta.validation.api)
+    testImplementation(libs.sa.token.core)
+    testImplementation(libs.lock4j.core)
     testRuntimeOnly(libs.bundles.junit.runtime)
 }

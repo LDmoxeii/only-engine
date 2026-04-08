@@ -1,6 +1,7 @@
 package com.only.engine.enums
 
-import com.only.engine.exception.KnownException
+import com.only.engine.error.CommonErrors
+import com.only.engine.exception.RequestException
 
 enum class UserType(
     val code: Int,
@@ -18,7 +19,11 @@ enum class UserType(
         }
 
         fun valueOf(value: Int): UserType {
-            return enumMap[value] ?: throw KnownException("枚举类型UserType枚举值转换异常，不存在的值: $value")
+            return enumMap[value]
+                ?: throw RequestException(
+                    CommonErrors.PARAM_INVALID,
+                    "枚举类型UserType枚举值转换异常，不存在的值: $value",
+                )
         }
 
         fun valueOfOrNull(value: Int?): UserType? {
