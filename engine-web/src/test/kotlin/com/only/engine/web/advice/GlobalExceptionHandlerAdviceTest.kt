@@ -6,19 +6,25 @@ import com.only.engine.exception.AuthenticationException
 import com.only.engine.exception.AuthorizationException
 import com.only.engine.exception.BusinessException
 import com.only.engine.exception.DependencyException
+import com.only.engine.exception.KnownException
 import com.only.engine.exception.RateLimitException
 import com.only.engine.exception.RequestException
 import com.only.engine.exception.SystemException
 import com.only.engine.misc.ThreadLocalUtils
+import org.hamcrest.Matchers.containsString
+import org.hamcrest.Matchers.not
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -91,8 +97,41 @@ class GlobalExceptionHandlerAdviceTest {
             .andExpect(jsonPath("$.code").value(60000))
     }
 
+    @Test
+    fun `legacy known exception should keep non-500 response before task 3 migration`() {
+        mockMvc.perform(get("/legacy-known"))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value(40400))
+            .andExpect(jsonPath("$.message").value("legacy known message"))
+    }
+
+    @Test
+    fun `generic throwable should hide sensitive internal message`() {
+        mockMvc.perform(get("/throwable-sensitive"))
+            .andExpect(status().isInternalServerError)
+            .andExpect(jsonPath("$.code").value(50000))
+            .andExpect(jsonPath("$.message").value("系统异常"))
+    }
+
+    @Test
+    fun `framework request failure should not expose parser internals`() {
+        mockMvc.perform(
+            post("/json-parse")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{invalid"),
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value(40400))
+            .andExpect(jsonPath("$.message").value("请求体格式错误"))
+            .andExpect(jsonPath("$.message", not(containsString("Unexpected character"))))
+    }
+
     @RestController
     private class TestController {
+
+        data class DemoPayload(
+            val name: String,
+        )
 
         @GetMapping("/business")
         fun business(): String {
@@ -117,5 +156,16 @@ class GlobalExceptionHandlerAdviceTest {
 
         @GetMapping("/dependency")
         fun dependency(): String = throw DependencyException(CommonErrors.DEPENDENCY_ERROR, "OSS 服务不可用")
+
+        @GetMapping("/legacy-known")
+        fun legacyKnown(): String = throw KnownException(40400, "legacy known message")
+
+        @GetMapping("/throwable-sensitive")
+        fun throwableSensitive(): String = throw IllegalStateException("database connection failed for jdbc:mysql://prod")
+
+        @PostMapping("/json-parse")
+        fun jsonParse(
+            @RequestBody payload: DemoPayload,
+        ): String = payload.name
     }
 }
