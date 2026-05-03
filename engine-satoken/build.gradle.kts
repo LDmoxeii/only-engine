@@ -8,7 +8,6 @@ dependencies {
     kapt(libs.spring.boot.configuration.processor)
 
     implementation(project(":engine-common"))
-    implementation(project(":engine-audit"))
     implementation(project(":engine-spi"))
     implementation(project(":engine-security"))
 
