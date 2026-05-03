@@ -42,5 +42,6 @@ include(":engine-captcha")
 include(":engine-translation")
 include(":engine-oss")
 include(":engine-sms")
+include(":engine-audit")
 
 rootProject.name = "only-engine"
