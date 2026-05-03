@@ -8,6 +8,7 @@ dependencies {
     kapt(libs.spring.boot.configuration.processor)
 
     implementation(project(":engine-common"))
+    implementation(project(":engine-audit"))
     implementation(project(":engine-spi"))
     implementation(project(":engine-security"))
 
@@ -21,6 +22,7 @@ dependencies {
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.bundles.junit.core)
+    testImplementation(libs.spring.boot.starter.test)
     testImplementation(libs.mockk) {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }

@@ -12,7 +12,9 @@ import com.only.engine.satoken.SaTokenInitPrinter
 import com.only.engine.satoken.config.properties.SaTokenProperties
 import com.only.engine.satoken.core.service.SaPermission
 import com.only.engine.satoken.interceptor.SaTokenSecurityInterceptor
+import com.only.engine.satoken.provider.SaTokenAuditOperatorProvider
 import com.only.engine.satoken.provider.SaTokenProvider
+import com.only.engine.spi.audit.AuditOperatorProvider
 import com.only.engine.spi.authentication.PermissionService
 import com.only.engine.spi.idempotent.TokenProvider
 import com.only.engine.spi.security.SecurityInterceptor
@@ -50,6 +52,14 @@ class SaTokenAutoConfiguration() : SaTokenInitPrinter {
         val impl = SaPermission(permissionService)
         printInit(StpInterface::class.java, log)
         return impl
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(AuditOperatorProvider::class)
+    fun auditOperatorProvider(): AuditOperatorProvider {
+        val provider = SaTokenAuditOperatorProvider()
+        printInit(SaTokenAuditOperatorProvider::class.java, log)
+        return provider
     }
 
     @Bean
