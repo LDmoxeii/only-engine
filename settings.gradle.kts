@@ -36,6 +36,22 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
+providers.gradleProperty("onlyEngine.cap4kCompositePath")
+    .orNull
+    ?.takeIf { it.isNotBlank() }
+    ?.let { cap4kPath ->
+        val cap4kDir = file(cap4kPath)
+        require(cap4kDir.isDirectory) {
+            "onlyEngine.cap4kCompositePath must point to a cap4k checkout: $cap4kPath"
+        }
+        includeBuild(cap4kDir) {
+            dependencySubstitution {
+                substitute(module("com.only4:cap4k-plugin-pipeline-api"))
+                    .using(project(":cap4k-plugin-pipeline-api"))
+            }
+        }
+    }
+
 // Include the `app` and `utils` subprojects in the build.
 // If there are changes in only one of the projects, Gradle will rebuild only the one that has changed.
 // Learn more about structuring projects with Gradle - https://docs.gradle.org/8.7/userguide/multi_project_builds.html

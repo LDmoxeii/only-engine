@@ -21,43 +21,33 @@ class OnlyEngineEnumTranslationAddonProvider : ArtifactAddonProvider {
             artifactLayout = artifactLayout,
             typeRegistry = context.config.typeRegistry,
         )
-        val localOwnerScopes = context.model.entities
-            .flatMap { entity ->
-                entity.fields.mapNotNull { field ->
-                    val typeBinding = field.typeBinding?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                    if (field.enumItems.isEmpty()) return@mapNotNull null
-                    LocalEnumKey(entity.packageName, typeBinding) to entity.tableName.lowercase(Locale.ROOT)
-                }
-            }
-            .toMap()
 
         return enumCatalog.allEnums.map { descriptor ->
-            descriptor.toPlanItem(context.config, artifactLayout, localOwnerScopes)
+            descriptor.toPlanItem(context.config, artifactLayout)
         }
     }
 
     private fun CanonicalEnumDescriptor.toPlanItem(
         config: ProjectConfig,
         artifactLayout: ArtifactLayoutResolver,
-        localOwnerScopes: Map<LocalEnumKey, String>,
     ): ArtifactPlanItem {
         val moduleRoot = config.modules["adapter"]
             ?: throw IllegalArgumentException(
                 "project.adapterModulePath is required when only-engine enum translation addon is installed."
             )
-        val ownerScope = if (shared) {
+        val resolvedOwnerScope = if (shared) {
             "shared"
         } else {
-            localOwnerScopes[LocalEnumKey(ownerPackageName.orEmpty(), typeName)]
+            ownerScope
                 ?: throw IllegalArgumentException("local enum translation owner scope is missing for $fqn")
         }
         val packageName = ArtifactLayoutResolver.joinPackage(
             config.basePackage,
             "adapter.domain.translation",
-            ownerScope,
+            resolvedOwnerScope,
         )
         val translationTypeName = "${typeName}Translation"
-        val typeKey = translationTypeKey(if (shared) "" else ownerScope, typeName)
+        val typeKey = translationTypeKey(if (shared) "" else resolvedOwnerScope, typeName)
         val translationTypeConst = "${typeKey.uppercase(Locale.ROOT)}_CODE_TO_DESC"
         val translationTypeValue = "${typeKey}_code_to_desc"
         val templateId = "addons/only-engine-enum-translation/aggregate/enum_translation.kt.peb"
@@ -81,11 +71,6 @@ class OnlyEngineEnumTranslationAddonProvider : ArtifactAddonProvider {
         )
     }
 }
-
-private data class LocalEnumKey(
-    val ownerPackageName: String,
-    val typeBinding: String,
-)
 
 private fun translationTypeKey(ownerScope: String, typeName: String): String {
     val scopedTypeName = if (ownerScope.isBlank()) typeName else "${ownerScope}_$typeName"
