@@ -7,9 +7,19 @@ dependencyResolutionManagement {
     // Use Maven Central as the default repository (where Gradle will download dependencies) in all subprojects.
     @Suppress("UnstableApiUsage")
     repositories {
+        if (providers.gradleProperty("onlyEngine.useMavenLocalCap4k").map(String::toBoolean).getOrElse(false)) {
+            mavenLocal()
+        }
         mavenCentral()
         maven {
             url = uri("https://maven.aliyun.com/repository/public")
+        }
+        maven {
+            credentials {
+                username = providers.gradleProperty("aliyun.maven.username").orNull ?: "defaultUsername"
+                password = providers.gradleProperty("aliyun.maven.password").orNull ?: "defaultPassword"
+            }
+            url = uri("https://packages.aliyun.com/67053c6149e9309ce56b9e9e/maven/cap4k")
         }
         maven {
             credentials {
@@ -43,5 +53,6 @@ include(":engine-translation")
 include(":engine-oss")
 include(":engine-sms")
 include(":engine-audit")
+include(":engine-cap4k-addon")
 
 rootProject.name = "only-engine"
