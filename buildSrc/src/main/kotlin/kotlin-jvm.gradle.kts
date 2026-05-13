@@ -29,16 +29,6 @@ publishing {
             version = project.version.toString()
         }
     }
-    repositories {
-        maven {
-            name = "AliYunMaven"
-            url = uri("https://packages.aliyun.com/67053c6149e9309ce56b9e9e/maven/only-engine")
-            credentials {
-                username = providers.gradleProperty("aliyun.maven.username").orNull ?: "defaultUsername"
-                password = providers.gradleProperty("aliyun.maven.password").orNull ?: "defaultPassword"
-            }
-        }
-    }
 }
 
 kotlin {
