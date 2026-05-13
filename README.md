@@ -1,5 +1,10 @@
 # only-engine
 
+[![CI](https://github.com/LDmoxeii/only-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/LDmoxeii/only-engine/actions/workflows/ci.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/LDmoxeii/only-engine)](https://github.com/LDmoxeii/only-engine/releases)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/LDmoxeii/only-engine/blob/master/LICENSE)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/LDmoxeii/only-engine)
+
 This project uses [Gradle](https://gradle.org/).
 To build and run the application, use the *Gradle* tool window by clicking the Gradle icon in the right-hand toolbar,
 or run it directly from the terminal:
