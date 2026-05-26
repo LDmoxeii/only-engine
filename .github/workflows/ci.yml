@@ -42,10 +42,6 @@ jobs:
       - name: Make Gradle wrappers executable
         run: chmod +x cap4k/gradlew only-engine/gradlew
 
-      - name: Publish cap4k snapshots to Maven local
-        working-directory: cap4k
-        run: ./gradlew publishToMavenLocal
-
       - name: Check
         working-directory: only-engine
-        run: ./gradlew check -PonlyEngine.useMavenLocalCap4k=true
+        run: ./gradlew check -PonlyEngine.cap4kCompositePath="$GITHUB_WORKSPACE/cap4k"
