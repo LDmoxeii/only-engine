@@ -76,8 +76,8 @@ class OnlyEngineEnumTranslationAddonProviderTest {
         val providers = ServiceLoader.load(ArtifactAddonProvider::class.java).toList()
 
         assertEquals(
-            listOf("only-engine-enum-translation"),
-            providers.map { it.id },
+            listOf("only-engine-enum-translation", "only-engine-validator"),
+            providers.map { it.id }.sorted(),
         )
     }
 
