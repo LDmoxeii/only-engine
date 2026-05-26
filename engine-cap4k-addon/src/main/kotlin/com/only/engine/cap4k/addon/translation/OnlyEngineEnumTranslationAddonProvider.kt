@@ -19,7 +19,7 @@ class OnlyEngineEnumTranslationAddonProvider : ArtifactAddonProvider {
         val enumCatalog = CanonicalEnumCatalog.from(
             model = context.model,
             artifactLayout = artifactLayout,
-            typeRegistry = context.config.typeRegistry,
+            typeRegistry = context.config.typeRegistry.entries,
         )
 
         return enumCatalog.allEnums.map { descriptor ->

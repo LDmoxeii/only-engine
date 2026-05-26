@@ -1,0 +1,38 @@
+package {{ packageName }}
+
+{{ use("jakarta.validation.Constraint") -}}
+{{ use("jakarta.validation.ConstraintValidator") -}}
+{{ use("jakarta.validation.ConstraintValidatorContext") -}}
+{{ use("jakarta.validation.Payload") -}}
+{{ use("kotlin.reflect.KClass") -}}
+{% for import in imports(imports) -%}
+import {{ import }}
+{% endfor %}
+
+@Target({% for target in targets %}AnnotationTarget.{{ target }}{% if not loop.last %}, {% endif %}{% endfor %})
+@Retention(AnnotationRetention.RUNTIME)
+@Constraint(validatedBy = [{{ annotationName }}.Validator::class])
+annotation class {{ annotationName }}(
+    val message: String = {{ message | json | raw }},
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = [],
+{%- for parameter in parameters %}
+    val {{ parameter.name }}: {{ parameter.type }}{% if parameter.defaultValue is not null %} = {{ parameter.defaultValue | raw }}{% endif %},
+{%- endfor %}
+) {
+    class Validator : ConstraintValidator<{{ annotationName }}, {{ valueType }}> {
+{%- for parameter in parameters %}
+        private var {{ parameter.name }}: {{ parameter.type }}{% if parameter.defaultValue is not null %} = {{ parameter.defaultValue | raw }}{% else %}? = null{% endif %}
+{%- endfor %}
+
+        override fun initialize(constraintAnnotation: {{ annotationName }}) {
+{%- for parameter in parameters %}
+            {{ parameter.name }} = constraintAnnotation.{{ parameter.name }}
+{%- endfor %}
+        }
+
+        override fun isValid(value: {{ valueType }}?, context: ConstraintValidatorContext): Boolean {
+            return true
+        }
+    }
+}
