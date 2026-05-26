@@ -18,6 +18,10 @@ class OnlyEngineValidatorAddonProvider : ArtifactAddonProvider {
         require(manifestFile.isNotBlank()) {
             "only-engine-validator requires option manifestFile"
         }
+        val manifestPath = Path.of(manifestFile)
+        require(manifestPath.isAbsolute) {
+            "only-engine-validator option manifestFile must be an absolute path"
+        }
 
         val config = context.config
         val moduleRoot = config.modules["application"]
@@ -25,11 +29,11 @@ class OnlyEngineValidatorAddonProvider : ArtifactAddonProvider {
                 "project.applicationModulePath is required when only-engine validator addon is installed."
             )
         val artifactLayout = ArtifactLayoutResolver(config.basePackage, config.artifactLayout)
-        val typeRegistry = config.validatorTypeRegistryFqns(context.model)
+        val typeResolver = config.validatorTypeResolver(context.model)
         val templateId = "addons/only-engine-validator/validator.kt.peb"
 
-        return ValidatorManifestParser.parse(Path.of(manifestFile)).map { entry ->
-            val renderModel = entry.toRenderModel(config, typeRegistry)
+        return ValidatorManifestParser.parse(manifestPath).map { entry ->
+            val renderModel = entry.toRenderModel(config, typeResolver)
             ArtifactPlanItem(
                 generatorId = id,
                 moduleRole = "application",
@@ -43,28 +47,35 @@ class OnlyEngineValidatorAddonProvider : ArtifactAddonProvider {
         }
     }
 
-    private fun ProjectConfig.validatorTypeRegistryFqns(model: CanonicalModel): Map<String, String> =
-        typeRegistryFqns() +
-            model.typeRegistry.entries.mapValues { it.value.fqn } +
-            model.strongIds.associate { strongId ->
-                strongId.typeName to "${strongId.packageName}.${strongId.typeName}"
-            }
+    private fun ProjectConfig.validatorTypeResolver(model: CanonicalModel): ValidatorTypeResolver {
+        val candidates = mutableListOf<Pair<String, String>>()
+        typeRegistryFqns().forEach { (name, fqn) -> candidates += name to fqn }
+        model.typeRegistry.entries.forEach { (name, entry) -> candidates += name to entry.fqn }
+        model.strongIds.forEach { strongId ->
+            candidates += strongId.typeName to "${strongId.packageName}.${strongId.typeName}"
+        }
+
+        val fqnsBySimpleName = candidates
+            .groupBy({ it.first }, { it.second })
+            .mapValues { it.value.toSet() }
+        return ValidatorTypeResolver(fqnsBySimpleName)
+    }
 
     private fun ValidatorManifestEntry.toRenderModel(
         config: ProjectConfig,
-        typeRegistry: Map<String, String>,
+        typeResolver: ValidatorTypeResolver,
     ): ValidatorRenderModel {
         val imports = linkedSetOf<String>()
-        val packageName = if (packageName.isFqn()) {
+        val packageName = if (packageName.isUnderBasePackage(config.basePackage)) {
             packageName
         } else {
             ArtifactLayoutResolver.joinPackage(config.basePackage, "application.validators", packageName)
         }
-        val renderedValueType = valueType.renderType(typeRegistry, imports)
+        val renderedValueType = valueType.renderType(typeResolver, imports)
         val renderedParameters = parameters.map { parameter ->
             mapOf(
                 "name" to parameter.name,
-                "type" to parameter.type.renderType(typeRegistry, imports),
+                "type" to parameter.type,
                 "defaultValue" to parameter.defaultValue,
             )
         }
@@ -128,22 +139,39 @@ private object ValidatorManifestParser {
         val entries = root as? List<*> ?: throw IllegalArgumentException("validator manifest must be a JSON array")
         return entries.mapIndexed { index, value ->
             val entry = value.asObject("entry[$index]")
+            val packageName = entry.requiredString("package", index)
+            validatePackageName(packageName, "validator manifest entry[$index].package")
+            val name = entry.requiredString("name", index)
+            validateKotlinIdentifier(name, "validator manifest entry[$index].name")
             ValidatorManifestEntry(
-                packageName = entry.requiredString("package", index),
-                name = entry.requiredString("name", index),
+                packageName = packageName,
+                name = name,
                 description = entry.optionalString("desc", index),
                 message = entry.requiredString("message", index),
                 targets = entry.requiredStringList("targets", index).also { targets ->
                     require(targets.isNotEmpty()) {
                         "validator manifest entry[$index].targets must be non-empty"
                     }
+                    targets.forEachIndexed { targetIndex, target ->
+                        require(target in supportedAnnotationTargets) {
+                            "validator manifest entry[$index].targets[$targetIndex] $target is not a supported AnnotationTarget"
+                        }
+                    }
                 },
-                valueType = entry.requiredString("valueType", index),
+                valueType = entry.requiredString("valueType", index).also { valueType ->
+                    validateBroadType(valueType, "validator manifest entry[$index].valueType")
+                },
                 parameters = entry.optionalObjectList("parameters", index).mapIndexed { parameterIndex, parameter ->
+                    val parameterName = parameter.requiredString("name", index, parameterIndex)
+                    validateKotlinIdentifier(parameterName, "validator manifest entry[$index].parameters[$parameterIndex].name")
+                    val parameterType = parameter.requiredString("type", index, parameterIndex)
+                    validateAnnotationParameterType(parameterType, index, parameterIndex)
+                    val defaultValue = parameter.optionalString("defaultValue", index, parameterIndex)
+                    validateAnnotationParameterDefault(defaultValue, parameterType, index, parameterIndex)
                     ValidatorManifestParameter(
-                        name = parameter.requiredString("name", index, parameterIndex),
-                        type = parameter.requiredString("type", index, parameterIndex),
-                        defaultValue = parameter.optionalString("defaultValue", index, parameterIndex),
+                        name = parameterName,
+                        type = parameterType,
+                        defaultValue = defaultValue,
                     )
                 },
             )
@@ -414,25 +442,97 @@ private val kotlinBuiltInTypeNames = setOf(
     "Unit",
 )
 
-private fun String.renderType(typeRegistry: Map<String, String>, imports: MutableSet<String>): String {
+private val supportedAnnotationParameterTypes = setOf(
+    "String",
+    "Boolean",
+    "Byte",
+    "Short",
+    "Int",
+    "Long",
+    "Float",
+    "Double",
+    "Char",
+)
+
+private val supportedAnnotationTargets = setOf(
+    "FIELD",
+    "VALUE_PARAMETER",
+    "PROPERTY",
+    "PROPERTY_GETTER",
+    "PROPERTY_SETTER",
+    "FUNCTION",
+    "CLASS",
+    "ANNOTATION_CLASS",
+    "CONSTRUCTOR",
+    "FILE",
+    "TYPE",
+    "TYPE_PARAMETER",
+    "EXPRESSION",
+    "LOCAL_VARIABLE",
+)
+
+private val kotlinHardKeywords = setOf(
+    "as",
+    "break",
+    "class",
+    "continue",
+    "do",
+    "else",
+    "false",
+    "for",
+    "fun",
+    "if",
+    "in",
+    "interface",
+    "is",
+    "null",
+    "object",
+    "package",
+    "return",
+    "super",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "typealias",
+    "typeof",
+    "val",
+    "var",
+    "when",
+    "while",
+)
+
+private class ValidatorTypeResolver(
+    private val fqnsBySimpleName: Map<String, Set<String>>,
+) {
+    fun resolve(simpleName: String): String? {
+        val fqns = fqnsBySimpleName[simpleName] ?: return null
+        require(fqns.size == 1) {
+            "Ambiguous validator type reference: $simpleName"
+        }
+        return fqns.single()
+    }
+}
+
+private fun String.renderType(typeResolver: ValidatorTypeResolver, imports: MutableSet<String>): String {
     val trimmed = trim()
     val nullable = trimmed.endsWith("?")
     val core = trimmed.removeSuffix("?")
     val genericStart = core.indexOf('<')
     val rendered = if (genericStart >= 0 && core.endsWith(">")) {
-        val root = core.substring(0, genericStart).renderType(typeRegistry, imports)
+        val root = core.substring(0, genericStart).renderType(typeResolver, imports)
         val arguments = splitGenericArguments(core.substring(genericStart + 1, core.length - 1))
-            .joinToString(", ") { it.renderType(typeRegistry, imports) }
+            .joinToString(", ") { it.renderType(typeResolver, imports) }
         "$root<$arguments>"
     } else {
-        renderSimpleType(core, typeRegistry, imports)
+        renderSimpleType(core, typeResolver, imports)
     }
     return if (nullable) "$rendered?" else rendered
 }
 
 private fun renderSimpleType(
     type: String,
-    typeRegistry: Map<String, String>,
+    typeResolver: ValidatorTypeResolver,
     imports: MutableSet<String>,
 ): String {
     val trimmed = type.trim()
@@ -443,7 +543,7 @@ private fun renderSimpleType(
         imports += trimmed
         return trimmed.substringAfterLast('.')
     }
-    val fqn = typeRegistry[trimmed]
+    val fqn = typeResolver.resolve(trimmed)
     if (fqn != null) {
         imports += fqn
     }
@@ -472,5 +572,169 @@ private fun splitGenericArguments(text: String): List<String> {
     return result.filter { it.isNotEmpty() }
 }
 
-private fun String.isFqn(): Boolean =
-    split('.').size > 2 && all { it == '.' || it == '_' || it.isLetterOrDigit() }
+private fun String.isUnderBasePackage(basePackage: String): Boolean =
+    this == basePackage || startsWith("$basePackage.")
+
+private fun validateAnnotationParameterType(
+    type: String,
+    entryIndex: Int,
+    parameterIndex: Int,
+) {
+    require(type.trim() == type && type in supportedAnnotationParameterTypes) {
+        "validator manifest entry[$entryIndex].parameters[$parameterIndex].type $type is not a supported annotation parameter type"
+    }
+}
+
+private fun validateAnnotationParameterDefault(
+    defaultValue: String?,
+    type: String,
+    entryIndex: Int,
+    parameterIndex: Int,
+) {
+    if (defaultValue == null) {
+        return
+    }
+
+    val isValid = when (type) {
+        "Boolean" -> defaultValue == "true" || defaultValue == "false"
+        "String" -> defaultValue.isKotlinStringLiteral()
+        "Char" -> defaultValue.isKotlinCharLiteral()
+        "Byte", "Short", "Int" -> intLiteralRegex.matches(defaultValue)
+        "Long" -> longLiteralRegex.matches(defaultValue)
+        "Float" -> floatLiteralRegex.matches(defaultValue)
+        "Double" -> doubleLiteralRegex.matches(defaultValue)
+        else -> false
+    }
+    require(isValid) {
+        "validator manifest entry[$entryIndex].parameters[$parameterIndex].defaultValue $defaultValue is not a valid $type literal"
+    }
+}
+
+private fun validateBroadType(type: String, label: String) {
+    val trimmed = type.trim()
+    require(trimmed == type && trimmed.isNotEmpty()) {
+        "$label must be a non-blank Kotlin type"
+    }
+    validateBroadTypeCore(trimmed.removeSuffix("?"), label)
+}
+
+private fun validateBroadTypeCore(type: String, label: String) {
+    val genericStart = type.indexOf('<')
+    if (genericStart >= 0) {
+        require(type.endsWith(">") && genericStart > 0) {
+            "$label $type is not a valid Kotlin type"
+        }
+        validateSimpleOrFqnType(type.substring(0, genericStart), label)
+        val arguments = splitGenericArguments(type.substring(genericStart + 1, type.length - 1))
+        require(arguments.isNotEmpty()) {
+            "$label $type is not a valid Kotlin type"
+        }
+        arguments.forEach { argument ->
+            validateBroadType(argument, label)
+        }
+        return
+    }
+    validateSimpleOrFqnType(type, label)
+}
+
+private fun validateSimpleOrFqnType(type: String, label: String) {
+    require(type.isNotBlank()) {
+        "$label must be a non-blank Kotlin type"
+    }
+    if (type.contains('.')) {
+        validatePackageName(type, label)
+    } else {
+        validateKotlinIdentifier(type, label)
+    }
+}
+
+private fun validatePackageName(packageName: String, label: String) {
+    val segments = packageName.split('.')
+    require(segments.all { it.isNotBlank() }) {
+        "$label must contain non-blank package segments"
+    }
+    segments.forEach { segment ->
+        validateKotlinIdentifier(segment, "$label segment $segment")
+    }
+}
+
+private fun validateKotlinIdentifier(value: String, label: String) {
+    require(kotlinIdentifierRegex.matches(value) && value !in kotlinHardKeywords) {
+        "$label is not a valid Kotlin identifier"
+    }
+}
+
+private fun String.isKotlinStringLiteral(): Boolean {
+    if (startsWith("\"\"\"") && endsWith("\"\"\"") && length >= 6) {
+        return '$' !in substring(3, length - 3)
+    }
+    if (!startsWith('"') || !endsWith('"') || length < 2) {
+        return false
+    }
+    return hasValidEscapedBody(1, length - 1, allowSinglePlainChar = false)
+}
+
+private fun String.isKotlinCharLiteral(): Boolean {
+    if (!startsWith('\'') || !endsWith('\'') || length < 3) {
+        return false
+    }
+    val bodyStart = 1
+    val bodyEnd = length - 1
+    if (this[bodyStart] != '\\') {
+        return bodyEnd - bodyStart == 1 && this[bodyStart] !in setOf('\'', '\r', '\n')
+    }
+    return hasValidEscapedBody(bodyStart, bodyEnd, allowSinglePlainChar = true)
+}
+
+private fun String.hasValidEscapedBody(
+    startIndex: Int,
+    endIndex: Int,
+    allowSinglePlainChar: Boolean,
+): Boolean {
+    var index = startIndex
+    var plainChars = 0
+    while (index < endIndex) {
+        val char = this[index]
+        if (char == '\r' || char == '\n') {
+            return false
+        }
+        if (char != '\\') {
+            if (char == '"' || char == '$') {
+                return false
+            }
+            plainChars++
+            index++
+            continue
+        }
+
+        if (index + 1 >= endIndex) {
+            return false
+        }
+        val escaped = this[index + 1]
+        index += if (escaped == 'u') {
+            if (index + 5 >= endIndex || !substring(index + 2, index + 6).all { it.isHexDigit() }) {
+                return false
+            }
+            6
+        } else {
+            if (escaped !in setOf('b', 't', 'n', 'r', '\'', '"', '\\', '$')) {
+                return false
+            }
+            2
+        }
+        plainChars++
+    }
+    return !allowSinglePlainChar || plainChars == 1
+}
+
+private fun Char.isHexDigit(): Boolean =
+    this in '0'..'9' || this in 'a'..'f' || this in 'A'..'F'
+
+private val kotlinIdentifierRegex = Regex("[A-Za-z_][A-Za-z0-9_]*")
+private val intLiteralRegex = Regex("""[-+]?(?:0|[1-9][0-9_]*)""")
+private val longLiteralRegex = Regex("""[-+]?(?:0|[1-9][0-9_]*)(?:[lL])?""")
+private val exponentPart = """(?:[eE][-+]?(?:0|[1-9][0-9_]*))"""
+private val floatBody =
+    """(?:(?:0|[1-9][0-9_]*)\.(?:[0-9][0-9_]*)?|\.(?:[0-9][0-9_]*)|(?:0|[1-9][0-9_]*)$exponentPart)"""
+private val floatLiteralRegex = Regex("""[-+]?(?:$floatBody|(?:0|[1-9][0-9_]*))[fF]""")
+private val doubleLiteralRegex = Regex("""[-+]?$floatBody""")

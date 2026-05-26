@@ -24,7 +24,7 @@ cap4k {
     cap4kAddon("com.only.engine:engine-cap4k-addon:<version>")
 
     addons.provider("only-engine-validator") {
-        option("manifestFile", "validation/validators.json")
+        option("manifestFile", layout.projectDirectory.file("validation/validators.json").asFile.absolutePath)
     }
 }
 ```
@@ -47,10 +47,30 @@ Validator manifest entries are JSON objects:
 ]
 ```
 
-If `package` is fully qualified, it is used as-is. Otherwise generated validators
-go under `<basePackage>.application.validators.<package>`. `valueType` and
-parameter `type` values may use Kotlin built-ins, fully qualified class names,
-registered type-registry simple names, or generated strong-id type names.
+`manifestFile` must be an absolute filesystem path because addon execution does
+not have a stable project root.
+
+If `package` is equal to `basePackage` or starts with `<basePackage>.`, it is
+used as-is. Otherwise generated validators go under
+`<basePackage>.application.validators.<package>`.
+
+`valueType` uses the broad validator type resolver. It may use Kotlin built-in
+types, fully qualified class names, cap4k project type-registry simple names,
+canonical model type-registry simple names, or generated strong-id type names.
+If the same simple name maps to multiple different FQNs, planning fails instead
+of silently choosing one.
+
+Annotation parameter `type` is intentionally narrower because Kotlin annotation
+properties only support a limited type set. The validator manifest currently
+supports only `String`, `Boolean`, `Byte`, `Short`, `Int`, `Long`, `Float`,
+`Double`, and `Char` for custom parameters. Value objects, strong IDs, FQNs,
+generic types, nullable types, `List`/`Map`/`Array`, and `KClass` are rejected at
+plan time. Parameter `defaultValue` is optional; when present it must be a valid
+literal for the declared scalar type.
+
+Generated validators are skeletons. `Validator.isValid` defaults to `true` and
+does not contain business validation logic; fill in the validation behavior by
+hand after generation.
 
 ## Same-Cycle Verification
 
