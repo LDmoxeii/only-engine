@@ -419,6 +419,168 @@ class OnlyEngineValidatorAddonProviderTest {
     }
 
     @Test
+    fun `duplicate annotation parameter names fail fast before rendering`() {
+        val provider = OnlyEngineValidatorAddonProvider()
+        val manifestFile = writeManifest(
+            """
+            [
+              {
+                "package": "author",
+                "name": "ValidAuthor",
+                "message": "author is invalid",
+                "targets": ["FIELD"],
+                "valueType": "String",
+                "parameters": [
+                  { "name": "minimumLength", "type": "Int" },
+                  { "name": "minimumLength", "type": "Int" }
+                ]
+              }
+            ]
+            """.trimIndent()
+        )
+
+        val error = assertThrows(IllegalArgumentException::class.java) {
+            provider.plan(context(options = mapOf("manifestFile" to manifestFile.toString())))
+        }
+
+        assertEquals(
+            "validator manifest entry[0].parameters[1].name minimumLength duplicates an earlier annotation parameter",
+            error.message,
+        )
+    }
+
+    @Test
+    fun `reserved annotation parameter names fail fast before rendering`() {
+        val provider = OnlyEngineValidatorAddonProvider()
+        val manifestFile = writeManifest(
+            """
+            [
+              {
+                "package": "author",
+                "name": "ValidAuthor",
+                "message": "author is invalid",
+                "targets": ["FIELD"],
+                "valueType": "String",
+                "parameters": [
+                  { "name": "message", "type": "String", "defaultValue": "\"author is invalid\"" }
+                ]
+              }
+            ]
+            """.trimIndent()
+        )
+
+        val error = assertThrows(IllegalArgumentException::class.java) {
+            provider.plan(context(options = mapOf("manifestFile" to manifestFile.toString())))
+        }
+
+        assertEquals(
+            "validator manifest entry[0].parameters[0].name message is reserved by the validator annotation template",
+            error.message,
+        )
+    }
+
+    @Test
+    fun `nullable value type fails fast because template adds nullability`() {
+        val provider = OnlyEngineValidatorAddonProvider()
+        val manifestFile = writeManifest(validManifest(valueType = "AuthorId?"))
+
+        val error = assertThrows(IllegalArgumentException::class.java) {
+            provider.plan(context(options = mapOf("manifestFile" to manifestFile.toString())))
+        }
+
+        assertEquals(
+            "validator manifest entry[0].valueType AuthorId? must be non-null because the validator template adds nullability",
+            error.message,
+        )
+    }
+
+    @Test
+    fun `numeric default values reject misplaced underscores`() {
+        val provider = OnlyEngineValidatorAddonProvider()
+        val manifestFile = writeManifest(
+            """
+            [
+              {
+                "package": "author",
+                "name": "ValidAuthor",
+                "message": "author is invalid",
+                "targets": ["FIELD"],
+                "valueType": "String",
+                "parameters": [
+                  { "name": "minimumLength", "type": "Int", "defaultValue": "1_" }
+                ]
+              }
+            ]
+            """.trimIndent()
+        )
+
+        val error = assertThrows(IllegalArgumentException::class.java) {
+            provider.plan(context(options = mapOf("manifestFile" to manifestFile.toString())))
+        }
+
+        assertEquals(
+            "validator manifest entry[0].parameters[0].defaultValue 1_ is not a valid Int literal",
+            error.message,
+        )
+    }
+
+    @Test
+    fun `integer default values reject values outside declared scalar range`() {
+        val provider = OnlyEngineValidatorAddonProvider()
+        val intManifest = writeManifest(
+            """
+            [
+              {
+                "package": "author",
+                "name": "ValidAuthor",
+                "message": "author is invalid",
+                "targets": ["FIELD"],
+                "valueType": "String",
+                "parameters": [
+                  { "name": "maximumLength", "type": "Int", "defaultValue": "2147483648" }
+                ]
+              }
+            ]
+            """.trimIndent()
+        )
+
+        val intError = assertThrows(IllegalArgumentException::class.java) {
+            provider.plan(context(options = mapOf("manifestFile" to intManifest.toString())))
+        }
+
+        assertEquals(
+            "validator manifest entry[0].parameters[0].defaultValue 2147483648 is not a valid Int literal",
+            intError.message,
+        )
+
+        val byteManifest = writeManifest(
+            """
+            [
+              {
+                "package": "author",
+                "name": "ValidAuthor",
+                "message": "author is invalid",
+                "targets": ["FIELD"],
+                "valueType": "String",
+                "parameters": [
+                  { "name": "maximumLength", "type": "Byte", "defaultValue": "128" }
+                ]
+              }
+            ]
+            """.trimIndent()
+        )
+
+        val byteError = assertThrows(IllegalArgumentException::class.java) {
+            provider.plan(context(options = mapOf("manifestFile" to byteManifest.toString())))
+        }
+
+        assertEquals(
+            "validator manifest entry[0].parameters[0].defaultValue 128 is not a valid Byte literal",
+            byteError.message,
+        )
+    }
+
+    @Test
     fun `template and provider context keep annotation parameters separate from validator value type`() {
         val provider = OnlyEngineValidatorAddonProvider()
         val manifestFile = writeManifest(

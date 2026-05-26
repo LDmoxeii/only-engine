@@ -7,6 +7,7 @@ import com.only4.cap4k.plugin.pipeline.api.ArtifactOutputKind
 import com.only4.cap4k.plugin.pipeline.api.ArtifactPlanItem
 import com.only4.cap4k.plugin.pipeline.api.CanonicalModel
 import com.only4.cap4k.plugin.pipeline.api.ProjectConfig
+import java.math.BigInteger
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -159,21 +160,29 @@ private object ValidatorManifestParser {
                     }
                 },
                 valueType = entry.requiredString("valueType", index).also { valueType ->
-                    validateBroadType(valueType, "validator manifest entry[$index].valueType")
+                    validateValidatorValueType(valueType, "validator manifest entry[$index].valueType")
                 },
-                parameters = entry.optionalObjectList("parameters", index).mapIndexed { parameterIndex, parameter ->
-                    val parameterName = parameter.requiredString("name", index, parameterIndex)
-                    validateKotlinIdentifier(parameterName, "validator manifest entry[$index].parameters[$parameterIndex].name")
-                    val parameterType = parameter.requiredString("type", index, parameterIndex)
-                    validateAnnotationParameterType(parameterType, index, parameterIndex)
-                    val defaultValue = parameter.optionalString("defaultValue", index, parameterIndex)
-                    validateAnnotationParameterDefault(defaultValue, parameterType, index, parameterIndex)
-                    ValidatorManifestParameter(
-                        name = parameterName,
-                        type = parameterType,
-                        defaultValue = defaultValue,
-                    )
-                },
+                parameters = entry.optionalObjectList("parameters", index)
+                    .mapIndexed { parameterIndex, parameter ->
+                        val parameterName = parameter.requiredString("name", index, parameterIndex)
+                        validateKotlinIdentifier(
+                            parameterName,
+                            "validator manifest entry[$index].parameters[$parameterIndex].name",
+                        )
+                        validateAnnotationParameterName(parameterName, index, parameterIndex)
+                        val parameterType = parameter.requiredString("type", index, parameterIndex)
+                        validateAnnotationParameterType(parameterType, index, parameterIndex)
+                        val defaultValue = parameter.optionalString("defaultValue", index, parameterIndex)
+                        validateAnnotationParameterDefault(defaultValue, parameterType, index, parameterIndex)
+                        ValidatorManifestParameter(
+                            name = parameterName,
+                            type = parameterType,
+                            defaultValue = defaultValue,
+                        )
+                    }
+                    .also { parameters ->
+                        validateDistinctAnnotationParameterNames(parameters, index)
+                    },
             )
         }
     }
@@ -454,6 +463,12 @@ private val supportedAnnotationParameterTypes = setOf(
     "Char",
 )
 
+private val reservedAnnotationParameterNames = setOf(
+    "message",
+    "groups",
+    "payload",
+)
+
 private val supportedAnnotationTargets = setOf(
     "FIELD",
     "VALUE_PARAMETER",
@@ -585,6 +600,28 @@ private fun validateAnnotationParameterType(
     }
 }
 
+private fun validateAnnotationParameterName(
+    name: String,
+    entryIndex: Int,
+    parameterIndex: Int,
+) {
+    require(name !in reservedAnnotationParameterNames) {
+        "validator manifest entry[$entryIndex].parameters[$parameterIndex].name $name is reserved by the validator annotation template"
+    }
+}
+
+private fun validateDistinctAnnotationParameterNames(
+    parameters: List<ValidatorManifestParameter>,
+    entryIndex: Int,
+) {
+    val seen = mutableSetOf<String>()
+    parameters.forEachIndexed { parameterIndex, parameter ->
+        require(seen.add(parameter.name)) {
+            "validator manifest entry[$entryIndex].parameters[$parameterIndex].name ${parameter.name} duplicates an earlier annotation parameter"
+        }
+    }
+}
+
 private fun validateAnnotationParameterDefault(
     defaultValue: String?,
     type: String,
@@ -599,8 +636,10 @@ private fun validateAnnotationParameterDefault(
         "Boolean" -> defaultValue == "true" || defaultValue == "false"
         "String" -> defaultValue.isKotlinStringLiteral()
         "Char" -> defaultValue.isKotlinCharLiteral()
-        "Byte", "Short", "Int" -> intLiteralRegex.matches(defaultValue)
-        "Long" -> longLiteralRegex.matches(defaultValue)
+        "Byte" -> defaultValue.isIntegerLiteralInRange(Byte.MIN_VALUE.toLong(), Byte.MAX_VALUE.toLong())
+        "Short" -> defaultValue.isIntegerLiteralInRange(Short.MIN_VALUE.toLong(), Short.MAX_VALUE.toLong())
+        "Int" -> defaultValue.isIntegerLiteralInRange(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong())
+        "Long" -> defaultValue.isIntegerLiteralInRange(Long.MIN_VALUE, Long.MAX_VALUE, allowLongSuffix = true)
         "Float" -> floatLiteralRegex.matches(defaultValue)
         "Double" -> doubleLiteralRegex.matches(defaultValue)
         else -> false
@@ -608,6 +647,14 @@ private fun validateAnnotationParameterDefault(
     require(isValid) {
         "validator manifest entry[$entryIndex].parameters[$parameterIndex].defaultValue $defaultValue is not a valid $type literal"
     }
+}
+
+private fun validateValidatorValueType(type: String, label: String) {
+    val trimmed = type.trim()
+    require(!trimmed.endsWith("?")) {
+        "$label $type must be non-null because the validator template adds nullability"
+    }
+    validateBroadType(type, label)
 }
 
 private fun validateBroadType(type: String, label: String) {
@@ -730,11 +777,32 @@ private fun String.hasValidEscapedBody(
 private fun Char.isHexDigit(): Boolean =
     this in '0'..'9' || this in 'a'..'f' || this in 'A'..'F'
 
+private fun String.isIntegerLiteralInRange(
+    min: Long,
+    max: Long,
+    allowLongSuffix: Boolean = false,
+): Boolean {
+    val regex = if (allowLongSuffix) longLiteralRegex else intLiteralRegex
+    if (!regex.matches(this)) {
+        return false
+    }
+
+    val body = if (allowLongSuffix && last() in setOf('l', 'L')) {
+        dropLast(1)
+    } else {
+        this
+    }
+    val value = body.replace("_", "").toBigIntegerOrNull() ?: return false
+    return value >= BigInteger.valueOf(min) && value <= BigInteger.valueOf(max)
+}
+
 private val kotlinIdentifierRegex = Regex("[A-Za-z_][A-Za-z0-9_]*")
-private val intLiteralRegex = Regex("""[-+]?(?:0|[1-9][0-9_]*)""")
-private val longLiteralRegex = Regex("""[-+]?(?:0|[1-9][0-9_]*)(?:[lL])?""")
-private val exponentPart = """(?:[eE][-+]?(?:0|[1-9][0-9_]*))"""
+private val unsignedIntegerLiteralPart = """(?:0|[1-9](?:_?[0-9])*)"""
+private val digitsLiteralPart = """[0-9](?:_?[0-9])*"""
+private val intLiteralRegex = Regex("""[-+]?$unsignedIntegerLiteralPart""")
+private val longLiteralRegex = Regex("""[-+]?$unsignedIntegerLiteralPart(?:[lL])?""")
+private val exponentPart = """(?:[eE][-+]?$digitsLiteralPart)"""
 private val floatBody =
-    """(?:(?:0|[1-9][0-9_]*)\.(?:[0-9][0-9_]*)?|\.(?:[0-9][0-9_]*)|(?:0|[1-9][0-9_]*)$exponentPart)"""
-private val floatLiteralRegex = Regex("""[-+]?(?:$floatBody|(?:0|[1-9][0-9_]*))[fF]""")
+    """(?:$unsignedIntegerLiteralPart\.(?:$digitsLiteralPart)?|\.$digitsLiteralPart|$unsignedIntegerLiteralPart$exponentPart)"""
+private val floatLiteralRegex = Regex("""[-+]?(?:$floatBody|$unsignedIntegerLiteralPart)[fF]""")
 private val doubleLiteralRegex = Regex("""[-+]?$floatBody""")

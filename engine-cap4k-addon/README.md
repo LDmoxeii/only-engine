@@ -57,16 +57,21 @@ used as-is. Otherwise generated validators go under
 `valueType` uses the broad validator type resolver. It may use Kotlin built-in
 types, fully qualified class names, cap4k project type-registry simple names,
 canonical model type-registry simple names, or generated strong-id type names.
-If the same simple name maps to multiple different FQNs, planning fails instead
-of silently choosing one.
+It must be non-null because the generated `Validator.isValid` signature adds
+nullability. If the same simple name maps to multiple different FQNs, planning
+fails instead of silently choosing one.
 
 Annotation parameter `type` is intentionally narrower because Kotlin annotation
 properties only support a limited type set. The validator manifest currently
 supports only `String`, `Boolean`, `Byte`, `Short`, `Int`, `Long`, `Float`,
 `Double`, and `Char` for custom parameters. Value objects, strong IDs, FQNs,
 generic types, nullable types, `List`/`Map`/`Array`, and `KClass` are rejected at
-plan time. Parameter `defaultValue` is optional; when present it must be a valid
-literal for the declared scalar type.
+plan time. Parameter names must be unique and cannot use Bean Validation
+reserved constructor property names: `message`, `groups`, or `payload`.
+Parameter `defaultValue` is optional; when present it must be a valid scalar
+literal for the declared type. Numeric underscores must appear only between
+digits, and `Byte`, `Short`, `Int`, and `Long` defaults must fit the declared
+type range.
 
 Generated validators are skeletons. `Validator.isValid` defaults to `true` and
 does not contain business validation logic; fill in the validation behavior by
